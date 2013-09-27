@@ -29,9 +29,8 @@ CREATE TABLE `stock_base_infos` (
   `stock_name` varchar(20) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
-  PRIMARY KEY (`pki_id`),
-  UNIQUE KEY `stock_no` (`stock_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`pki_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,4 +66,4 @@ CREATE TABLE `stock_daily_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-09-26 18:51:06
+-- Dump completed on 2013-09-26 18:54:51

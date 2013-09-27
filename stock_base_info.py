@@ -5,10 +5,10 @@ import urllib
 import datetime
 import os
 import BeautifulSoup
+from config import dbr,dbw,const_root_local
+import da
 
 const_root_url = 'http://app.finance.ifeng.com/list/stock.php?'
-const_root_local = '/Users/gaotianpu/Documents/stocks/'
-
 const_tmarkets = 'ha,sa,hb,sb,zxb,cyb,zs'
 
 def get_url(params):
@@ -17,7 +17,7 @@ def get_url(params):
 def get_local_file_name(params):
     fsegs = '_'.join(["%s-%s" % (k,v) for k,v in params.items()])
     local_file = datetime.datetime.now().strftime('%Y%m%d') + '_' + fsegs + '.html'
-    lfile = const_root_local + local_file
+    lfile = '%s/%s' %(const_root_local,local_file)
     return lfile
 
 def download(params):
@@ -48,20 +48,9 @@ def parse_html(lfile):
     
     return result 
     
-def download_all_stocks(func):
-    t_li = const_tmarkets.split(',')
-    for t in t_li:
-        for p in range(1,1000):
-            fname = download({'t':t,'p':p,'f':'symbol','o':'asc'})
-            results = parse_html(fname)
-            if len(results)<3:
-                print t + " finished " + str(p) 
-                break            
-            func(t,results)
 
 ####
-dbw = web.database(dbn='mysql', host='127.0.0.1', db='forecast', user='root', pw='root')
-dbr = web.database(dbn='mysql', host='127.0.0.1', db='forecast', user='root', pw='root')
+
 
 def import_to_db(t,results):
     stock_nos = load_all_stock_nos()
@@ -88,6 +77,19 @@ def load_all_stock_nos():
     results = dbr.select('stock_base_infos',what='stock_no')
     l = [r.stock_no for r in results]
     return l
+
+##########
+
+def download_all_stocks(func):
+    t_li = const_tmarkets.split(',')
+    for t in t_li:
+        for p in range(1,1000):
+            fname = download({'t':t,'p':p,'f':'symbol','o':'asc'})
+            results = parse_html(fname)
+            if len(results)<3:
+                print t + " finished " + str(p) 
+                break            
+            func(t,results)
 
 
 if __name__ == '__main__':
