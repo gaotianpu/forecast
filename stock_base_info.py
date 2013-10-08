@@ -7,16 +7,19 @@ import os
 import BeautifulSoup
 from config import dbr,dbw,const_root_local
 import da
+import browser
 
 const_root_url = 'http://app.finance.ifeng.com/list/stock.php?'
-const_tmarkets = 'ha,sa,hb,sb,zxb,cyb,zs'
+const_market_codes = 'ha,sa,hb,sb,zxb,cyb,zs'
 
 def get_url(params):
     return const_root_url + '&'.join(["%s=%s" % (k,v) for k,v in params.items()])
 
 def get_local_file_name(params):
+    return '%s/base/%s_%s.html' % (const_root_local,params['t'],params['p'])
+
     fsegs = '_'.join(["%s-%s" % (k,v) for k,v in params.items()])
-    local_file = datetime.datetime.now().strftime('%Y%m%d') + '_' + fsegs + '.html'
+    local_file = datetime.datetime.now().strftime('%Y%m%d') + '_' + fsegs + '.html'    
     lfile = '%s/%s' %(const_root_local,local_file)
     return lfile
 
@@ -25,7 +28,8 @@ def download(params):
     if not os.path.exists(lfile):
         url = get_url(params)
         print url
-        req = urllib.urlretrieve(url,lfile)  #try..catch ... logging?
+        browser.downad_and_save(url,lfile)
+        #req = urllib.urlretrieve(url,lfile)  #try..catch ... logging?
     print lfile
     return lfile
 
@@ -65,13 +69,10 @@ def import_to_db(t,results):
             row = {'market_code':t,'stock_no':r[0],'stock_name':r[1],'create_date':datetime.datetime.now(),'last_update':datetime.datetime.now()}
             print row
             l.append(row)
-        else:
-            print r[0]+' exist in db'
+    
 
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('stock_base_infos',l)
-
-
 
 def load_all_stock_nos():
     results = dbr.select('stock_base_infos',what='stock_no')
@@ -81,8 +82,8 @@ def load_all_stock_nos():
 ##########
 
 def download_all_stocks(func):
-    t_li = const_tmarkets.split(',')
-    for t in t_li:
+    market_code_li = const_market_codes.split(',')
+    for t in market_code_li:
         for p in range(1,1000):
             fname = download({'t':t,'p':p,'f':'symbol','o':'asc'})
             results = parse_html(fname)
