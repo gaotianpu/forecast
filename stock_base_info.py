@@ -16,10 +16,13 @@ def get_url(params):
     return const_root_url + '&'.join(["%s=%s" % (k,v) for k,v in params.items()])
 
 def get_local_file_name(params):
-    return '%s/base/%s_%s.html' % (const_root_local,params['t'],params['p'])
+    today_path = '%s/base_%s' % (const_root_local,params['date'].strftime('%Y%m%d'))
+    if not os.path.exists(today_path):
+        os.mkdir(today_path)
+    return '%s/%s_%s.html' % (today_path,params['t'],params['p'])
 
     fsegs = '_'.join(["%s-%s" % (k,v) for k,v in params.items()])
-    local_file = datetime.datetime.now().strftime('%Y%m%d') + '_' + fsegs + '.html'    
+    local_file = params['date'].strftime('%Y%m%d') + '_' + fsegs + '.html'    
     lfile = '%s/%s' %(const_root_local,local_file)
     return lfile
 
@@ -50,23 +53,18 @@ def parse_html(lfile):
           thetext = ''.join(thestrings)
           result[-1].append(thetext)
     
-    return result 
+    return [r for r in result if len(r)>4] 
     
 
 ####
 
 
-def import_to_db(t,results):
+def import_to_db(params,results):
     stock_nos = load_all_stock_nos()
     l = []
-    for r in results:
-        if len(r)<7:
-            print "len less 7 - " + str(r)
-            if len(r)>0 and u'下一页' not in r[0]:
-                print t+" finished"
-            continue
+    for r in results:        
         if r[0] not in stock_nos:
-            row = {'market_code':t,'stock_no':r[0],'stock_name':r[1],'create_date':datetime.datetime.now(),'last_update':datetime.datetime.now()}
+            row = {'market_code':params['t'],'stock_no':r[0],'stock_name':r[1],'create_date':datetime.datetime.now(),'last_update':datetime.datetime.now()}
             print row
             l.append(row)
     
@@ -81,18 +79,21 @@ def load_all_stock_nos():
 
 ##########
 
-def download_all_stocks(func):
+def download_all_stocks(str_date,func):
     market_code_li = const_market_codes.split(',')
     for t in market_code_li:
         for p in range(1,1000):
-            fname = download({'t':t,'p':p,'f':'symbol','o':'asc'})
+            params = {'t':t,'p':p,'f':'symbol','o':'asc','date':str_date}
+            fname = download(params)
             results = parse_html(fname)
-            if len(results)<3:
+            if not results:
                 print t + " finished " + str(p) 
                 break            
-            func(t,results)
+            func(params,results)
 
 
 if __name__ == '__main__':
-    download_all_stocks(import_to_db)
+    download_all_stocks(datetime.datetime.now(),import_to_db)
+    #print parse_html('/Users/gaotianpu/Documents/stocks/base_20131008/ha_20.html')
+    
 
