@@ -43,16 +43,19 @@ DROP TABLE IF EXISTS `stock_daily_records`;
 CREATE TABLE `stock_daily_records` (
   `pk_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `date` date DEFAULT NULL,
-  `stock_market_id` int(11) DEFAULT NULL,
-  `stock_id` int(11) DEFAULT NULL,
+  `stock_market_no` varchar(5) DEFAULT NULL,
+  `stock_no` varchar(10) DEFAULT NULL,
   `open_price` decimal(8,2) DEFAULT NULL,
   `high_price` decimal(8,2) DEFAULT NULL,
   `low_price` decimal(8,2) DEFAULT NULL,
   `close_price` decimal(8,2) DEFAULT NULL,
   `volume` int(11) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
   `adj_close` decimal(8,2) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
+  `raise_drop` decimal(8,2) DEFAULT NULL,
+  `raise_drop_rate` decimal(7,3) DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
