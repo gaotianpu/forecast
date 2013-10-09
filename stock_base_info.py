@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
-import urllib 
+import urllib
 import datetime
 import os
 import BeautifulSoup
 from config import dbr,dbw,const_root_local
-import da
 import browser
 
 const_root_url = 'http://app.finance.ifeng.com/list/stock.php?'
@@ -22,7 +21,7 @@ def get_local_file_name(params):
     return '%s/%s_%s.html' % (today_path,params['t'],params['p'])
 
     fsegs = '_'.join(["%s-%s" % (k,v) for k,v in params.items()])
-    local_file = params['date'].strftime('%Y%m%d') + '_' + fsegs + '.html'    
+    local_file = params['date'].strftime('%Y%m%d') + '_' + fsegs + '.html'
     lfile = '%s/%s' %(const_root_local,local_file)
     return lfile
 
@@ -39,9 +38,9 @@ def download(params):
 def parse_html(lfile):
     soup = BeautifulSoup.BeautifulSoup(open(lfile))
     tables =  soup.findAll('table')
-    
+
     if len(tables)<1:
-        return False 
+        return False
 
     result = []
     allrows = tables[0].findAll('tr')
@@ -52,9 +51,9 @@ def parse_html(lfile):
           thestrings = [unicode(s) for s in col.findAll(text=True)]
           thetext = ''.join(thestrings)
           result[-1].append(thetext)
-    
-    return [r for r in result if len(r)>4] 
-    
+
+    return [r for r in result if len(r)>4]
+
 
 ####
 
@@ -62,12 +61,12 @@ def parse_html(lfile):
 def import_to_db(params,results):
     stock_nos = load_all_stock_nos()
     l = []
-    for r in results:        
+    for r in results:
         if r[0] not in stock_nos:
             row = {'market_code':params['t'],'stock_no':r[0],'stock_name':r[1],'create_date':datetime.datetime.now(),'last_update':datetime.datetime.now()}
             print row
             l.append(row)
-    
+
 
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('stock_base_infos',l)
@@ -87,13 +86,13 @@ def download_all_stocks(str_date,func):
             fname = download(params)
             results = parse_html(fname)
             if not results:
-                print t + " finished " + str(p) 
-                break            
+                print t + " finished " + str(p)
+                break
             func(params,results)
 
 
 if __name__ == '__main__':
     download_all_stocks(datetime.datetime.now(),import_to_db)
     #print parse_html('/Users/gaotianpu/Documents/stocks/base_20131008/ha_20.html')
-    
+
 

@@ -6,10 +6,9 @@ import datetime
 from config import dbr,dbw,const_root_local
 import re
 
-import urllib 
+import urllib
 import os
 import BeautifulSoup
-import da
 import browser
 
 def get_int(str_input):
@@ -27,11 +26,11 @@ def load_records_by_date(params):
 ###
 
 def import_to_daily_records(params,results):
-    stock_nos = load_records_by_date(params)    
+    stock_nos = load_records_by_date(params)
     l = []
     for r in results:
-        if not stock_nos or r[0] not in stock_nos:  
-            #print get_int(r[5]), get_int(r[6])      
+        if not stock_nos or r[0] not in stock_nos:
+            #print get_int(r[5]), get_int(r[6])
             row = {'date':params['date'].strftime('%Y-%m-%d'),'stock_market_no':params['t'],
             'create_date':datetime.datetime.now(),'last_update':datetime.datetime.now(),
             'stock_no':r[0],
@@ -46,7 +45,7 @@ def import_to_daily_records(params,results):
             'high_price':r[10]
             }
             #print row
-            l.append(row)    
+            l.append(row)
 
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('stock_daily_records',l)
