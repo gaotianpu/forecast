@@ -35,7 +35,7 @@ def import_to_daily_records(params,results):
             'create_date':datetime.datetime.now(),'last_update':datetime.datetime.now(),
             'stock_no':r[0],
             'close_price':r[2], #?
-            'raise_drop_rate':r[3],
+            'raise_drop_rate':r[3].replace('%',''),
             'raise_drop':r[4],
             'volume':get_int(r[5])*100 , #r[5], 成交量
             'amount':get_int(r[6])*10000 , #r[6], 成交额
@@ -46,9 +46,11 @@ def import_to_daily_records(params,results):
             }
             #print row
             l.append(row)
-
-    dbw.supports_multiple_insert = True
-    dbw.multiple_insert('stock_daily_records',l)
+    try:
+        dbw.supports_multiple_insert = True
+        dbw.multiple_insert('stock_daily_records',l)
+    except Exception,e:
+        print e
 
 if __name__ == '__main__':
     download_all_stocks(datetime.datetime.now(),import_to_daily_records)
