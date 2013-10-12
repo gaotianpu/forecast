@@ -23,15 +23,15 @@ DROP TABLE IF EXISTS `stock_base_infos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `stock_base_infos` (
-  `pki_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pk_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `market_code_yahoo` varchar(5) DEFAULT NULL,
   `market_code` varchar(5) DEFAULT NULL,
   `stock_no` varchar(10) DEFAULT NULL,
   `stock_name` varchar(20) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
-  PRIMARY KEY (`pki_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`pk_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,15 +50,15 @@ CREATE TABLE `stock_daily_records` (
   `high_price` decimal(8,2) DEFAULT NULL,
   `low_price` decimal(8,2) DEFAULT NULL,
   `close_price` decimal(8,2) DEFAULT NULL,
-  `volume` int(11) DEFAULT NULL,
-  `amount` int(11) DEFAULT NULL,
+  `volume` bigint(11) DEFAULT NULL,
+  `amount` bigint(11) DEFAULT NULL,
   `adj_close` decimal(8,2) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
   `raise_drop` decimal(8,2) DEFAULT NULL,
   `raise_drop_rate` decimal(7,3) DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=759234 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -70,4 +70,4 @@ CREATE TABLE `stock_daily_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-12 15:40:24
+-- Dump completed on 2013-10-12 18:46:12
