@@ -67,7 +67,7 @@ def import_stock_daily_data(market_code,stock_no,data):
 ###
 def download_all(stocks):
     for s in stocks:
-        if int(s.stock_no) < 600602: continue #tmp
+        #if int(s.stock_no) != 600602: continue
         scode = '%s.%s' % (s.stock_no,s.market_code_yahoo)
         #params={'s':scode}
         params={'s':scode,'a':'00','b':'01','c':2013,'d':'9','e':'01','f':'2013','g':'d'}
@@ -81,7 +81,7 @@ def download_all(stocks):
             data = parse_data(lfile)
             import_stock_daily_data(s.market_code,s.stock_no,data)
         except Exception,e:
-            loger.error(" except " + url + str(e) )
+            loger.error(url + " " + str(e) )
 
 
 def load_failed_stock():
@@ -99,6 +99,7 @@ def test_one_stock():
     import_stock_daily_data('sa','600000',data)
 
 if __name__ == '__main__':
+    #load_all_stocks()
     download_all(load_all_stocks())
     #stocks = load_failed_stock()
     #download_all(stocks)
