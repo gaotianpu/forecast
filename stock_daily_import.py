@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
-from  stock_base_info import download_all_stocks
+import stock_base_info 
+#from  stock_base_info import download_all_stocks
 import datetime
-from config import dbr,dbw,const_root_local
+from config import dbr,dbw,const_root_local,init_log
 import re
 
 import urllib
 import os
 import BeautifulSoup
 import browser
+
+loger = init_log("stock_daily_import")
 
 def get_int(str_input):
     reg = re.compile("([\d]+)")
@@ -51,7 +54,10 @@ def import_to_daily_records(params,results):
         dbw.multiple_insert('stock_daily_records',l)
     except Exception,e:
         print e
+        loger.error(e)
+        
 
 if __name__ == '__main__':
-    download_all_stocks(datetime.datetime.now(),import_to_daily_records)
+    stock_base_info.loger = loger
+    stock_base_info.download_all_stocks(datetime.datetime.now(),import_to_daily_records,loger)
     #print load_records_by_date(datetime.datetime.now().strftime('%Y-%m-%d'))

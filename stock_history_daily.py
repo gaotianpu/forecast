@@ -7,11 +7,14 @@ import random
 import datetime
 import os
 import csv
-from config import dbr,dbw,const_root_local
+from config import dbr,dbw,const_root_local,init_log
 import da
 import browser
 
 #doc:http://blog.t41.cn/index.php/archives/254 
+#http://table.finance.yahoo.com/table.csv?s=000001.sz
+
+
 
 const_root_url = "http://ichart.yahoo.com/table.csv?"
 params={'s':'600000.SS','a':'00','b':'01','c':2013,'d':'09','e':'01','f':'2013','g':'d'}

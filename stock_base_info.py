@@ -5,11 +5,13 @@ import urllib
 import datetime
 import os
 import BeautifulSoup
-from config import dbr,dbw,const_root_local
+from config import dbr,dbw,const_root_local,init_log
 import browser
 
 const_root_url = 'http://app.finance.ifeng.com/list/stock.php?'
 const_market_codes = 'ha,sa,hb,sb,zxb,cyb,zs'
+
+loger = init_log("stock_base_infos")
 
 def get_url(params):
     return const_root_url + '&'.join(["%s=%s" % (k,v) for k,v in params.items()])
@@ -26,10 +28,12 @@ def get_local_file_name(params):
     return lfile
 
 def download(params):
+    print get_url(params)
     lfile = get_local_file_name(params)
     if not os.path.exists(lfile):
         url = get_url(params)
         print url
+        loger.info(url)
         browser.downad_and_save(url,lfile)
         #req = urllib.urlretrieve(url,lfile)  #try..catch ... logging?
     print lfile
@@ -78,7 +82,7 @@ def load_all_stock_nos():
 
 ##########
 
-def download_all_stocks(str_date,func):
+def download_all_stocks(str_date,func,loger):
     market_code_li = const_market_codes.split(',')
     for t in market_code_li:
         for p in range(1,1000):
@@ -92,7 +96,7 @@ def download_all_stocks(str_date,func):
 
 
 if __name__ == '__main__':
-    download_all_stocks(datetime.datetime.now(),import_to_db)
+    download_all_stocks(datetime.datetime.now(),import_to_db,loger)
     #print parse_html('/Users/gaotianpu/Documents/stocks/base_20131008/ha_20.html')
 
 
