@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS `stock_base_infos`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `stock_base_infos` (
   `pki_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `market_code_yahoo` varchar(5) DEFAULT NULL,
   `market_code` varchar(5) DEFAULT NULL,
   `stock_no` varchar(10) DEFAULT NULL,
   `stock_name` varchar(20) DEFAULT NULL,
@@ -69,4 +70,4 @@ CREATE TABLE `stock_daily_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-09-26 18:54:51
+-- Dump completed on 2013-10-12 15:40:24
