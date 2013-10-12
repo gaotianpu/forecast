@@ -1,4 +1,4 @@
-python "stock_daily_import.py"
+python "stock_base_info.py"
 
 pause
 del "%0"

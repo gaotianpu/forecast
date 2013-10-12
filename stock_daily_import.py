@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
-import stock_base_info 
+import stock_base_info
 #from  stock_base_info import download_all_stocks
 import datetime
 from config import dbr,dbw,const_root_local,init_log
@@ -55,9 +55,10 @@ def import_to_daily_records(params,results):
     except Exception,e:
         print e
         loger.error(e)
-        
+
 
 if __name__ == '__main__':
-    stock_base_info.loger = loger
-    stock_base_info.download_all_stocks(datetime.datetime.now(),import_to_daily_records,loger)
+    pass
+    #stock_base_info.loger = loger
+    #stock_base_info.download_all_stocks(datetime.datetime.now(),import_to_daily_records,loger)
     #print load_records_by_date(datetime.datetime.now().strftime('%Y-%m-%d'))
