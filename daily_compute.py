@@ -3,8 +3,10 @@
 import web
 from config import dbr,dbw,const_root_local,init_log
 
+loger = init_log("daily_compute")
+
 def get_all_stocknos():
-    sql="select distinct stock_no from stock_daily_records"
+    sql="select distinct stock_no from stock_daily_records order by stock_no"
     r = dbr.query(sql)
     return list(r)
 
@@ -21,17 +23,17 @@ def update(stock_no,date,raise_drop,raise_drop_rate,volume_updown,volume_updown_
 
 def compute_rate(stock_no):
     stocks = get_stock_daily_infos(stock_no)
-    stocks_len = len(stocks) 
-    for stock in stocks:        
+    stocks_len = len(stocks)
+    for stock in stocks:
         i = stocks.index(stock)
         if i == (stocks_len-1):
             break
-        pre_date_stock =  stocks[i+1]       
+        pre_date_stock =  stocks[i+1]
         raise_drop = stock.close_price - pre_date_stock.close_price
-        raise_drop_rate = raise_drop / pre_date_stock.close_price * 100 
+        raise_drop_rate = raise_drop / pre_date_stock.close_price * 100
 
         volume_updown = stock.volume - pre_date_stock.volume
-        volume_updown_rate =   float(volume_updown) / pre_date_stock.volume * 100 
+        volume_updown_rate =   float(volume_updown) / pre_date_stock.volume * 100
 
         update(stock.stock_no,stock.date,raise_drop,raise_drop_rate,volume_updown,volume_updown_rate)
 
@@ -40,10 +42,14 @@ def compute_rate(stock_no):
 
 def run():
     stocknos = get_all_stocknos()
-    for stock_no in stocknos:
-        compute_rate(stock_no)
+    for stock in stocknos:
+        try:
+            compute_rate(stock.stock_no)
+        except Exception,e:
+            print e
+            loger.error(stock.stock_no + " exception " + str(e))
 
 
 if __name__ == "__main__":
-    compute_rate('600000')
-    #run()
+    #compute_rate('600000')
+    run()
