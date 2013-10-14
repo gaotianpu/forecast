@@ -33,6 +33,29 @@ def update_date_sum(date,data,plate=0):
         volumn_up_percent = data.volumn_up_percent,
         where="date=$date and plate=$plate",vars=locals())
 
+def load_dates(plate=0):
+    return [r.date for r in dbr.select('date_sum_infos',what="distinct date",where="plate=$plate",vars=locals())]
+
+def insert_dates():
+    pass
+
+def update_date_sum_v2(plate=0):
+    sql='''update date_sum_infos a,
+    (SELECT date,'%s' as plate, count(pk_id) as count FROM stock_daily_records WHERE raise_drop is not null and raise_drop>0 GROUP BY date) as b
+    set a.price_up_count=b.count
+    where a.date=b.date and a.plate=b.plate;''' % (plate)
+    dbw.query(sql)
+
+    sql='''update date_sum_infos a,
+    (SELECT date,'%s' as plate, count(pk_id) as count FROM stock_daily_records WHERE volume_updown_rate is not null and volume_updown_rate>0 GROUP BY date) as b
+    set a.volumn_up_count=b.count
+    where a.date=b.date and a.plate=b.plate;''' % (plate)
+    dbw.query(sql)
+
+    sql='''update date_sum_infos set price_up_percent = price_up_count/total_count,volumn_up_percent=volumn_up_count/total_count;'''
+    dbw.query(sql)
+    
+
 def run():
     dates = load_all_dates()
     for d in dates:        
@@ -43,5 +66,6 @@ def run():
         update_date_sum(d.date,data)
 
 if __name__ == "__main__":
-    run() 
+    update_date_sum_v2()
+    #run() 
         
