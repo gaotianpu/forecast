@@ -31,7 +31,7 @@ CREATE TABLE `stock_base_infos` (
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,8 +57,14 @@ CREATE TABLE `stock_daily_records` (
   `last_update` datetime DEFAULT NULL,
   `raise_drop` decimal(8,2) DEFAULT NULL,
   `raise_drop_rate` decimal(7,3) DEFAULT NULL,
-  PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=759234 DEFAULT CHARSET=utf8;
+  `is_traday` int(11) DEFAULT NULL,
+  `volume_updown` bigint(11) DEFAULT NULL,
+  `volume_updown_rate` decimal(7,3) DEFAULT NULL,
+  PRIMARY KEY (`pk_id`),
+  KEY `date_idx` (`date`),
+  KEY `stock_no_idx` (`stock_no`),
+  KEY `volume_idx` (`volume`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -70,4 +76,4 @@ CREATE TABLE `stock_daily_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-12 18:46:12
+-- Dump completed on 2013-10-14 14:03:14
