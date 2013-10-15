@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import web
 from config import dbr,dbw,const_root_local,init_log
+import datetime
 
 loger = init_log("daily_compute")
 
@@ -21,7 +22,21 @@ def update(stock_no,date,raise_drop,raise_drop_rate,volume_updown,volume_updown_
         volume_updown_rate = volume_updown_rate,
         where="stock_no=$stock_no and date=$date",vars=locals())
 
+def update_v2(l):
+    dbw.delete('stock_daily_records_tmp',where="pk_id>0",vars=locals())
+    dbw.supports_multiple_insert = True
+    dbw.multiple_insert('stock_daily_records_tmp',l)
+    dbw.query('''update stock_daily_records a,stock_daily_records_tmp t set
+        a.raise_drop=t.raise_drop,
+        a.raise_drop_rate=t.raise_drop_rate,
+        a.volume_updown=t.volume_updown,
+        a.volume_updown_rate=t.volume_updown_rate,
+        a.last_update = t.last_update
+        where a.pk_id=t.pk_id''')
+
+
 def compute_rate(stock_no):
+    l = []
     stocks = get_stock_daily_infos(stock_no)
     stocks_len = len(stocks)
     for stock in stocks:
@@ -31,18 +46,22 @@ def compute_rate(stock_no):
         pre_date_stock =  stocks[i+1]
         raise_drop = stock.close_price - pre_date_stock.close_price
         raise_drop_rate = raise_drop / pre_date_stock.close_price * 100
-
         volume_updown = stock.volume - pre_date_stock.volume
-        volume_updown_rate =   float(volume_updown) / pre_date_stock.volume * 100
+        volume_updown_rate = float(volume_updown) / pre_date_stock.volume * 100
 
-        update(stock.stock_no,stock.date,raise_drop,raise_drop_rate,volume_updown,volume_updown_rate)
+        l.append(web.storage(pk_id=stock.pk_id,raise_drop=raise_drop,raise_drop_rate=raise_drop_rate,
+            volume_updown=volume_updown,volume_updown_rate=volume_updown_rate,
+            last_update=datetime.datetime.now()))
+    try:
+        update_v2(l)
+    except Exception,e:
+        loger.error(stock_no + " " + str(e) )
 
-        #print i,stock.date, stock.raise_drop, stock.raise_drop_rate, stock.volume, pre_date_stock.volume,stock.volume_updown, stock.volume_updown_rate
-    print stocks_len
 
 def run():
     stocknos = get_all_stocknos()
     for stock in stocknos:
+        continue
         try:
             compute_rate(stock.stock_no)
         except Exception,e:
@@ -51,5 +70,18 @@ def run():
 
 
 if __name__ == "__main__":
-    #compute_rate('600000')
+    #compute_rate('300001')
     run()
+
+'''
+CREATE TABLE `stock_daily_records_tmp` (
+  `pk_id` int(11) unsigned NOT NULL,
+  `raise_drop` decimal(8,2) DEFAULT NULL,
+  `raise_drop_rate` decimal(7,3) DEFAULT NULL,
+  `volume_updown` bigint(11) DEFAULT NULL,
+  `volume_updown_rate` decimal(11,3) DEFAULT NULL,
+  `last_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`pk_id`)
+) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+'''
+

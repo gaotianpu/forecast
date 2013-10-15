@@ -28,7 +28,7 @@ def parse_data(lfile):
             if date == 'Date':
                 continue
             l.append({'date':date,'open_price':openp,'high_price':highp,
-                'low_price':lowp,'close_price':closep,'volume':volume,'adj_close':adjclose})
+                'low_price':lowp,'close_price':closep,'volume':int(volume)/100,'adj_close':adjclose})
     return l
 
 ##database operations
@@ -36,6 +36,7 @@ def load_all_stocks():
     return list(dbr.select('stock_base_infos',
         what='stock_no,market_code,market_code_yahoo',
         where="market_code_yahoo in ('ss','sz')",
+        #offset=0,limit=1,
         order="market_code,stock_no"))
 
 def load_stock_dates(stock_no):
@@ -66,13 +67,15 @@ def import_stock_daily_data(market_code,stock_no,data):
 
 ###
 def download_all(stocks):
+    print "stocks count %s" % (len(stocks))
     for s in stocks:
-        #if int(s.stock_no) != 600602: continue
         scode = '%s.%s' % (s.stock_no,s.market_code_yahoo)
         #params={'s':scode}
         params={'s':scode,'a':'00','b':'01','c':2013,'d':'9','e':'01','f':'2013','g':'d'}
         lfile = get_local_file_name(params)
         url = get_url(params)
+        #print lfile
+        #print url
         try:
             if not os.path.exists(lfile):
                 print url
@@ -99,8 +102,11 @@ def test_one_stock():
     import_stock_daily_data('sa','600000',data)
 
 if __name__ == '__main__':
-    #load_all_stocks()
     download_all(load_all_stocks())
+
+    #load_all_stocks()
+
+
     #stocks = load_failed_stock()
     #download_all(stocks)
 

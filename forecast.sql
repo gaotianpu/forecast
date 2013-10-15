@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: forecast
 -- ------------------------------------------------------
--- Server version	5.5.27
+-- Server version   5.5.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -83,7 +83,7 @@ CREATE TABLE `stock_daily_records` (
   `raise_drop_rate` decimal(7,3) DEFAULT NULL,
   `is_traday` int(11) DEFAULT NULL,
   `volume_updown` bigint(11) DEFAULT NULL,
-  `volume_updown_rate` decimal(7,3) DEFAULT NULL,
+  `volume_updown_rate` decimal(30,2) DEFAULT NULL,
   PRIMARY KEY (`pk_id`),
   KEY `date_idx` (`date`),
   KEY `volume_idx` (`volume`),
@@ -170,5 +170,17 @@ CREATE TABLE `trading_records` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
+DROP TABLE IF EXISTS `stock_daily_records_tmp`;
+CREATE TABLE `stock_daily_records_tmp` (
+  `pk_id` int(11) unsigned NOT NULL,
+  `raise_drop` decimal(8,2) DEFAULT NULL,
+  `raise_drop_rate` decimal(7,3) DEFAULT NULL,
+  `volume_updown` bigint(11) DEFAULT NULL,
+  `volume_updown_rate` decimal(11,3) DEFAULT NULL,
+  `last_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`pk_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dump completed on 2013-10-15 10:52:07
