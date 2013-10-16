@@ -61,7 +61,6 @@ def compute_rate(stock_no):
 def run():
     stocknos = get_all_stocknos()
     for stock in stocknos:
-        continue
         try:
             compute_rate(stock.stock_no)
         except Exception,e:
@@ -70,7 +69,6 @@ def run():
 
 
 if __name__ == "__main__":
-    #compute_rate('300001')
     run()
 
 '''
