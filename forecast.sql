@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: forecast
 -- ------------------------------------------------------
--- Server version	5.5.27
+-- Server version   5.5.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -161,7 +161,7 @@ CREATE TABLE `trading_records` (
   KEY `strategy_id_idx` (`strategy_id`),
   KEY `trade_batch_no` (`strategy_batch_no`),
   KEY `date_idx` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=6027 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -182,7 +182,7 @@ CREATE TABLE `trading_strategies` (
   `min_earn_rate` decimal(8,2) DEFAULT NULL,
   `avg_earn_rate` decimal(8,2) DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
