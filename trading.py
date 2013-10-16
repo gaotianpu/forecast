@@ -2,49 +2,51 @@
 # -*- coding: utf-8 -*-
 import web
 from config import dbr,dbw,const_root_local,init_log
+from datetime import datetime,date,timedelta
+
 import random
 
 
-def buy_sell(strategy_id=1,strategy_batch_no=1,stock,hold_days,buy_time='open',sell_time='close',hands=10):
-   
-
-    next_day_stock = load_next_day_stock(stock.stock_no,stock.date,hold_days)
-    #strategy_id,strategy_batch_no,date,stock_no,open_or_close,-price,earnings,earn_rate 
-    #strategy_id,strategy_batch_no,date,stock_no,open_or_close,+price,earnings,earn_rate
-    dbw.insert('trading_records',
-        strategy_id=strategy_id,
-        strategy_batch_no=strategy_batch_no,
-        stock_no=stock.stock_no,
-        date = stock.date,
-        open_or_close=buy_time,
-        price=(0-price),
-        earnings=earnings,earn_rate=earn_rate)
-
-    #date, load stocks by rules
-    #random choice one 
-    #open or close price ?
-    #trade_batch_no
-    #insert tradding_records
-
-    #hold days
-    #get that day stock
-    #open or close price 
-    #insert tradding_records
-
-    #how much 
-
-
-
-def load_stocks(date):
-    return list(dbr.select('stock_daily_records',where="date=$date",offset=0,limit=10,vars=locals()))
-
-def load_next_day_stock(stock_no,date,hold_days):
+def load_dates_stock(stock_no,buy_date,hold_days):    
     r = dbr.select('stock_daily_records',
-        where="stock_no=$stock_no and volume>0 and date>$date",
-        order="date desc",
-        offset=0,limit=hold_days,
-        vars=locals())
-    return r[0]
+        where="stock_no=$stock_no and volume>0 and date>=$buy_date", offset=0,limit=hold_days+1,order="date asc", vars=locals())
+    return list(r)
+
+def buy_and_sell(strategy_id,strategy_batch_no,stock_no,buy_date,hold_days,buy_price='open_price',sell_price='open_price',trade_hands=100):
+    stocks = load_dates_stock(stock_no,buy_date,hold_days)    
+    buy_stock = stocks[0]
+    sell_stock = stocks[-1]
+    print buy_stock
+
+    earnings = ( sell_stock[sell_price] - buy_stock[buy_price] )*  trade_hands
+    earnings_rate = ( sell_stock[sell_price] - buy_stock[buy_price] )/ buy_stock[buy_price] * 100 
+
+    dbw.insert('trading_records',
+        strategy_id = strategy_id,
+        strategy_batch_no = strategy_batch_no,
+        buy_or_sell = 0,
+        stock_no = buy_stock.stock_no,
+        date = buy_stock.date,
+        open_or_close = buy_price,
+        price = buy_stock[buy_price],
+        input_output = 0 - buy_stock[buy_price] * trade_hands,
+        earnings=earnings,earn_rate=earnings_rate,
+        create_date=web.SQLLiteral('now()'))
+
+    dbw.insert('trading_records',
+        strategy_id = strategy_id,
+        strategy_batch_no = strategy_batch_no,
+        stock_no = sell_stock.stock_no,
+        buy_or_sell = 1,
+        date = sell_stock.date,
+        open_or_close = sell_price,
+        price = sell_stock[sell_price],
+        input_output =  sell_stock[sell_price] * trade_hands,
+        earnings = earnings, earn_rate=earnings_rate,
+        create_date=web.SQLLiteral('now()'))
+
+##################################
+
 
 def run(strategy,stocks,hold_days=1):    
     stocks_count = len(stocks) 
@@ -57,5 +59,6 @@ def run(strategy,stocks,hold_days=1):
 
 
 if __name__ == "__main__":
-    print random.randrange(1000)
+    buy_and_sell(1,1,600000,'2013-09-23',1)
+    #print random.randrange(1000)
     #run(filter_stocks_func,strategy,date)

@@ -14,3 +14,6 @@ def run():
 
 if __name__ == "__main__":
     run()
+
+
+# mysqldump -uroot -proot -d forecast >  forecast.sql
