@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: forecast
 -- ------------------------------------------------------
--- Server version   5.5.27
+-- Server version	5.5.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -55,7 +55,7 @@ CREATE TABLE `stock_base_infos` (
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,12 +83,12 @@ CREATE TABLE `stock_daily_records` (
   `raise_drop_rate` decimal(7,3) DEFAULT NULL,
   `is_traday` int(11) DEFAULT NULL,
   `volume_updown` bigint(11) DEFAULT NULL,
-  `volume_updown_rate` decimal(30,2) DEFAULT NULL,
+  `volume_updown_rate` decimal(7,3) DEFAULT NULL,
   PRIMARY KEY (`pk_id`),
   KEY `date_idx` (`date`),
   KEY `volume_idx` (`volume`),
   KEY `stock_no_idx` (`stock_no`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=759234 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -144,18 +144,17 @@ DROP TABLE IF EXISTS `trading_records`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `trading_records` (
-  `pk_id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `strategy_id` int(11) DEFAULT NULL,
   `strategy_batch_no` int(11) DEFAULT NULL,
+  `buy_or_sell` int(11) DEFAULT NULL,
   `date` date DEFAULT NULL,
   `stock_no` varchar(11) DEFAULT NULL,
-  `open_or_close` int(11) DEFAULT NULL,
+  `open_or_close` varchar(11) DEFAULT NULL,
   `price` decimal(8,2) DEFAULT NULL,
+  `input_output` decimal(8,2) DEFAULT NULL,
   `earnings` int(11) DEFAULT NULL,
-  `earn_rate` int(11) DEFAULT NULL,
+  `earn_rate` float DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
-  `last_update` datetime DEFAULT NULL,
-  PRIMARY KEY (`pk_id`),
   KEY `strategy_id_idx` (`strategy_id`),
   KEY `trade_batch_no` (`strategy_batch_no`),
   KEY `date_idx` (`date`)
@@ -171,16 +170,4 @@ CREATE TABLE `trading_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-
-DROP TABLE IF EXISTS `stock_daily_records_tmp`;
-CREATE TABLE `stock_daily_records_tmp` (
-  `pk_id` int(11) unsigned NOT NULL,
-  `raise_drop` decimal(8,2) DEFAULT NULL,
-  `raise_drop_rate` decimal(7,3) DEFAULT NULL,
-  `volume_updown` bigint(11) DEFAULT NULL,
-  `volume_updown_rate` decimal(11,3) DEFAULT NULL,
-  `last_update` datetime DEFAULT NULL,
-  PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dump completed on 2013-10-15 10:52:07
+-- Dump completed on 2013-10-16 12:31:54
