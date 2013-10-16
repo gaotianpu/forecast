@@ -161,7 +161,28 @@ CREATE TABLE `trading_records` (
   KEY `strategy_id_idx` (`strategy_id`),
   KEY `trade_batch_no` (`strategy_batch_no`),
   KEY `date_idx` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6027 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `trading_strategies`
+--
+
+DROP TABLE IF EXISTS `trading_strategies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trading_strategies` (
+  `pk_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(11) DEFAULT NULL,
+  `description` varchar(1000) DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL,
+  `last_update` timestamp NULL DEFAULT NULL,
+  `trade_count` int(11) DEFAULT NULL,
+  `max_earn_rate` decimal(8,2) DEFAULT NULL,
+  `min_earn_rate` decimal(8,2) DEFAULT NULL,
+  `avg_earn_rate` decimal(8,2) DEFAULT NULL,
+  PRIMARY KEY (`pk_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -173,4 +194,4 @@ CREATE TABLE `trading_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-16 15:42:38
+-- Dump completed on 2013-10-16 19:21:32
