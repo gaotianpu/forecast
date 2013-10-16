@@ -144,6 +144,7 @@ DROP TABLE IF EXISTS `trading_records`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `trading_records` (
+  `pk_id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
   `strategy_id` int(11) DEFAULT NULL,
   `strategy_batch_no` int(11) DEFAULT NULL,
   `buy_or_sell` int(11) DEFAULT NULL,
@@ -151,14 +152,16 @@ CREATE TABLE `trading_records` (
   `stock_no` varchar(11) DEFAULT NULL,
   `open_or_close` varchar(11) DEFAULT NULL,
   `price` decimal(8,2) DEFAULT NULL,
-  `input_output` decimal(8,2) DEFAULT NULL,
+  `hands` int(11) DEFAULT NULL,
+  `input_output` int(11) DEFAULT NULL,
   `earnings` int(11) DEFAULT NULL,
   `earn_rate` float DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`pk_id`),
   KEY `strategy_id_idx` (`strategy_id`),
   KEY `trade_batch_no` (`strategy_batch_no`),
   KEY `date_idx` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -170,4 +173,4 @@ CREATE TABLE `trading_records` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-16 12:31:54
+-- Dump completed on 2013-10-16 15:42:38
