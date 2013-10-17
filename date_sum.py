@@ -2,18 +2,28 @@
 # -*- coding: utf-8 -*-
 import web
 from config import dbr,dbw,const_root_local,init_log
+from datetime import datetime,date,timedelta
 
 def load_all_dates():    
-    return dbr.select('stock_daily_records',what="date,count(pk_id) as count", where="raise_drop is not null",
+    #查询速度太慢
+    return dbr.select('stock_daily_records',what="date,count(pk_id) as count", where="volume>0",
      group="date",order="date desc")
 
+def load_trade_dates_range():
+    r = dbr.select('stock_daily_records',
+        what='max(date) as max_date,min(date) as min_date, (TO_DAYS(max(date)) - TO_DAYS(min(date))) as days ')
+    return r[0]
+
 def load_stocks_date(date):
-    li = list(dbr.select('stock_daily_records',where="date=$date and raise_drop is not null",order='stock_no',vars=locals()))
+    li = list(dbr.select('stock_daily_records',what="stock_no,raise_drop,volume_updown",
+        where="date=$date and volume>0",order='stock_no',vars=locals()))
     print li
     total_count = len(li)
+    if total_count==0:
+        return False
     print total_count
     price_up_count = len([stock for stock in li if stock.raise_drop>0]) 
-    volumn_up_count = len([stock for stock in li if stock.raise_drop>0]) 
+    volumn_up_count = len([stock for stock in li if stock.volume_updown>0]) 
     price_up_percent = price_up_count / total_count * 100
     volumn_up_percent = volumn_up_count / total_count * 100 
     print price_up_count,volumn_up_count,price_up_percent,volumn_up_percent
@@ -40,6 +50,7 @@ def insert_dates():
     pass
 
 def update_date_sum_v2(plate=0):
+    #速度太慢，淘汰
     sql='''update date_sum_infos a,
     (SELECT date,'%s' as plate, count(pk_id) as count FROM stock_daily_records WHERE raise_drop is not null and raise_drop>0 GROUP BY date) as b
     set a.price_up_count=b.count
@@ -61,11 +72,23 @@ def run():
     for d in dates:        
         data = load_stocks_date(d.date)
         if d.count != data.total_count:
-            throw
+            raise Exception('no stocks')
         print d.date, ' '.join(['%s=%s' % (k,v) for k,v in data.items()])      
         update_date_sum(d.date,data)
 
+def run_1():
+    d = load_trade_dates_range()
+    for i in range(0,d.days+1): #
+        cday = d.max_date - timedelta(i)
+        if cday.weekday()>4:
+            print '%s is weekend' % (cday)
+            continue
+        data = load_stocks_date(cday)
+        if data:
+            update_date_sum(cday,data)
+
 if __name__ == "__main__":
-    update_date_sum_v2()
+    run_1()
+    #update_date_sum_v2()
     #run() 
         
