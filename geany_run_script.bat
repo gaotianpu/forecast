@@ -1,4 +1,4 @@
-python "stock_base_info.py"
+python "dback.py"
 
 pause
 del "%0"

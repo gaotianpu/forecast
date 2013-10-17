@@ -4,7 +4,7 @@ import web
 from config import dbr,dbw,const_root_local,init_log
 from datetime import datetime,date,timedelta
 
-def load_all_dates():    
+def _________________load_all_dates():
     #查询速度太慢
     return dbr.select('stock_daily_records',what="date,count(pk_id) as count", where="volume>0",
      group="date",order="date desc")
@@ -15,17 +15,17 @@ def load_trade_dates_range():
     return r[0]
 
 def load_stocks_date(date):
-    li = list(dbr.select('stock_daily_records',what="stock_no,raise_drop,volume_updown",
+    li = list(dbr.select('stock_daily_records',what="stock_no,raise_drop,volume_updown_rate",
         where="date=$date and volume>0",order='stock_no',vars=locals()))
     print li
     total_count = len(li)
     if total_count==0:
         return False
     print total_count
-    price_up_count = len([stock for stock in li if stock.raise_drop>0]) 
-    volumn_up_count = len([stock for stock in li if stock.volume_updown>0]) 
-    price_up_percent = price_up_count / total_count * 100
-    volumn_up_percent = volumn_up_count / total_count * 100 
+    price_up_count = len([stock for stock in li if stock.raise_drop>0])
+    volumn_up_count = len([stock for stock in li if stock.volume_updown_rate>0])
+    price_up_percent = float(price_up_count) / float(total_count) * 100
+    volumn_up_percent = float(volumn_up_count) / float(total_count) * 100
     print price_up_count,volumn_up_count,price_up_percent,volumn_up_percent
     return web.storage(date=date,total_count=total_count,price_up_count=price_up_count,volumn_up_count=volumn_up_count,
         price_up_percent=price_up_percent,volumn_up_percent=volumn_up_percent)
@@ -49,7 +49,7 @@ def load_dates(plate=0):
 def insert_dates():
     pass
 
-def update_date_sum_v2(plate=0):
+def _______________________________update_date_sum_v2(plate=0):
     #速度太慢，淘汰
     sql='''update date_sum_infos a,
     (SELECT date,'%s' as plate, count(pk_id) as count FROM stock_daily_records WHERE raise_drop is not null and raise_drop>0 GROUP BY date) as b
@@ -65,15 +65,15 @@ def update_date_sum_v2(plate=0):
 
     sql='''update date_sum_infos set price_up_percent = price_up_count/total_count,volumn_up_percent=volumn_up_count/total_count;'''
     dbw.query(sql)
-    
 
-def run():
+
+def ____________________________run():
     dates = load_all_dates()
-    for d in dates:        
+    for d in dates:
         data = load_stocks_date(d.date)
         if d.count != data.total_count:
             raise Exception('no stocks')
-        print d.date, ' '.join(['%s=%s' % (k,v) for k,v in data.items()])      
+        print d.date, ' '.join(['%s=%s' % (k,v) for k,v in data.items()])
         update_date_sum(d.date,data)
 
 def run_1():
@@ -90,5 +90,4 @@ def run_1():
 if __name__ == "__main__":
     run_1()
     #update_date_sum_v2()
-    #run() 
-        
+    #run()
