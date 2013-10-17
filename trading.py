@@ -65,17 +65,13 @@ where s.pk_id=ss.strategy_id;
     dbw.query(sql)
 
 ##################################
-def load_all_stocks():
-    return list(dbr.select('stock_base_infos',
-        what='stock_no,market_code,market_code_yahoo',
-        where="market_code_yahoo in ('ss','sz')",
-        #offset=0,limit=1,
-        order="market_code,stock_no"))
+
 
 def run_strategy_1():
     strategy_id = 1
     dates = [r.date for r in  dbr.select('date_sum_infos',what="date",where="date>='2013-01-01'")]
     stock_nos = [r.stock_no for r in  dbr.select('stock_base_infos',what="stock_no",where="market_code_yahoo in ('ss','sz')")]
+
     for i in range(0,1000):
         stock_no = random.choice(stock_nos)
         date = random.choice(dates)
