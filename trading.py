@@ -10,7 +10,7 @@ loger = init_log("trading")
 
 def load_dates_stock(stock_no,buy_date,hold_days):
     r = dbr.select('stock_daily_records',
-        where="stock_no=$stock_no and volume>0 and date>=$buy_date", offset=0,limit=hold_days+1,order="date asc", vars=locals())
+        where="stock_no=$stock_no and volume>0 and date>$buy_date", offset=0,limit=hold_days+1,order="date asc", vars=locals())
     return list(r)
 
 def buy_and_sell(strategy_id,strategy_batch_no,stock_no,buy_date,hold_days=1,buy_price='open_price',sell_price='open_price',trade_hands=1):
@@ -66,12 +66,12 @@ where s.pk_id=ss.strategy_id;
 
 ##################################
 
+def backup_tradingrecords(strategy_id):
+    table_name = 'trading_records'
+    os.system('mysqldump -uroot -proot forecast %s > %s/db/%s_%s.sql'% (table_name,const_root_local,table_name,strategy_id) )
+    dbw.delete('trading_records',where="pk_id>0")
 
-def run_strategy_1():
-    strategy_id = 1
-    dates = [r.date for r in  dbr.select('date_sum_infos',what="date",where="date>='2013-01-01'")]
-    stock_nos = [r.stock_no for r in  dbr.select('stock_base_infos',what="stock_no",where="market_code_yahoo in ('ss','sz')")]
-
+def run_strategy_tradding(strategy_id,dates,stock_nos):
     for i in range(0,1000):
         stock_no = random.choice(stock_nos)
         date = random.choice(dates)
@@ -81,9 +81,42 @@ def run_strategy_1():
             print e
             loger.error("stock_no=%s&date=%s&error=%s" %(stock_no,date,e))
     run_strategy_sum(strategy_id)
+    backup_tradingrecords(strategy_id)
+
+
+def run_strategy_1():
+    strategy_id = dbw.insert('trading_strategies',title="random_2013",description="YEAR(date)=2013,market_code_yahoo in ('ss','sz')")
+    dates = [r.date for r in  dbr.select('date_sum_infos',what="date",where="YEAR(date)=2013")]
+    stock_nos = [r.stock_no for r in  dbr.select('stock_base_infos',what="stock_no",where="market_code_yahoo in ('ss','sz')")]
+    run_strategy_tradding(strategy_id,dates,stock_nos)
+
+## 2013_price_up_percent_0_20
+def run_price_up_percent(strCondition,title,description):
+    strategy_id = dbw.insert('trading_strategies',title=title,description=description,create_date=web.SQLLiteral('now()'))
+    dates = [r.date for r in  dbr.select('date_sum_infos',what="date",where=strCondition)]
+    stock_nos = [r.stock_no for r in  dbr.select('stock_base_infos',what="stock_no",where="market_code_yahoo in ('ss','sz')")]
+    run_strategy_tradding(strategy_id,dates,stock_nos)
+
+def run_strategy_2():
+    cdd = "YEAR(date)=2013 and price_up_percent<20"
+    run_price_up_percent(cdd,"2013_price_up_percent_0_20","%s,market_code_yahoo in ('ss','sz')" % (cdd))
+
+    cdd = "YEAR(date)=2013 and price_up_percent>20 and  price_up_percent<=40"
+    run_price_up_percent(cdd,"2013_price_up_percent_20_40","%s,market_code_yahoo in ('ss','sz')" % (cdd))
+
+    cdd = "YEAR(date)=2013 and price_up_percent>40 and  price_up_percent<=60"
+    run_price_up_percent(cdd,"2013_price_up_percent_40_60","%s,market_code_yahoo in ('ss','sz')" % (cdd))
+
+    cdd = "YEAR(date)=2013 and price_up_percent>60 and  price_up_percent<=80"
+    run_price_up_percent(cdd,"2013_price_up_percent_60_80","%s,market_code_yahoo in ('ss','sz')" % (cdd))
+
+    cdd = "YEAR(date)=2013 and price_up_percent>80"
+    run_price_up_percent(cdd,"2013_price_up_percent_80_100","%s,market_code_yahoo in ('ss','sz')" % (cdd))
+
 
 if __name__ == "__main__":
-    run_strategy_1()
+    #run_strategy_1()
+    run_strategy_2()
     #run_strategy_sum(1)
     #buy_and_sell(1,1,600000,'2013-09-23',1)
     #print random.randrange(1000)
