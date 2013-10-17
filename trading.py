@@ -16,7 +16,7 @@ def load_dates_stock(stock_no,buy_date,hold_days):
 def buy_and_sell(strategy_id,strategy_batch_no,stock_no,buy_date,hold_days=1,buy_price='open_price',sell_price='open_price',trade_hands=1):
     stocks = load_dates_stock(stock_no,buy_date,hold_days)
     if len(stocks)< hold_days + 1:
-        raise Exception('no sell date stock info')
+        raise Exception('no-sell-date-stock-info')
     buy_stock = stocks[0]
     sell_stock = stocks[-1]
 
@@ -68,7 +68,7 @@ where s.pk_id=ss.strategy_id;
 
 def run_strategy_1():
     strategy_id = 1
-    dates = [r.date for r in  dbr.select('stock_daily_records',what="distinct date",where="date>=2013-01-01 and stock_no = '603128' and volume>0")]
+    dates = [r.date for r in  dbr.select('stock_daily_records',what="distinct date",where="date>='2013-01-01' and stock_no = '603128' and volume>0")]
     stock_nos = [r.stock_no for r in  dbr.select('stock_daily_records',what="distinct stock_no",where="date='2013-10-11' and volume>0")]
     for i in range(0,1000):
         stock_no = random.choice(stock_nos)
