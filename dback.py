@@ -18,3 +18,4 @@ if __name__ == "__main__":
 
 
 # mysqldump -uroot -proot  -d forecast >  forecast.sql
+# mysql -uroot -proot forecast -B -e "select * from date_sum_infos" > Documents/date_sum_infos.csv
