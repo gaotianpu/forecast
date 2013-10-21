@@ -66,6 +66,34 @@ def _______________________________update_date_sum_v2(plate=0):
     sql='''update date_sum_infos set price_up_percent = price_up_count/total_count,volumn_up_percent=volumn_up_count/total_count;'''
     dbw.query(sql)
 
+def tmp():
+    fields = ['open_price','high_price','low_price','close_price','volume','raise_drop','raise_drop_rate','volume_updown','volume_updown_rate']
+    for f in fields:
+        dbw.query('ALTER TABLE date_sum_infos ADD avg_%s decimal(8,2);' % (f) )
+    return
+
+def run_avg_daily(startm,endm):
+    fields = ['open_price','high_price','low_price','close_price','volume','raise_drop','raise_drop_rate','volume_updown','volume_updown_rate']
+
+    str_what = ','.join(['avg(%s) as avg_%s' %(field,field)  for field in fields])
+    sql = "SELECT date,%s FROM `stock_daily_records` where date>='%s' and date<'%s' and volume>0 GROUP BY date order by date desc;" % (str_what,startm,endm)
+    l = list(dbr.query(sql))
+    for i in l:
+        dbw.query("update date_sum_infos set %s where date='%s'" % (','.join(['%s=%s'%(k,v) for k,v in i.items() if k!='date']),i.date))
+
+        #print ','.join(['%s=%s'%(k,v) for k,v in i.items() if k!='date'])
+        #print i.key,i.value
+        #str_fields = ','.join(['avg_%s=avg_%s' %(r.key,field)  for r in l])
+    #
+
+def run_moths():
+    d = load_trade_dates_range()
+    for i in range(0,d.days+1,30): #
+        begin = d.max_date - timedelta(i)
+        end = d.max_date - timedelta(i-30)
+        run_avg_daily(begin.strftime('%Y-%m-01'),end.strftime('%Y-%m-01'))
+
+
 
 def ____________________________run():
     dates = load_all_dates()
@@ -88,6 +116,7 @@ def run_1():
             update_date_sum(cday,data)
 
 if __name__ == "__main__":
-    run_1()
+    run_moths()
+    #run_1()
     #update_date_sum_v2()
     #run()

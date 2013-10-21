@@ -3,6 +3,7 @@
 import web
 from config import dbr,dbw,const_root_local,init_log
 from datetime import datetime,date,timedelta
+import os
 
 import random
 
@@ -84,11 +85,15 @@ def run_strategy_tradding(strategy_id,dates,stock_nos):
     backup_tradingrecords(strategy_id)
 
 
-def run_strategy_1():
-    strategy_id = dbw.insert('trading_strategies',title="random_2013",description="YEAR(date)=2013,market_code_yahoo in ('ss','sz')")
-    dates = [r.date for r in  dbr.select('date_sum_infos',what="date",where="YEAR(date)=2013")]
+def run_strategy_1(year):
+    strategy_id = dbw.insert('trading_strategies',title="random_%s" % (year),description="YEAR(date)=%s,market_code_yahoo in ('ss','sz')"% (year))
+    dates = [r.date for r in  dbr.select('date_sum_infos',what="date",where="YEAR(date)=%s" % (year) )]
     stock_nos = [r.stock_no for r in  dbr.select('stock_base_infos',what="stock_no",where="market_code_yahoo in ('ss','sz')")]
     run_strategy_tradding(strategy_id,dates,stock_nos)
+
+def run_year():
+    for year in range(1990,2013):
+        run_strategy_1(year)
 
 ## 2013_price_up_percent_0_20
 def run_price_up_percent(strCondition,title,description):
@@ -100,7 +105,7 @@ def run_price_up_percent(strCondition,title,description):
 def run_strategy_2():
     cdd = "YEAR(date)=2013 and price_up_percent<20"
     run_price_up_percent(cdd,"2013_price_up_percent_0_20","%s,market_code_yahoo in ('ss','sz')" % (cdd))
-
+    return
     cdd = "YEAR(date)=2013 and price_up_percent>20 and  price_up_percent<=40"
     run_price_up_percent(cdd,"2013_price_up_percent_20_40","%s,market_code_yahoo in ('ss','sz')" % (cdd))
 
@@ -115,8 +120,9 @@ def run_strategy_2():
 
 
 if __name__ == "__main__":
+    run_year()
     #run_strategy_1()
-    run_strategy_2()
+    #run_strategy_2()
     #run_strategy_sum(1)
     #buy_and_sell(1,1,600000,'2013-09-23',1)
     #print random.randrange(1000)
