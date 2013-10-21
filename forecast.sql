@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: forecast
 -- ------------------------------------------------------
--- Server version   5.5.27
+-- Server version	5.5.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -33,10 +33,11 @@ CREATE TABLE `date_sum_infos` (
   `volumn_up_percent` int(11) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` timestamp NULL DEFAULT NULL,
+  `price_raise_sum` decimal(8,2) DEFAULT NULL,
   PRIMARY KEY (`pk_id`),
   KEY `date_idx` (`date`),
   KEY `plate_idx` (`plate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4191 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,7 +56,7 @@ CREATE TABLE `stock_base_infos` (
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -88,7 +89,7 @@ CREATE TABLE `stock_daily_records` (
   KEY `date_idx` (`date`),
   KEY `volume_idx` (`volume`),
   KEY `stock_no_idx` (`stock_no`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=759234 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -161,7 +162,7 @@ CREATE TABLE `trading_records` (
   KEY `strategy_id_idx` (`strategy_id`),
   KEY `trade_batch_no` (`strategy_batch_no`),
   KEY `date_idx` (`date`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6027 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -182,7 +183,7 @@ CREATE TABLE `trading_strategies` (
   `min_earn_rate` decimal(8,2) DEFAULT NULL,
   `avg_earn_rate` decimal(8,2) DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -194,4 +195,4 @@ CREATE TABLE `trading_strategies` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-16 19:21:32
+-- Dump completed on 2013-10-18 13:40:02

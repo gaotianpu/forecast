@@ -22,13 +22,14 @@ def load_stocks_date(date):
     if total_count==0:
         return False
     print total_count
+    price_raise_sum = sum([r.raise_drop for r in li if r.raise_drop>0]) / total_count * 100 
     price_up_count = len([stock for stock in li if stock.raise_drop>0])
     volumn_up_count = len([stock for stock in li if stock.volume_updown_rate>0])
     price_up_percent = float(price_up_count) / float(total_count) * 100
     volumn_up_percent = float(volumn_up_count) / float(total_count) * 100
     print price_up_count,volumn_up_count,price_up_percent,volumn_up_percent
     return web.storage(date=date,total_count=total_count,price_up_count=price_up_count,volumn_up_count=volumn_up_count,
-        price_up_percent=price_up_percent,volumn_up_percent=volumn_up_percent)
+        price_up_percent=price_up_percent,volumn_up_percent=volumn_up_percent,price_raise_sum=price_raise_sum)
 
 
 def update_date_sum(date,data,plate=0):
@@ -41,6 +42,7 @@ def update_date_sum(date,data,plate=0):
         volumn_up_count = data.volumn_up_count,
         price_up_percent = data.price_up_percent,
         volumn_up_percent = data.volumn_up_percent,
+      #  price_raise_sum = data.price_raise_sum,
         where="date=$date and plate=$plate",vars=locals())
 
 def load_dates(plate=0):
