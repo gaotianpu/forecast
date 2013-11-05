@@ -203,6 +203,25 @@ CREATE TABLE `trading_strategies` (
   PRIMARY KEY (`pk_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `trend_daily`
+--
+
+DROP TABLE IF EXISTS `trend_daily`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trend_daily` (
+  `pk_id` int(11) unsigned NOT NULL,
+  `stock_no` varchar(11) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `high5` int(11) DEFAULT NULL,
+  `high3` int(11) DEFAULT NULL,
+  `low5` int(11) DEFAULT NULL,
+  `low3` int(11) DEFAULT NULL,
+  PRIMARY KEY (`pk_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -213,4 +232,4 @@ CREATE TABLE `trading_strategies` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-11-05 16:53:34
+-- Dump completed on 2013-11-05 19:27:05
