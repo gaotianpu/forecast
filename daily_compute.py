@@ -7,7 +7,7 @@ import datetime
 loger = init_log("daily_compute")
 
 def get_all_stocknos():
-    sql="select distinct stock_no from stock_daily_records order by stock_no"
+    sql="select distinct stock_no from stock_daily_records order by stock_no" #性能不好，需要优化
     r = dbr.query(sql)
     return list(r)
 
@@ -57,6 +57,44 @@ def compute_rate(stock_no):
     except Exception,e:
         loger.error(stock_no + " " + str(e) )
 
+def __compute_trend(date_infos,index,days,price_type):    
+    sub_dates = date_infos[index : index + days]  
+    
+    sub_dates.sort(lambda a,b:cmp(a[price_type],b[price_type]))    
+    x = 1 
+    for d in sub_dates:
+        d.no = x
+        x = x + 1
+    
+    sub_dates.sort(lambda a,b:cmp(a['date'],b['date']))
+    
+    hp = ''
+    for d in sub_dates:
+        hp = hp + str(d.no)
+        print days,d.date,d.high_price,d.low_price,d.open_price,d.close_price,d.no
+        
+    return hp
+
+def compute_3or5(stock_no):
+    date_infos = get_stock_daily_infos(stock_no)
+    date_len = len(date_infos)
+    
+    i = 0 
+    for stock_date in date_infos: 
+        d = stock_date.date
+        dh5 = __compute_trend(date_infos,i,5,'high_price')
+        dh3 = __compute_trend(date_infos,i,3,'high_price')
+        dl5 = __compute_trend(date_infos,i,5,'low_price')
+        dl3 = __compute_trend(date_infos,i,3,'low_price')
+        print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
+
+        print " "
+        print " "
+        i = i + 1 
+        break
+              
+         
+        
 
 def run():
     stocknos = get_all_stocknos()
@@ -69,7 +107,8 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    compute_3or5(600000)
+    #run()
 
 '''
 CREATE TABLE `stock_daily_records_tmp` (
