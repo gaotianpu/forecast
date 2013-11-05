@@ -34,6 +34,8 @@ def update_v2(l):
         a.last_update = t.last_update
         where a.pk_id=t.pk_id''')
 
+def insert_trend_data(pkid,stock_no,h5,h3,l5,l3):
+    dbw.query('replace into trend_daily(pkid,stock_no,date,high5,high3,low5,low3)values')
 
 def compute_rate(stock_no):
     l = []
@@ -80,20 +82,26 @@ def compute_3or5(stock_no):
     date_len = len(date_infos)
     
     i = 0 
+    rows = []
     for stock_date in date_infos: 
         d = stock_date.date
         dh5 = __compute_trend(date_infos,i,5,'high_price')
         dh3 = __compute_trend(date_infos,i,3,'high_price')
+
         dl5 = __compute_trend(date_infos,i,5,'low_price')
         dl3 = __compute_trend(date_infos,i,3,'low_price')
-        print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
 
-        print " "
-        print " "
+        rows.append(web.storage(pk_id=stock_date.pk_id,date=stock_date.date,stock_no=stock_date.stock_no,
+             high5=dh5,high3=dh3,low5=dl5,low3=dl3))
+
         i = i + 1 
-        break
-              
-         
+        print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
+        print " "
+        print " "  
+
+    dbw.delete('trend_daily',where="pk_id>0",vars=locals())
+    dbw.supports_multiple_insert = True
+    dbw.multiple_insert('trend_daily',rows)
         
 
 def run():
@@ -101,6 +109,15 @@ def run():
     for stock in stocknos:
         try:
             compute_rate(stock.stock_no)
+        except Exception,e:
+            print e
+            loger.error(stock.stock_no + " exception " + str(e))
+
+def run_3or5():
+    stocknos = get_all_stocknos()
+    for stock in stocknos:
+        try:
+            compute_3or5(stock.stock_no)
         except Exception,e:
             print e
             loger.error(stock.stock_no + " exception " + str(e))
