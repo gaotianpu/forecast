@@ -55,6 +55,7 @@ CREATE TABLE `stock_base_infos` (
   `stock_name` varchar(20) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
+  `days` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`pk_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -219,7 +220,9 @@ CREATE TABLE `trend_daily` (
   `high3` int(11) DEFAULT NULL,
   `low5` int(11) DEFAULT NULL,
   `low3` int(11) DEFAULT NULL,
-  PRIMARY KEY (`pk_id`)
+  PRIMARY KEY (`pk_id`),
+  KEY `stock_no` (`stock_no`),
+  KEY `date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -232,4 +235,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-11-05 19:27:05
+-- Dump completed on 2013-11-06 10:44:41

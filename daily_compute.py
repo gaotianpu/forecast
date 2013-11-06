@@ -73,7 +73,7 @@ def __compute_trend(date_infos,index,days,price_type):
     hp = ''
     for d in sub_dates:
         hp = hp + str(d.no)
-        print days,d.date,d.high_price,d.low_price,d.open_price,d.close_price,d.no
+        #print days,d.date,d.high_price,d.low_price,d.open_price,d.close_price,d.no
         
     return hp
 
@@ -81,9 +81,11 @@ def compute_3or5(stock_no):
     date_infos = get_stock_daily_infos(stock_no)
     date_len = len(date_infos)
     
-    i = 0 
+    
     rows = []
-    for stock_date in date_infos: 
+    for i in range(0,date_len):
+        #print i
+        stock_date = date_infos[i]
         d = stock_date.date
         dh5 = __compute_trend(date_infos,i,5,'high_price')
         dh3 = __compute_trend(date_infos,i,3,'high_price')
@@ -91,14 +93,22 @@ def compute_3or5(stock_no):
         dl5 = __compute_trend(date_infos,i,5,'low_price')
         dl3 = __compute_trend(date_infos,i,3,'low_price')
 
+        #未来n天内，收盘价 与 明天开盘价对比
+        if i > 6:
+           p = date_infos[i-6].close_price - date_infos[i-1].open_price 
+           prate = p/date_infos[i-1].open_price
+           print stock_date.date,dh5,dh3,dl5,dl3,p,prate
+           
+
         rows.append(web.storage(pk_id=stock_date.pk_id,date=stock_date.date,stock_no=stock_date.stock_no,
              high5=dh5,high3=dh3,low5=dl5,low3=dl3))
 
         i = i + 1 
-        print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
-        print " "
-        print " "  
-
+        #print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
+        #print " "
+        #print " "  
+        
+    return 
     dbw.delete('trend_daily',where="pk_id>0",vars=locals())
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('trend_daily',rows)
