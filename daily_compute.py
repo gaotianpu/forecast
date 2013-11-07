@@ -7,6 +7,7 @@ import datetime
 loger = init_log("daily_compute")
 
 def get_all_stocknos():
+    reutn list(dbr.select('stock_base_infos',where="days>0"))
     sql="select distinct stock_no from stock_daily_records order by stock_no" #性能不好，需要优化
     r = dbr.query(sql)
     return list(r)
