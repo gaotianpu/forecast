@@ -220,6 +220,11 @@ CREATE TABLE `trend_daily` (
   `high3` int(11) DEFAULT NULL,
   `low5` int(11) DEFAULT NULL,
   `low3` int(11) DEFAULT NULL,
+  `tmrow_open_price` decimal(8,2) DEFAULT NULL,
+  `price_rate_2` float DEFAULT NULL,
+  `price_rate_3` float DEFAULT NULL,
+  `price_rate_4` float DEFAULT NULL,
+  `price_rate_5` float DEFAULT NULL,
   PRIMARY KEY (`pk_id`),
   KEY `stock_no` (`stock_no`),
   KEY `date` (`date`)
@@ -235,4 +240,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-11-06 10:44:41
+-- Dump completed on 2013-11-07  9:45:45

@@ -94,6 +94,15 @@ def compute_3or5(stock_no):
         dl3 = __compute_trend(date_infos,i,3,'low_price')
 
         #未来n天内，收盘价 与 明天开盘价对比
+        prates = {}        
+        tommorrow_open_price = date_infos[i-1].open_price 
+        for day in range(2,6):
+            prates[day] = None
+            if i < day : continue                
+            p = date_infos[i-day].close_price - tommorrow_open_price
+            prate = p / tommorrow_open_price
+            prates[day] = prate
+
         if i > 6:
            p = date_infos[i-6].close_price - date_infos[i-1].open_price 
            prate = p/date_infos[i-1].open_price
@@ -101,14 +110,15 @@ def compute_3or5(stock_no):
            
 
         rows.append(web.storage(pk_id=stock_date.pk_id,date=stock_date.date,stock_no=stock_date.stock_no,
-             high5=dh5,high3=dh3,low5=dl5,low3=dl3))
+             high5=dh5,high3=dh3,low5=dl5,low3=dl3,tmrow_open_price=tommorrow_open_price,
+             price_rate_2=prates[2],price_rate_3=prates[3],price_rate_4=prates[4],price_rate_5=prates[5] ))
 
         i = i + 1 
         #print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
         #print " "
         #print " "  
         
-    return 
+    #return 
     dbw.delete('trend_daily',where="pk_id>0",vars=locals())
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('trend_daily',rows)
