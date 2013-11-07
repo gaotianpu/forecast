@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>html5 Canvas </title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta name="generator" content="Geany 1.23.1" />
+</head>
+
+<body>
+    <div id="data"></div>
+<canvas id="tutorial" width="400" height="400" style="border:solid 1px #ccc;">
+你的浏览器不支持 Canvas 标签
+</canvas>
+</body>
+
+<script>
+    function draw(canvasId,strData,unit){
+        var canvas = document.getElementById(canvasId);
+        if(!canvas.getContext){
+            alert('not support canvas');
+            return;
+        }
+        var ctx = canvas.getContext('2d');
+
+        var data = strData.split('');
+        for(var i in data){
+            x= i * unit;
+            y= (data[i]-1)*unit;
+            ctx.lineTo(x,y);
+            ctx.moveTo(x,y);
+        }
+        ctx.stroke();
+    }
+
+    for(var a=1;a<6;a++){
+        for(var b=1;b<6;b++){
+            if(a==b) continue;
+            for(var c=1;c<6;c++){
+                if(c==a || c==b) continue;
+                for(var d=1;d<6;d++){
+                    if(d ==a || d==b || d==c) continue;
+                    for(var e=1;e<6;e++){
+                        if(e==a || e==b || e==c || e==d) continue;
+                        alert(''+a+b+c+d+e);
+
+                      draw('tutorial',''+a+b+c+d+e,100);
+    }
+    }
+    }
+        }
+    }
+
+    draw('tutorial','14325',100);
+</script>
+
+</html>
