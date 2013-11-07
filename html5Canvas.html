@@ -5,14 +5,23 @@
     <title>html5 Canvas </title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <meta name="generator" content="Geany 1.23.1" />
+    <style>
+    .box{width:200;float:left;margin:5px;}
+    h6{margin:0px;}
+    </style>
 </head>
 
 <body>
-    <div id="data"></div>
-<canvas id="tutorial" width="400" height="400" style="border:solid 1px #ccc;">
-你的浏览器不支持 Canvas 标签
-</canvas>
-</body>
+    <div id="show"></div>
+
+<script id="tpl" type="text/template">
+{@each list as item,index}
+<div class="box"><h6>${item}</h6><canvas id="c${item}" data="${item}" width="40" height="40" style="border:solid 1px #ccc;">你的浏览器不支持 Canvas 标签</canvas></div>
+{@/each}
+</script>
+
+<script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://juicer.name/javascripts/juicer-min.js"></script>
 
 <script>
     function draw(canvasId,strData,unit){
@@ -23,16 +32,67 @@
         }
         var ctx = canvas.getContext('2d');
 
+        var width = canvas.getAttribute("width");
+        var height = canvas.getAttribute("height");
+        ctx.fillStyle = "ffffff"; //设置填充色
+        ctx.fillRect(0, 0, width, height);
+
         var data = strData.split('');
+
+        ctx.moveTo(0,0);
         for(var i in data){
             x= i * unit;
-            y= (data[i]-1)*unit;
+            y = (5-data[i])*unit; //?
             ctx.lineTo(x,y);
             ctx.moveTo(x,y);
         }
         ctx.stroke();
     }
 
+    function SwapItem(pStr,nFirst,nSecond){
+        var ch = pStr[nFirst];
+     pStr[nFirst] = pStr[nSecond];
+     pStr[nSecond] = ch;
+
+        }
+
+    function gen(pAll,pSub){
+        var size = pSub.length;
+       if(size==1){
+           console.log(pAll);
+
+           }else{
+         for (var i = 0 ; i < size ; i++)
+             {
+                 SwapItem(pSub, 0, i);
+                 gen(pAll, pSub + 1);
+                 SwapItem(pSub, i, 0);
+             }
+
+        }
+
+    }
+
+    function run(){
+        var chaArr =  "123".split('');
+        gen(chaArr,chaArr);
+    }
+
+    //run();
+
+
+    var txxx = []
+    for(var i=1;i<6;i++){
+        var one = [];
+        for(var j=1;j<6;j++){
+            one.push(j);
+        }
+        txxx.push(one);
+        console.log(one);
+    }
+
+    function gen_data(){
+    var labels = [];
     for(var a=1;a<6;a++){
         for(var b=1;b<6;b++){
             if(a==b) continue;
@@ -42,16 +102,26 @@
                     if(d ==a || d==b || d==c) continue;
                     for(var e=1;e<6;e++){
                         if(e==a || e==b || e==c || e==d) continue;
-                        alert(''+a+b+c+d+e);
 
-                      draw('tutorial',''+a+b+c+d+e,100);
+                        var tmp = ''+a+b+c+d+e;
+                        labels.push(tmp);
+
     }
     }
     }
         }
     }
+    return labels;
+}
 
-    draw('tutorial','14325',100);
+    $('#show').html(juicer($('#tpl').html(), {list:gen_data()}));
+
+    $('canvas').each(function(){
+        var d = $(this).attr('data');
+        draw('c'+d,d,10);
+        });
+
+
 </script>
-
+</body>
 </html>
