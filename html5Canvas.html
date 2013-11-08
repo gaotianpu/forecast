@@ -24,22 +24,27 @@
 <script type="text/javascript" src="http://juicer.name/javascripts/juicer-min.js"></script>
 
 <script >
-
+//生成各种排列组合串
 function combination(arr){
     var len = arr.length;
-    if(len == 0) {return []};
+    if(len == 0) {
+        return []
+    }
+
     if(len == 2){
-    var a = arr[0], b = arr[1];
+        var a = arr[0], b = arr[1];
         return [[a,b],[b,a]];
     }
-    else if(len == 1) {return [[arr[0]]];}
-    else{
-        var arRtn = [];
-        for(var i=0;i <len;i++){
-            arRtn = arRtn.concat( merge( arr[i],combination(arr.slice(0,i).concat(arr.slice(i+1,len))) ) );
-        }
-        return arRtn;
+
+    if(len == 1) {
+        return [[arr[0]]];
     }
+    var arRtn = [];
+    for(var i=0;i <len;i++){
+        arRtn = arRtn.concat( merge( arr[i],combination(arr.slice(0,i).concat(arr.slice(i+1,len))) ) );
+    }
+    return arRtn;
+
 }
 function merge(head,arr){
     for(var i=0;i <arr.length;i++)
@@ -62,8 +67,13 @@ function get_data(str){
 </script>
 
 <script>
-
+    //绘制折线图
     function draw(canvasId,strData,unit){
+        var data = strData.split('');
+        if(data.length==0){
+            return ;
+        }
+
         var canvas = document.getElementById(canvasId);
         if(!canvas.getContext){
             alert('not support canvas');
@@ -71,17 +81,10 @@ function get_data(str){
         }
         var ctx = canvas.getContext('2d');
 
-        //var width = canvas.getAttribute("width");
-        //var height = canvas.getAttribute("height");
-        //ctx.fillStyle = "ccc"; //设置填充色
-        //ctx.fillRect(0, 0, width, height);
-
-        var data = strData.split('');
-
         ctx.moveTo(0,0);
         for(var i in data){
             x= i * unit;
-            y = (data.length-data[i])*unit; //?
+            y = (data.length-data[i])*unit; //?data.length - data[i]
             ctx.lineTo(x,y);
             ctx.moveTo(x,y);
         }
@@ -89,35 +92,11 @@ function get_data(str){
     }
 
 
-    function gen_data(){
-    var labels = [];
-    for(var a=1;a<6;a++){
-        for(var b=1;b<6;b++){
-            if(a==b) continue;
-            for(var c=1;c<6;c++){
-                if(c==a || c==b) continue;
-                for(var d=1;d<6;d++){
-                    if(d ==a || d==b || d==c) continue;
-                    for(var e=1;e<6;e++){
-                        if(e==a || e==b || e==c || e==d) continue;
-
-                        var tmp = ''+a+b+c+d+e;
-                        labels.push(tmp);
-
-    }
-    }
-    }
-        }
-    }
-    return labels;
-}
-
-    $('#show').html(juicer($('#tpl').html(), {list:get_data('12345678')}));
-
+    $('#show').html(juicer($('#tpl').html(), {list:get_data('12345')}));
     $('canvas').each(function(){
         var d = $(this).attr('data');
-        draw('c'+d,d,10);
-        });
+        draw('c'+ d,d,10);
+    });
 
 
 </script>
