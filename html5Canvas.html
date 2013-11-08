@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html>
 
 <head>
@@ -16,14 +16,53 @@
 
 <script id="tpl" type="text/template">
 {@each list as item,index}
-<div class="box"><h6>${item}</h6><canvas id="c${item}" data="${item}" width="40" height="40" style="border:solid 1px #ccc;">ÄãµÄä¯ÀÀÆ÷²»Ö§³Ö Canvas ±êÇ©</canvas></div>
+<div class="box"><h6>${item}</h6><canvas id="c${item}" data="${item}" width="${item.length-1}0" height="${item.length-1}0" style="border:solid 1px #ccc;">ä½ çš„æµè§ˆå™¨ä¸æ”¯æŒ Canvas æ ‡ç­¾</canvas></div>
 {@/each}
 </script>
 
 <script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://juicer.name/javascripts/juicer-min.js"></script>
 
+<script >
+
+function combination(arr){
+    var len = arr.length;
+    if(len == 0) {return []};
+    if(len == 2){
+    var a = arr[0], b = arr[1];
+        return [[a,b],[b,a]];
+    }
+    else if(len == 1) {return [[arr[0]]];}
+    else{
+        var arRtn = [];
+        for(var i=0;i <len;i++){
+            arRtn = arRtn.concat( merge( arr[i],combination(arr.slice(0,i).concat(arr.slice(i+1,len))) ) );
+        }
+        return arRtn;
+    }
+}
+function merge(head,arr){
+    for(var i=0;i <arr.length;i++)
+    arr[i].unshift(head);
+    return arr;
+}
+
+
+function get_data(str){
+    var ar = combination(str.split(""));
+    var data = []
+    for(var i=0;i <ar.length;i++){
+        data.push(ar[i].join(""));
+        console.log(ar[i].join(""));
+    }
+    return data;
+}
+
+
+</script>
+
 <script>
+
     function draw(canvasId,strData,unit){
         var canvas = document.getElementById(canvasId);
         if(!canvas.getContext){
@@ -32,64 +71,23 @@
         }
         var ctx = canvas.getContext('2d');
 
-        var width = canvas.getAttribute("width");
-        var height = canvas.getAttribute("height");
-        ctx.fillStyle = "ffffff"; //ÉèÖÃÌî³äÉ«
-        ctx.fillRect(0, 0, width, height);
+        //var width = canvas.getAttribute("width");
+        //var height = canvas.getAttribute("height");
+        //ctx.fillStyle = "ccc"; //è®¾ç½®å¡«å……è‰²
+        //ctx.fillRect(0, 0, width, height);
 
         var data = strData.split('');
 
         ctx.moveTo(0,0);
         for(var i in data){
             x= i * unit;
-            y = (5-data[i])*unit; //?
+            y = (data.length-data[i])*unit; //?
             ctx.lineTo(x,y);
             ctx.moveTo(x,y);
         }
         ctx.stroke();
     }
 
-    function SwapItem(pStr,nFirst,nSecond){
-        var ch = pStr[nFirst];
-     pStr[nFirst] = pStr[nSecond];
-     pStr[nSecond] = ch;
-
-        }
-
-    function gen(pAll,pSub){
-        var size = pSub.length;
-       if(size==1){
-           console.log(pAll);
-
-           }else{
-         for (var i = 0 ; i < size ; i++)
-             {
-                 SwapItem(pSub, 0, i);
-                 gen(pAll, pSub + 1);
-                 SwapItem(pSub, i, 0);
-             }
-
-        }
-
-    }
-
-    function run(){
-        var chaArr =  "123".split('');
-        gen(chaArr,chaArr);
-    }
-
-    //run();
-
-
-    var txxx = []
-    for(var i=1;i<6;i++){
-        var one = [];
-        for(var j=1;j<6;j++){
-            one.push(j);
-        }
-        txxx.push(one);
-        console.log(one);
-    }
 
     function gen_data(){
     var labels = [];
@@ -114,7 +112,7 @@
     return labels;
 }
 
-    $('#show').html(juicer($('#tpl').html(), {list:gen_data()}));
+    $('#show').html(juicer($('#tpl').html(), {list:get_data('12345678')}));
 
     $('canvas').each(function(){
         var d = $(this).attr('data');
@@ -123,5 +121,7 @@
 
 
 </script>
+
+
 </body>
 </html>

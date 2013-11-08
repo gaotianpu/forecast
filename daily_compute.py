@@ -7,7 +7,7 @@ import datetime
 loger = init_log("daily_compute")
 
 def get_all_stocknos():
-    reutn list(dbr.select('stock_base_infos',where="days>0"))
+    return list(dbr.select('stock_base_infos',where="days>0"))
     sql="select distinct stock_no from stock_daily_records order by stock_no" #性能不好，需要优化
     r = dbr.query(sql)
     return list(r)
@@ -60,29 +60,29 @@ def compute_rate(stock_no):
     except Exception,e:
         loger.error(stock_no + " " + str(e) )
 
-def __compute_trend(date_infos,index,days,price_type):    
-    sub_dates = date_infos[index : index + days]  
-    
-    sub_dates.sort(lambda a,b:cmp(a[price_type],b[price_type]))    
-    x = 1 
+def __compute_trend(date_infos,index,days,price_type):
+    sub_dates = date_infos[index : index + days]
+
+    sub_dates.sort(lambda a,b:cmp(a[price_type],b[price_type]))
+    x = 1
     for d in sub_dates:
         d.no = x
         x = x + 1
-    
+
     sub_dates.sort(lambda a,b:cmp(a['date'],b['date']))
-    
+
     hp = ''
     for d in sub_dates:
         hp = hp + str(d.no)
         #print days,d.date,d.high_price,d.low_price,d.open_price,d.close_price,d.no
-        
+
     return hp
 
 def compute_3or5(stock_no):
     date_infos = get_stock_daily_infos(stock_no)
     date_len = len(date_infos)
-    
-    
+
+
     rows = []
     for i in range(0,date_len):
         #print i
@@ -95,35 +95,31 @@ def compute_3or5(stock_no):
         dl3 = __compute_trend(date_infos,i,3,'low_price')
 
         #未来n天内，收盘价 与 明天开盘价对比
-        prates = {}        
-        tommorrow_open_price = date_infos[i-1].open_price 
+        prates = {}
+        tommorrow_open_price = date_infos[i-1].open_price
         for day in range(2,6):
             prates[day] = None
-            if i < day : continue                
+            if i < day : continue
             p = date_infos[i-day].close_price - tommorrow_open_price
             prate = p / tommorrow_open_price
             prates[day] = prate
 
         if i > 6:
-           p = date_infos[i-6].close_price - date_infos[i-1].open_price 
+           p = date_infos[i-6].close_price - date_infos[i-1].open_price
            prate = p/date_infos[i-1].open_price
            print stock_date.date,dh5,dh3,dl5,dl3,p,prate
-           
+
 
         rows.append(web.storage(pk_id=stock_date.pk_id,date=stock_date.date,stock_no=stock_date.stock_no,
              high5=dh5,high3=dh3,low5=dl5,low3=dl3,tmrow_open_price=tommorrow_open_price,
              price_rate_2=prates[2],price_rate_3=prates[3],price_rate_4=prates[4],price_rate_5=prates[5] ))
 
-        i = i + 1 
-        #print '------',d,'high:',dh5,dh3,'low:', dl5,dl3
-        #print " "
-        #print " "  
-        
-    #return 
-    dbw.delete('trend_daily',where="pk_id>0",vars=locals())
+        i = i + 1
+
+    #dbw.delete('trend_daily',where="pk_id>0",vars=locals())
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('trend_daily',rows)
-        
+
 
 def run():
     stocknos = get_all_stocknos()
@@ -145,7 +141,8 @@ def run_3or5():
 
 
 if __name__ == "__main__":
-    compute_3or5(600000)
+    run_3or5()
+    #compute_3or5(300001)
     #run()
 
 '''
