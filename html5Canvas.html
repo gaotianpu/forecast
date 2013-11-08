@@ -24,24 +24,25 @@
 <script type="text/javascript" src="http://juicer.name/javascripts/juicer-min.js"></script>
 
 <script >
+    //http://www.murphyl.com/complete-cross-browser-console-log/
+function debug(info){
+    console.log(info);
+    //arguments.join('');
+    //console.log(typeof(arguments));
+    //if(typeof(arguments)=='object')
+        //console.log(arguments[0]);
+}
+
 //生成各种排列组合串
 //http://www.myexception.cn/javascript/241624.html
 //http://www.blogjava.net/mxx/archive/2006/10/21/76525.html
 //http://blog.csdn.net/hackbuteer1/article/details/7462447
 function combination(arr){
     var len = arr.length;
-    if(len == 0) {
-        return []
-    }
-
-    if(len == 2){
-        var a = arr[0], b = arr[1];
-        return [[a,b],[b,a]];
-    }
-
     if(len == 1) {
         return [[arr[0]]];
     }
+
     var arRtn = [];
     for(var i=0;i <len;i++){
         arRtn = arRtn.concat( merge( arr[i],combination(arr.slice(0,i).concat(arr.slice(i+1,len))) ) );
@@ -50,8 +51,9 @@ function combination(arr){
 
 }
 function merge(head,arr){
-    for(var i=0;i <arr.length;i++)
-    arr[i].unshift(head);
+    for(var i=0;i <arr.length;i++){
+        arr[i].unshift(head);
+    }
     return arr;
 }
 
@@ -61,12 +63,10 @@ function get_data(str){
     var data = []
     for(var i=0;i <ar.length;i++){
         data.push(ar[i].join(""));
-        console.log(ar[i].join(""));
+        debug(ar[i].join(""));
     }
     return data;
 }
-
-
 </script>
 
 <script>
