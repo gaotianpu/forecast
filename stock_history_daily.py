@@ -35,7 +35,8 @@ def parse_data(lfile):
 def load_all_stocks():
     return list(dbr.select('stock_base_infos',
         what='stock_no,market_code,market_code_yahoo',
-        where="market_code_yahoo in ('ss','sz')",
+        where="days=0",
+        #where="market_code_yahoo in ('ss','sz')",
         #offset=0,limit=1,
         order="market_code,stock_no"))
 
