@@ -12,6 +12,7 @@ import socket
 import urllib
 import urllib2
 import httplib
+import os
 
 TIMEOUT = 15  # socket timeout
 
@@ -117,7 +118,9 @@ def download(url,proxy=None):
     return b.get_page(url,None,proxy)
 
 def downad_and_save(url,lfile,proxy=None):
-    content = download(url,proxy)    
+    if os.path.exists(lfile):
+        return lfile
+    content = download(url,proxy)
     with open(lfile,'w') as f:
         f.write(content)
         f.close()
