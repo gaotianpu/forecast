@@ -17,7 +17,7 @@ def get_url(params):
     return '%ss=%s' % (const_root_url,params['s'])
 
 def get_local_file_name(params):
-    return '%s/dailyh/%s.csv' %(const_root_local,params['s'])
+    return '%s/dailyh/%s_%s.csv' %(const_root_local,params['s'],datetime.datetime.now().strftime('%Y%m%d'))
     #return lfile
 
 def parse_data(lfile):
@@ -35,7 +35,7 @@ def parse_data(lfile):
 def load_all_stocks():
     return list(dbr.select('stock_base_infos',
         what='stock_no,market_code,market_code_yahoo',
-        where="days=0",
+        where="days<>0",
         #where="market_code_yahoo in ('ss','sz')",
         #offset=0,limit=1,
         order="market_code,stock_no"))
@@ -48,11 +48,12 @@ def load_stock_dates(stock_no):
 
 def import_stock_daily_data(market_code,stock_no,data):
     stock_dates = load_stock_dates(stock_no)
-
+    max_date = max(stock_dates)
     l=[]
     for row in data:
+        if row['date'] <= max_date:
+            break
         if row['date'] in stock_dates:
-            #print  '%s.%s %s exists in db' % (market_code,stock_no,row['date'])
             continue
         row['stock_market_no'] = market_code
         row['stock_no'] = stock_no
@@ -104,6 +105,13 @@ def test_one_stock():
 
 if __name__ == '__main__':
     download_all(load_all_stocks())
+
+    #stock_dates = load_stock_dates('300001')
+    #max_date = max(stock_dates)
+    #print max_date
+    #print '2012-01-01' > max_date
+    #print '2014-01-01' > max_date
+
 
     #load_all_stocks()
 
