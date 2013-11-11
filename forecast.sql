@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: forecast
 -- ------------------------------------------------------
--- Server version	5.5.27
+-- Server version   5.5.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -241,3 +241,17 @@ CREATE TABLE `trend_daily` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2013-11-07  9:45:45
+CREATE TABLE `date_avgs` (
+  `date` date DEFAULT NULL,
+  `plate` varchar(255) DEFAULT NULL,
+  `count` int(11) DEFAULT NULL,
+  `open_price` decimal(8,2) DEFAULT NULL,
+  `high_price` decimal(8,2) DEFAULT NULL,
+  `low_price` decimal(8,2) DEFAULT NULL,
+  `close_price` decimal(8,2) DEFAULT NULL,
+  `volume` bigint(20) DEFAULT NULL,
+  KEY `ix_date` (`date`),
+  KEY `ix_plate` (`plate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
