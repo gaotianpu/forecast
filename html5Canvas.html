@@ -12,6 +12,7 @@
 </head>
 
 <body>
+    <canvas id="candle" width=300 height=300 style="border:solid 1px #ccc;"></canvas>
     <div id="show"></div>
 
 <script id="tpl" type="text/template">
@@ -71,6 +72,15 @@ function get_data(str){
 </script>
 
 <script>
+    function getCtx(canvasId){
+        var canvas = document.getElementById(canvasId);
+        if(!canvas.getContext){
+            alert('not support canvas');
+            return;
+        }
+        var ctx = canvas.getContext('2d');
+        return ctx;
+        }
     //绘制折线图
     function draw(canvasId,strData,unit){
         var data = strData.split('');
@@ -95,12 +105,31 @@ function get_data(str){
         ctx.stroke();
     }
 
-
+    function draw_line(){
     $('#show').html(juicer($('#tpl').html(), {list:get_data('12345')}));
     $('canvas').each(function(){
         var d = $(this).attr('data');
         draw('c'+ d,d,10);
     });
+    }
+
+    //绘制单日蜡烛图
+    //open 11.12, high 11.16,low 10.75,close 10.88
+    function draw_candle(canvasId,open,close,high,low){
+        var ctx = getCtx(canvasId);
+
+        //ctx.lineTo(2,low*100);
+        ctx.lineTo(2,high*100);
+        //ctx.moveTo(2,high*10);
+
+        //ctx.moveTo(2,low*10);
+        ctx.stroke();
+
+        var is_up = close>open;
+        //draw line
+        //draw rectangle
+    }
+    draw_candle('candle',11.12,10.88,11.16,10.75)
 
 
 </script>
