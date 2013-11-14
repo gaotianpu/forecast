@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
+import da
 from config import dbr,dbw,const_root_local,init_log
 import datetime
 
 loger = init_log("daily_compute")
-
-def get_all_stocknos():
-    return list(dbr.select('stock_base_infos',where="days>0"))
-    sql="select distinct stock_no from stock_daily_records order by stock_no" #性能不好，需要优化
-    r = dbr.query(sql)
-    return list(r)
 
 def get_stock_daily_infos(stock_no):
     return list(dbr.select('stock_daily_records',where="stock_no=$stock_no and volume>0", order="date desc",vars=locals()))
@@ -40,7 +35,7 @@ def insert_trend_data(pkid,stock_no,h5,h3,l5,l3):
 
 def compute_rate(stock_no):
     l = []
-    stocks = get_stock_daily_infos(stock_no)
+    stocks = da.dailyrecords.load_by_stockno(stock_no)
     stocks_len = len(stocks)
     for stock in stocks:
         i = stocks.index(stock)
@@ -79,13 +74,12 @@ def __compute_trend(date_infos,index,days,price_type):
     return hp
 
 def compute_3or5(stock_no):
-    date_infos = get_stock_daily_infos(stock_no)
+    date_infos = da.dailyrecords.load_by_stockno(stock_no)
     date_len = len(date_infos)
-
 
     rows = []
     for i in range(0,date_len):
-        #print i
+        print i
         stock_date = date_infos[i]
         d = stock_date.date
         dh5 = __compute_trend(date_infos,i,5,'high_price')
@@ -100,29 +94,31 @@ def compute_3or5(stock_no):
         for day in range(2,6):
             prates[day] = None
             if i < day : continue
-            p = date_infos[i-day].close_price - tommorrow_open_price
-            prate = p / tommorrow_open_price
-            prates[day] = prate
+            prates[day] = (date_infos[i-day].close_price - tommorrow_open_price) / tommorrow_open_price
 
         if i > 6:
            p = date_infos[i-6].close_price - date_infos[i-1].open_price
            prate = p/date_infos[i-1].open_price
            print stock_date.date,dh5,dh3,dl5,dl3,p,prate
 
+        if date_len > (i+5):
+            history_prate_3 = (stock_date.close_price - date_infos[i+3].close_price) / date_infos[i+3].close_price
+            history_prate_5 = (stock_date.close_price - date_infos[i+5].close_price) / date_infos[i+5].close_price
 
         rows.append(web.storage(pk_id=stock_date.pk_id,date=stock_date.date,stock_no=stock_date.stock_no,
              high5=dh5,high3=dh3,low5=dl5,low3=dl3,tmrow_open_price=tommorrow_open_price,
-             price_rate_2=prates[2],price_rate_3=prates[3],price_rate_4=prates[4],price_rate_5=prates[5] ))
+             price_rate_2=prates[2],price_rate_3=prates[3],price_rate_4=prates[4],price_rate_5=prates[5],
+             history_prate_3=history_prate_3,history_prate_5=history_prate_5))
 
         i = i + 1
 
-    #dbw.delete('trend_daily',where="pk_id>0",vars=locals())
+    dbw.delete('trend_daily',where="stock_no=$stock_no",vars=locals())
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('trend_daily',rows)
 
 
 def run():
-    stocknos = get_all_stocknos()
+    stocknos = da.stockbaseinfos.load_all_stocks() #get_all_stocknos()
     for stock in stocknos:
         try:
             compute_rate(stock.stock_no)
@@ -131,7 +127,7 @@ def run():
             loger.error(stock.stock_no + " exception " + str(e))
 
 def run_3or5():
-    stocknos = get_all_stocknos()
+    stocknos = da.stockbaseinfos.load_all_stocks()
     for stock in stocknos:
         try:
             compute_3or5(stock.stock_no)

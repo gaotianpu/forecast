@@ -254,4 +254,25 @@ CREATE TABLE `date_avgs` (
   KEY `ix_plate` (`plate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `date_sums` (
+  `trade_date` date DEFAULT NULL,
+  `stock_plate` varchar(11) DEFAULT NULL,
+  `stock_count` int(11) DEFAULT NULL,
+  `avg_open` decimal(8,2) DEFAULT NULL,
+  `avg_close` decimal(8,2) DEFAULT NULL,
+  `avg_high` decimal(8,2) DEFAULT NULL,
+  `avg_low` decimal(8,2) DEFAULT NULL,
+  `avg_volume` int(11) DEFAULT NULL,
+  `avg_amount` int(11) DEFAULT NULL,
+  `price_up_count` int(11) DEFAULT NULL,
+  `price_up_percent` float DEFAULT NULL,
+  `volumn_up_count` int(11) DEFAULT NULL,
+  `volumn_up_percent` float DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL,
+  `last_update` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`trade_date`,`stock_plate`),
+  KEY `date_idx` (`trade_date`),
+  KEY `plate_idx` (`stock_plate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 

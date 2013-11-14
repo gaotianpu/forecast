@@ -75,7 +75,12 @@ def run():
         browser.downad_and_save(url,lfile)
         parse_data_and_import_to_db(lfile,i)
 
+    da.dailyrecords.update_marketcode(datetime.datetime.now())
+    da.dailyrecords.import_date_sums(datetime.datetime.now().strftime('%Y%m%d'))
 
 if __name__ == '__main__':
     run()
+
+
+
 
