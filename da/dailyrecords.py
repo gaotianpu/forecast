@@ -28,19 +28,28 @@ def import_date_sums(str_date):
     sql = '''SELECT 'all' as stock_plate,count(*) as stock_count,
         avg(open_price) as open,avg(high_price) as high,avg(low_price) as low,avg(close_price) as close,avg(volume) as volume,avg(amount) as amount
         FROM `stock_daily_records` where date='%s' ''' % (str_date)
-    rows = dbr.query(sql)
-    insert_date_sum(str_date,rows)
+    #rows = dbr.query(sql)
+    #insert_date_sum(str_date,rows)
 
     sql = '''SELECT stock_market_no as stock_plate,count(*) as stock_count,
         avg(open_price) as open,avg(high_price) as high,avg(low_price) as low,avg(close_price) as close,avg(volume) as volume,avg(amount) as amount
-        FROM `stock_daily_records` where date='%s' group by stock_market_no''' % (str_date)
+        FROM `stock_daily_records` where date='%s' and stock_market_no is not null group by stock_market_no''' % (str_date)
     rows = dbr.query(sql)
     insert_date_sum(str_date,rows)
 
+    sql = '''SELECT stock_market_no as stock_plate,count(*) as stock_count
+        FROM `stock_daily_records` where date='%s' and stock_market_no is not null and raise_drop>0 group by stock_market_no  ''' % (str_date)
+    rows = dbr.query(sql)
+    for r in rows:
+        stock_plate = r.stock_plate
+        dbw.update('date_sums',price_up_count=r.stock_count, where="trade_date=$str_date and stock_plate=$stock_plate",vars=locals())
+    dbw.query("update date_sums set price_up_percent=price_up_count/stock_count where trade_date='%s'" % (str_date) )
+
 
 def insert_date_sum(trade_date,rows):
+    dbw.delete("date_sums",where="trade_date=$trade_date",vars=locals())
     for r in rows:
-        dbw.insert('date_sums',trade_date=trade_date,stock_plate=r.trade_date,
-        stock_count=r.stock_count,avg_open=r.avg_open,avg_close=r.avg_close,
-        avg_high=r.avg_high,avg_low=r.avg_low,avg_volume=r.avg_volume,
-        avg_amount=r.avg_amount,create_date=datetime.datetime.now())
+        dbw.insert('date_sums',trade_date=trade_date,stock_plate=r.stock_plate,
+        stock_count=r.stock_count,avg_open=r.open,avg_close=r.close,
+        avg_high=r.high,avg_low=r.low,avg_volume=r.volume,
+        avg_amount=r.amount,create_date=datetime.datetime.now())

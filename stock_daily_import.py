@@ -80,6 +80,9 @@ def run():
 
 if __name__ == '__main__':
     run()
+    #da.dailyrecords.import_date_sums('2013-11-4')
+
+
 
 
 
