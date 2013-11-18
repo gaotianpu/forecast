@@ -1,6 +1,9 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import da
+from config import dbr,dbw,const_root_local,init_log
+
+loger = init_log("stock_daily_import")
 
 def gen_new_field_sql():
     print "ALTER TABLE `stock_base_infos`"
@@ -22,9 +25,15 @@ def update_stock_high_low(stock_no):
     da.stockbaseinfos.update_high_low(stock_no,d)
 
 def run():
-    stocks = da.stockbaseinfos.load_all_stocks()
+    stocks = dbr.select('stock_base_infos',
+        what='stock_no,market_code,market_code_yahoo,pinyin2',
+        where="high_price_7 is null" )
     for s in stocks:
-        update_stock_high_low(s.stock_no)
+        try:
+            update_stock_high_low(s.stock_no)
+        except Exception ,e:
+            loger.error(s.stock_no + " " + str(e))
+
 
 
 if __name__ == '__main__':
