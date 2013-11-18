@@ -62,10 +62,36 @@ CREATE TABLE `stock_base_infos` (
   `high` decimal(8,2) DEFAULT NULL,
   `low` decimal(8,2) DEFAULT NULL,
   `volumn` int(8) DEFAULT NULL,
-  `amount` decimal(8,2) DEFAULT NULL,
+  `amount` decimal(16,2) DEFAULT NULL,
   `trade_date` date DEFAULT NULL,
+  `high_price_7` decimal(8,2) DEFAULT NULL,
+  `high_date_7` date DEFAULT NULL,
+  `low_price_7` decimal(8,2) DEFAULT NULL,
+  `low_date_7` date DEFAULT NULL,
+  `high_price_30` decimal(8,2) DEFAULT NULL,
+  `high_date_30` date DEFAULT NULL,
+  `low_price_30` decimal(8,2) DEFAULT NULL,
+  `low_date_30` date DEFAULT NULL,
+  `high_price_90` decimal(8,2) DEFAULT NULL,
+  `high_date_90` date DEFAULT NULL,
+  `low_price_90` decimal(8,2) DEFAULT NULL,
+  `low_date_90` date DEFAULT NULL,
+  `high_price_188` decimal(8,2) DEFAULT NULL,
+  `high_date_188` date DEFAULT NULL,
+  `low_price_188` decimal(8,2) DEFAULT NULL,
+  `low_date_188` date DEFAULT NULL,
+  `high_price_365` decimal(8,2) DEFAULT NULL,
+  `high_date_365` date DEFAULT NULL,
+  `low_price_365` decimal(8,2) DEFAULT NULL,
+  `low_date_365` date DEFAULT NULL,
+  `high_price_730` decimal(8,2) DEFAULT NULL,
+  `high_date_730` date DEFAULT NULL,
+  `low_price_730` decimal(8,2) DEFAULT NULL,
+  `low_date_730` date DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

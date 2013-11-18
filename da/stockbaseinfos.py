@@ -19,6 +19,11 @@ def update(stockno,stockname,openp,close,high,low,volumn,amount,trade_day):
         last_update=web.SQLLiteral('NOW()'),
         where="stock_no=$stockno",vars=locals())
 
+def update_high_low(stock_no,rows):
+    sql = 'update stock_base_infos set %s where stock_no=%s' %(','.join(["%s='%s'" % (k,v) for k,v in rows.items()]),stock_no)
+    dbw.query( sql )
+
+
 def import_daily_records(table,rows):
     dbw.supports_multiple_insert = True
     dbw.multiple_insert(table,rows)
