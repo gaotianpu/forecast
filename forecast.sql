@@ -51,13 +51,21 @@ CREATE TABLE `stock_base_infos` (
   `pk_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `market_code_yahoo` varchar(5) DEFAULT NULL,
   `market_code` varchar(5) DEFAULT NULL,
+  `pinyin2` varchar(5) DEFAULT NULL,
   `stock_no` varchar(10) DEFAULT NULL,
   `stock_name` varchar(20) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `last_update` datetime DEFAULT NULL,
-  `days` int(11) NOT NULL DEFAULT '0',
+  `days` int(11) DEFAULT NULL,
+  `open` decimal(8,2) DEFAULT NULL,
+  `close` decimal(8,2) DEFAULT NULL,
+  `high` decimal(8,2) DEFAULT NULL,
+  `low` decimal(8,2) DEFAULT NULL,
+  `volumn` int(8) DEFAULT NULL,
+  `amount` decimal(8,2) DEFAULT NULL,
+  `trade_date` date DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

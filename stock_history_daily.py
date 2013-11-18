@@ -17,7 +17,7 @@ def get_url(params):
     return '%ss=%s' % (const_root_url,params['s'])
 
 def get_local_file_name(params):
-    return '%s/dailyh/%s_%s.csv' %(const_root_local,params['s'],datetime.datetime.now().strftime('%Y%m%d'))
+    return '%s/dailyh/%s.csv' %(const_root_local,params['s'])
     #return lfile
 
 def parse_data(lfile):
@@ -104,6 +104,7 @@ def test_one_stock():
     import_stock_daily_data('sa','600000',data)
 
 if __name__ == '__main__':
+    #print load_all_stocks()
     download_all(load_all_stocks())
 
     #stock_dates = load_stock_dates('300001')

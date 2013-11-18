@@ -11,6 +11,13 @@ def load_all_stocks():
         #offset=0,limit=1,
         order="market_code,stock_no"))
 
+def update(stockno,stockname,openp,close,high,low,volumn,amount,trade_day):
+    #
+    dbw.update('stock_base_infos',
+        stock_name=stockname,
+        open=openp,close=close,high=high,low=low,volumn=volumn,amount=amount,trade_date=trade_day,
+        last_update=web.SQLLiteral('NOW()'),
+        where="stock_no=$stockno",vars=locals())
 
 def import_daily_records(table,rows):
     dbw.supports_multiple_insert = True
