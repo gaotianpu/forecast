@@ -4,13 +4,14 @@ import da
 from config import dbr,dbw,const_root_local,init_log
 
 loger = init_log("stock_daily_import")
+types = {'date':'date','price':'decimal(8,2)','volume':''}
 
 def gen_new_field_sql():
     print "ALTER TABLE `stock_base_infos`"
     start_field = 'trade_date'
     for d in (7,30,90,188,365,730):
         for t in ('high','low'):
-            for s in ('price','date'):
+            for s in ('price','date','volume'):
                 field_type = 'date' if s=='date' else 'decimal(8,2)'
                 print "ADD COLUMN `%s_%s_%s` %s NULL AFTER `%s`," % (t,s,d,field_type,start_field)
                 start_field = '%s_%s_%s' % (t,s,d)
@@ -36,5 +37,5 @@ def run():
 
 if __name__ == '__main__':
     run()
-    #gen()
+    #gen_new_field_sql()
 

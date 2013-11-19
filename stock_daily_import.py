@@ -66,6 +66,11 @@ def parse_data_and_import_to_db(lfile,i):
     da.stockbaseinfos.import_daily_records('stock_daily_records',rows)
 
 def run():
+    today = datetime.datetime.now()
+    weekday = today.weekday()
+    if weekday in (5,6):
+        return
+
     stocks = da.stockbaseinfos.load_all_stocks()
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
 
@@ -81,14 +86,14 @@ def run():
         browser.downad_and_save(url,lfile)
         parse_data_and_import_to_db(lfile,i)
 
-    da.dailyrecords.update_marketcode(datetime.datetime.now())
-    da.dailyrecords.import_date_sums(datetime.datetime.now().strftime('%Y%m%d'))
+    da.dailyrecords.update_marketcode(today)
+    da.dailyrecords.import_date_sums(today.strftime('%Y%m%d'))
 
 if __name__ == '__main__':
     run()
     import max_min_date
     max_min_date.run()
-    #da.dailyrecords.import_date_sums('2013-11-4')
+
 
 
 

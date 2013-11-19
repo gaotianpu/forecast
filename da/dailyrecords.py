@@ -62,16 +62,33 @@ def load_max_min(stock_no,days):
         offset=0,limit=1,
         order="high_price desc",
         vars=locals())[0]
+
     low = dbr.select('stock_daily_records',
         what="date,low_price",
         where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
         offset=0,limit=1,
         order="low_price asc",
         vars=locals())[0]
+
+    high_v = dbr.select('stock_daily_records',
+        what="date,volume",
+        where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
+        offset=0,limit=1,
+        order="high_price desc",
+        vars=locals())[0]
+
+    low_v = dbr.select('stock_daily_records',
+        what="date,volume",
+        where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
+        offset=0,limit=1,
+        order="low_price asc",
+        vars=locals())[0]
+
     return {'high_date_%s'%(days):high.date,
     'high_price_%s'%(days):high.high_price,
     'low_date_%s'%(days):low.date,
-    'low_price_%s'%(days):low.low_price}
+    'low_price_%s'%(days):low.low_price
+    }
 
     return web.storage(days=days,
         high_date=high.date,high_price=high.high_price,
