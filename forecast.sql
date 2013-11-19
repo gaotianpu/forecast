@@ -88,6 +88,7 @@ CREATE TABLE `stock_base_infos` (
   `high_date_730` date DEFAULT NULL,
   `low_price_730` decimal(8,2) DEFAULT NULL,
   `low_date_730` date DEFAULT NULL,
+  `high_low_update_date` datetime DEFAULT NULL,
   PRIMARY KEY (`pk_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

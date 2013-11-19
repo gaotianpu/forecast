@@ -86,6 +86,8 @@ def run():
 
 if __name__ == '__main__':
     run()
+    import max_min_date
+    max_min_date.run()
     #da.dailyrecords.import_date_sums('2013-11-4')
 
 

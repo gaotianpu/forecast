@@ -25,9 +25,7 @@ def update_stock_high_low(stock_no):
     da.stockbaseinfos.update_high_low(stock_no,d)
 
 def run():
-    stocks = dbr.select('stock_base_infos',
-        what='stock_no,market_code,market_code_yahoo,pinyin2',
-        where="high_price_7 is null" )
+    stocks = dbr.select('stock_base_infos',what='stock_no,market_code,market_code_yahoo,pinyin2')
     for s in stocks:
         try:
             update_stock_high_low(s.stock_no)

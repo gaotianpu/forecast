@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
+import datetime
 from config import dbr,dbw,const_root_local,init_log
 
 def load_all_stocks():
@@ -20,6 +21,7 @@ def update(stockno,stockname,openp,close,high,low,volumn,amount,trade_day):
         where="stock_no=$stockno",vars=locals())
 
 def update_high_low(stock_no,rows):
+    rows['high_low_update_date'] = datetime.datetime.now()
     sql = 'update stock_base_infos set %s where stock_no=%s' %(','.join(["%s='%s'" % (k,v) for k,v in rows.items()]),stock_no)
     dbw.query( sql )
 
