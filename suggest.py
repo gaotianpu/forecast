@@ -1,4 +1,4 @@
-ï»¿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
 import math
@@ -10,7 +10,7 @@ from decimal import *
 import config
 from config import const_root_local,init_log,dbr,dbw
 import comm
-
+import emailsmtp
 #http://www.cnblogs.com/kingwolfofsky/archive/2011/08/14/2138081.html
 
 def get_current_hhmm():
@@ -27,8 +27,13 @@ def load_buy_stocks(stock_nos):
 
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-    strHM = strHM[0:-1] #10åˆ†é’Ÿä¸€æ¬¡
+    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
     return '%s/dailym/%s.txt' %(const_root_local,strHM)
+
+def get_suggest_local_file_name():
+    strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
+    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
+    return '%s/suggest/%s.txt' %(const_root_local,strHM)
 
 regex = re.compile("_[a-z]{2}([\d]+)=")
 def parse_data(lfile):
@@ -60,16 +65,20 @@ def parse_data(lfile):
 
         #print r
         rows.append(r)
-    #rows = [r for r in rows if r['new_high'] ]  å½“å‰ä»·å°±æ˜¯ä»Šå¤©çš„æœ€é«˜ä»·
+    #rows = [r for r in rows if r['new_high'] ]  µ±Ç°¼Û¾ÍÊÇ½ñÌìµÄ×î¸ß¼Û
     return rows
 
 def run():
-    #if not comm.is_trade_time() : return
+    buy_stocknos = ['600290']
+    if not comm.is_trade_time() :
+        print "it's not tradding time !"
+        return
+
     lfile = get_local_file_name()
 
     #generate url
     observe_stocks = load_high_stocks()
-    stocks = observe_stocks + load_buy_stocks(['600290']) #load_buy_stocks é¢å¤–æŒ‡å®šå·²è´­ä¹°çš„
+    stocks = observe_stocks + load_buy_stocks(buy_stocknos) #load_buy_stocks ¶îÍâÖ¸¶¨ÒÑ¹ºÂòµÄ
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
     params = list(set(params))
     url = config.const_base_url + ','.join(params)
@@ -77,19 +86,36 @@ def run():
     browser.downad_and_save(url,lfile)
     rows = parse_data(lfile)
 
-    #10ç‚¹å‰çš„high_priceæ˜¯ä¸€ä¸ªé‡è¦çš„å‚è€ƒç‚¹?
+    #######
+    content = ''
+    for r in rows:
+        if r.stock_no not in buy_stocknos: continue
+        should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
+        content = content + '<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.stock_no,r.stock_no,should_sell,r.last_close,r.close_price) + '<br/>'
+    #10µãÇ°µÄhigh_priceÊÇÒ»¸öÖØÒªµÄ²Î¿¼µã?
     tmp =[r for r in rows if r.raise_drop_rate<>-1 and r.is_new_high]
     tmp = sorted(tmp, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
-    print '\r'.join(['%s,%s' % (r.stock_no,int(r.raise_drop_rate*100)) for r in tmp])
-    print 'observe_stocks count:%s' %(len(observe_stocks))
+    content = content + '<br/>'.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s' % (r.stock_no,r.stock_no,int(r.raise_drop_rate*100)) for r in tmp])
+    content = content + 'observe_stocks count:%s' %(len(observe_stocks))
     #print rows
+    with open(get_suggest_local_file_name(),'w') as f:
+        f.write(content)
+        f.close()
+
+    #send email
+    subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
+    emailsmtp.sendmail(subject,content,['462042991@qq.com','5632646@qq.com'])
+
+
 
 
 if __name__ == '__main__':
+    run()
+
     #a = load_buy_stocks(['600290','000897'])
     #stocks + a
     #print datetime.datetime.now().strftime('%Y%m%d%H%M')[0:-1]
-    run()
+
     #parse_data('D:\\gaotp\\stocks\\daily\\20131111_0.txt')
 
 
