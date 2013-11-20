@@ -44,15 +44,18 @@ def parse_data(lfile):
         stockno = regex.findall(fields[0])
         if not stockno: break
 
-        raise_drop = Decimal(fields[3]) - Decimal(fields[1])
-        raise_drop_rate = raise_drop / Decimal(fields[1]) if Decimal(fields[1]) != 0 else 0
+        last_close = fields[2]
+        close_price = fields[3]
+
+        raise_drop = Decimal(close_price) - Decimal(last_close)
+        raise_drop_rate = raise_drop / Decimal(last_close) if Decimal(last_close) != 0 else 0
 
         r = web.storage(stock_no=stockno[0],open_price=fields[1],high_price=fields[4],
-            low_price=fields[5],close_price=fields[3],last_close=fields[1],
+            low_price=fields[5],close_price=close_price,last_close=last_close,
             volume=fields[8],amount=fields[9] ,
             raise_drop=raise_drop, raise_drop_rate=raise_drop_rate,
-            is_new_high= fields[4]==fields[3],
-            is_new_low= fields[5]==fields[3],
+            is_new_high = fields[4]==fields[3],
+            is_new_low = fields[5]==fields[3],
             date=fields[30],time=fields[31])
 
         #print r
@@ -74,9 +77,9 @@ def run():
     rows = parse_data(lfile)
 
     #10点前的high_price是一个重要的参考点?
-    tmp =[r for r in rows if r.is_new_high and r.raise_drop_rate>0]
-    sorted(tmp, cmp=lambda x,y : cmp(x.raise_drop_rate, y.raise_drop_rate))
-    print '\r'.join(['%s,%s' % (r.stock_no,r.raise_drop_rate) for r in tmp])
+    tmp =[r for r in rows if r.raise_drop_rate<>-1 and r.is_new_high]
+    tmp = sorted(tmp, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
+    print '\r'.join(['%s,%s' % (r.stock_no,int(r.raise_drop_rate*100)) for r in tmp])
     #print rows
 
 

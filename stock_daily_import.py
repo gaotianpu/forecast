@@ -39,7 +39,7 @@ def parse_data_and_import_to_db(lfile,i):
         if not stockno: break
 
         #if exist,update,
-        raise_drop = Decimal(fields[3]) - Decimal(fields[1])
+        raise_drop = Decimal(fields[3]) - Decimal(fields[2])
         raise_drop_rate = raise_drop / Decimal(fields[1]) * 100 if Decimal(fields[1]) != 0 else 0
 
         #
@@ -49,7 +49,7 @@ def parse_data_and_import_to_db(lfile,i):
         if pkids and stockno[0] in pkids.keys():
             da.dailyrecords.update(pkids[stockno[0]],open_price=fields[1],high_price=fields[4],
             low_price=fields[5],close_price=fields[3],volume=int(fields[8])/100,amount=fields[9],
-            adj_close=fields[1],
+            adj_close=fields[2],
             raise_drop = raise_drop,
             raise_drop_rate = raise_drop_rate ,
             last_update=datetime.datetime.now())
@@ -58,7 +58,7 @@ def parse_data_and_import_to_db(lfile,i):
         #else insert
         rows.append({'stock_no':stockno[0],'date':fields[30],'open_price':fields[1],'high_price':fields[4],
             'low_price':fields[5],'close_price':fields[3],'volume':int(fields[8])/100,'amount': fields[9] ,
-            'adj_close':fields[1],
+            'adj_close':fields[2],
             'raise_drop':raise_drop,
             'raise_drop_rate':raise_drop_rate,
             'create_date':datetime.datetime.now()})
