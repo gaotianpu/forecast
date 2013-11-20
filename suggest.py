@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ï»¿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
 import math
@@ -27,7 +27,7 @@ def load_buy_stocks(stock_nos):
 
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
+    strHM = strHM[0:-1] #10åˆ†é’Ÿä¸€æ¬¡
     return '%s/dailym/%s.txt' %(const_root_local,strHM)
 
 regex = re.compile("_[a-z]{2}([\d]+)=")
@@ -60,7 +60,7 @@ def parse_data(lfile):
 
         #print r
         rows.append(r)
-    #rows = [r for r in rows if r['new_high'] ]  µ±Ç°¼Û¾ÍÊÇ½ñÌìµÄ×î¸ß¼Û
+    #rows = [r for r in rows if r['new_high'] ]  å½“å‰ä»·å°±æ˜¯ä»Šå¤©çš„æœ€é«˜ä»·
     return rows
 
 def run():
@@ -68,7 +68,8 @@ def run():
     lfile = get_local_file_name()
 
     #generate url
-    stocks = load_high_stocks() + load_buy_stocks(['600290']) #load_buy_stocks ¶îÍâÖ¸¶¨ÒÑ¹ºÂòµÄ
+    observe_stocks = load_high_stocks()
+    stocks = observe_stocks + load_buy_stocks(['600290']) #load_buy_stocks é¢å¤–æŒ‡å®šå·²è´­ä¹°çš„
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
     params = list(set(params))
     url = config.const_base_url + ','.join(params)
@@ -76,10 +77,11 @@ def run():
     browser.downad_and_save(url,lfile)
     rows = parse_data(lfile)
 
-    #10µãÇ°µÄhigh_priceÊÇÒ»¸öÖØÒªµÄ²Î¿¼µã?
+    #10ç‚¹å‰çš„high_priceæ˜¯ä¸€ä¸ªé‡è¦çš„å‚è€ƒç‚¹?
     tmp =[r for r in rows if r.raise_drop_rate<>-1 and r.is_new_high]
     tmp = sorted(tmp, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
     print '\r'.join(['%s,%s' % (r.stock_no,int(r.raise_drop_rate*100)) for r in tmp])
+    print 'observe_stocks count:%s' %(len(observe_stocks))
     #print rows
 
 
