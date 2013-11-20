@@ -8,6 +8,7 @@ import datetime
 import browser
 from decimal import *
 from config import const_root_local,init_log
+import comm
 
 
 loger = init_log("stock_daily_import")
@@ -66,10 +67,7 @@ def parse_data_and_import_to_db(lfile,i):
     da.stockbaseinfos.import_daily_records('stock_daily_records',rows)
 
 def run():
-    today = datetime.datetime.now()
-    weekday = today.weekday()
-    if weekday in (5,6):
-        return
+    if not comm.is_trade_day(): return
 
     stocks = da.stockbaseinfos.load_all_stocks()
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]

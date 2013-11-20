@@ -12,6 +12,8 @@ const_root_local = 'D:\\gaotp\\stocks' if platform.system() == 'Windows' else '/
 
 const_log_level = logging.DEBUG
 
+const_base_url="http://hq.sinajs.cn/list="
+
 def init_log(log_file):
     logger = logging.getLogger()
     fname = '%s/log/%s_%s.log'%(const_root_local,log_file,datetime.datetime.now().strftime('%Y%m%d'))
@@ -25,7 +27,7 @@ def init_log(log_file):
 
 if __name__ == '__main__':
     logging=init_log('test')
-    logging.info('注册') 
+    logging.info('注册')
 
 #DEBUG  Detailed information, typically of interest only when diagnosing problems.
 #INFO    Confirmation that things are working as expected.

@@ -35,7 +35,7 @@ def parse_data(lfile):
 def load_all_stocks():
     return list(dbr.select('stock_base_infos',
         what='stock_no,market_code,market_code_yahoo',
-        where="days=0",
+        where="days<>0",
         #where="market_code_yahoo in ('ss','sz')",
         #offset=0,limit=1,
         order="market_code,stock_no"))
@@ -51,8 +51,7 @@ def import_stock_daily_data(market_code,stock_no,data):
     max_date = max(stock_dates) if stock_dates else '1900-01-01'
     l=[]
     for row in data:
-        if row['date'] <= max_date:
-            break
+        #if row['date'] <= max_date: break
         if row['date'] in stock_dates:
             continue
         row['stock_market_no'] = market_code
