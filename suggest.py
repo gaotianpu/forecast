@@ -38,42 +38,6 @@ def get_suggest_local_file_name():
     strHM = strHM[0:-1] #10分钟一次
     return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
-regex = re.compile("_[a-z]{2}([\d]+)=")
-def parse_data(lfile):
-    with open(lfile,'rb') as f:
-        lines = f.readlines()
-        f.close()
-
-    rows=[]
-    for a in lines:
-        fields = a.split(',')
-        if(len(fields)<30):continue
-
-        stockno = regex.findall(fields[0])
-        if not stockno: break
-
-        last_close = fields[2]
-        close_price = fields[3]
-
-        raise_drop = Decimal(close_price) - Decimal(last_close)
-        raise_drop_rate = raise_drop / Decimal(last_close) if Decimal(last_close) != 0 else 0
-
-        r = web.storage(stock_no=stockno[0],open_price=fields[1],high_price=fields[4],
-            low_price=fields[5],close_price=close_price,last_close=last_close,
-            volume=fields[8],amount=fields[9] ,
-            raise_drop=raise_drop, raise_drop_rate=raise_drop_rate,
-            is_new_high = fields[4]==fields[3],
-            is_new_low = fields[5]==fields[3],
-            date=fields[30],time=fields[31])
-
-        #print r
-        rows.append(r)
-    #rows = [r for r in rows if r['new_high'] ]  当前价就是今天的最高价
-    return rows
-
-def get_last_data(stocks,stock_no):
-    [s for s in stocks if s.stock_no == stock_no]
-
 
 def run():
     buy_stocknos = ['600290','002290']
@@ -92,7 +56,7 @@ def run():
     url = config.const_base_url + ','.join(params)
 
     browser.downad_and_save(url,lfile)
-    rows = parse_data(lfile)
+    rows = comm.parse_daily_data(lfile)
     for r in rows:
         r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
@@ -111,8 +75,9 @@ def run():
     subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
     emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
-render_suggest = web.template.frender('templates/suggest.html')
+
 def send_reports_v2(rows):
+    render_suggest = web.template.frender('templates/suggest.html')
     rows = sorted(rows, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
     data = web.storage(stocks=rows)
     return render_suggest(data)
