@@ -33,7 +33,7 @@ def get_local_file_name():
 def get_suggest_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
     strHM = strHM[0:-1] #10分钟一次
-    return '%s/suggest/%s.txt' %(const_root_local,strHM)
+    return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
 regex = re.compile("_[a-z]{2}([\d]+)=")
 def parse_data(lfile):
@@ -69,7 +69,7 @@ def parse_data(lfile):
     return rows
 
 def run():
-    buy_stocknos = ['600290']
+    buy_stocknos = ['600290','002290']
     if not comm.is_trade_time() :
         print "it's not tradding time !"
         return
@@ -93,9 +93,9 @@ def run():
         should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         content = content + '<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.stock_no,r.stock_no,should_sell,r.last_close,r.close_price) + '<br/>'
     #10点前的high_price是一个重要的参考点?
-    tmp =[r for r in rows if r.raise_drop_rate<>-1 and r.is_new_high]
+    tmp =[r for r in rows if r.raise_drop_rate<>-1]
     tmp = sorted(tmp, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
-    content = content + '<br/>'.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s' % (r.stock_no,r.stock_no,int(r.raise_drop_rate*100)) for r in tmp])
+    content = content + '<br/>'.join(['%s,<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s' % (r.is_new_high,r.stock_no,r.stock_no,r.raise_drop_rate) for r in tmp])
     content = content + 'observe_stocks count:%s' %(len(observe_stocks))
     #print rows
     with open(get_suggest_local_file_name(),'w') as f:
@@ -104,10 +104,7 @@ def run():
 
     #send email
     subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
-    emailsmtp.sendmail(subject,content,['462042991@qq.com','5632646@qq.com'])
-
-
-
+    emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
 if __name__ == '__main__':
     run()
