@@ -11,6 +11,9 @@ import config
 from config import const_root_local,init_log,dbr,dbw
 import comm
 import emailsmtp
+
+loger = init_log("suggest")
+
 #http://www.cnblogs.com/kingwolfofsky/archive/2011/08/14/2138081.html
 
 def get_current_hhmm():
@@ -75,6 +78,7 @@ def run():
         return
 
     lfile = get_local_file_name()
+    loger.info(lfile)
 
     #generate url
     observe_stocks = load_high_stocks()
@@ -86,6 +90,10 @@ def run():
     browser.downad_and_save(url,lfile)
     rows = parse_data(lfile)
 
+    send_reports(rows,buy_stocknos,observe_stocks)
+
+
+def send_reports(rows,buy_stocknos,observe_stocks):
     #######
     content = ''
     for r in rows:
@@ -107,8 +115,11 @@ def run():
     subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
     emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
+import time
 if __name__ == '__main__':
-    run()
+    while True:
+        run()
+        time.sleep(600)
 
     #a = load_buy_stocks(['600290','000897'])
     #stocks + a
