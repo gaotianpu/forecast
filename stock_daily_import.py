@@ -68,6 +68,7 @@ def parse_data_and_import_to_db(lfile,i):
 
 def run():
     if not comm.is_trade_day(): return
+    today = datetime.datetime.now()
 
     stocks = da.stockbaseinfos.load_all_stocks()
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]

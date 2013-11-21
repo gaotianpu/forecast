@@ -56,39 +56,44 @@ def insert_date_sum(trade_date,rows):
 
 
 def load_max_min(stock_no,days):
-    high = dbr.select('stock_daily_records',
+    result = {}
+
+    high = list(dbr.select('stock_daily_records',
         what="date,high_price",
-        where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
+        where="stock_no=$stock_no and volume<>0 and TO_DAYS(NOW())-TO_DAYS(date) < $days",
         offset=0,limit=1,
         order="high_price desc",
-        vars=locals())[0]
+        vars=locals()))
+    if high:
+        result['high_date_%s'%(days)]=high[0].date
+        result['high_price_%s'%(days)]=high[0].high_price
 
-    low = dbr.select('stock_daily_records',
+    low = list(dbr.select('stock_daily_records',
         what="date,low_price",
-        where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
+        where="stock_no=$stock_no and volume<>0 and TO_DAYS(NOW())-TO_DAYS(date) < $days",
         offset=0,limit=1,
         order="low_price asc",
-        vars=locals())[0]
+        vars=locals()))
 
-    high_v = dbr.select('stock_daily_records',
+    if low:
+        result['low_date_%s'%(days)]=low[0].date
+        result['low_price_%s'%(days)]=low[0].high_price
+
+    high_v = list(dbr.select('stock_daily_records',
         what="date,volume",
-        where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
+        where="stock_no=$stock_no and volume<>0 and TO_DAYS(NOW())-TO_DAYS(date) < $days",
         offset=0,limit=1,
         order="high_price desc",
-        vars=locals())[0]
+        vars=locals()))[0]
 
-    low_v = dbr.select('stock_daily_records',
+    low_v = list(dbr.select('stock_daily_records',
         what="date,volume",
-        where="stock_no=$stock_no and TO_DAYS(NOW())-TO_DAYS(date) < $days",
+        where="stock_no=$stock_no and volume<>0 and TO_DAYS(NOW())-TO_DAYS(date) < $days",
         offset=0,limit=1,
         order="low_price asc",
-        vars=locals())[0]
+        vars=locals()))[0]
 
-    return {'high_date_%s'%(days):high.date,
-    'high_price_%s'%(days):high.high_price,
-    'low_date_%s'%(days):low.date,
-    'low_price_%s'%(days):low.low_price
-    }
+    return result
 
     return web.storage(days=days,
         high_date=high.date,high_price=high.high_price,

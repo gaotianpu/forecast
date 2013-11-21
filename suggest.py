@@ -93,10 +93,11 @@ def run():
         should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         content = content + '<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.stock_no,r.stock_no,should_sell,r.last_close,r.close_price) + '<br/>'
     #10点前的high_price是一个重要的参考点?
-    tmp =[r for r in rows if r.raise_drop_rate<>-1]
+    tmp =[r for r in rows if r.raise_drop_rate<>-1 and r.raise_drop_rate>0.02]
     tmp = sorted(tmp, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
-    content = content + '<br/>'.join(['%s,<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s' % (r.is_new_high,r.stock_no,r.stock_no,r.raise_drop_rate) for r in tmp])
-    content = content + 'observe_stocks count:%s' %(len(observe_stocks))
+    content = content + '<br/>'.join(['%s,<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.is_new_high,r.stock_no,r.stock_no,r.high_price,r.close_price,r.raise_drop_rate) for r in tmp])
+    content = content + '<br/>new count:%s' %(len(observe_stocks))
+    content = content + '<br/>observe_stocks count:%s' %(len(tmp))
     #print rows
     with open(get_suggest_local_file_name(),'w') as f:
         f.write(content)
