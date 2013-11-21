@@ -3,9 +3,17 @@ $var style: ''
 <!DOCTYPE html>
 <html><head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head><body>
+</head>
+<body>
+<h3>$(module.title)</h3>
+<div>
+    total_count : $(module.total_count) <br/>
+    last trade close up>open : $(module.last_close_up_count) <br/>
+    today trade current>open : $(module.today_current_up_count)<br/>
+    today new high : $(module.today_new_high_count)<br/>
+</div>
 <table>
-<tr><td>stock_no</td><td>stock_name</td><td>is_new_high</td><td>high_price</td><td>close_price</td><td>raise_drop_rate</td><td>should_sell</td><td>last_close</td></tr>
+<tr><td>stock_no</td><td>stock_name</td><td>is_new_high</td><td>high_price</td><td>current_price</td><td>raise_drop_rate</td><td>should_sell</td><td>last_close</td></tr>
 $for stock in module.stocks:
     $ style=''
     $if stock.should_sell=='sell':

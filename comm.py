@@ -1,4 +1,4 @@
-ï»¿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import datetime
 import re
@@ -6,7 +6,7 @@ from decimal import *
 import web
 
 def is_trade_day():
-    #ä¸åŒ…å«å·¥ä½œæ—¥
+    #²»°üº¬¹¤×÷ÈÕ
     return datetime.datetime.now().weekday() not in (5,6)
 
 def is_trade_time():
@@ -15,13 +15,15 @@ def is_trade_time():
     current_hhmm = int(datetime.datetime.now().strftime('%Y%m%d%H%M')[8:])
     return not (current_hhmm < 930 or current_hhmm > 1510 or (current_hhmm>1140 and current_hhmm<1300 ))
 
+##½âÎöÃ¿ÈÕÊı¾İ
 def parse_daily_data(lfile):
+    #file exit?
     with open(lfile,'rb') as f:
         lines = f.readlines()
         f.close()
 
-    regex = re.compile("_[a-z]{2}([\d]+)=")
     rows=[]
+    regex = re.compile("_[a-z]{2}([\d]+)=")
     for a in lines:
         fields = a.split(',')
         if(len(fields)<30):continue
@@ -45,7 +47,7 @@ def parse_daily_data(lfile):
 
         #print r
         rows.append(r)
-    #rows = [r for r in rows if r['new_high'] ]  å½“å‰ä»·å°±æ˜¯ä»Šå¤©çš„æœ€é«˜ä»·
+    #rows = [r for r in rows if r['new_high'] ]  µ±Ç°¼Û¾ÍÊÇ½ñÌìµÄ×î¸ß¼Û
     return rows
 
 if __name__ == '__main__':

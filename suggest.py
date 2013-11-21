@@ -40,10 +40,10 @@ def get_suggest_local_file_name():
 
 
 def run():
-    buy_stocknos = ['600290','002290']
     if not comm.is_trade_time() :
         print "it's not tradding time !"
-        #return
+        return
+    buy_stocknos = ['600290','002290']
 
     lfile = get_local_file_name()
     loger.info(lfile)
@@ -61,51 +61,33 @@ def run():
         r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
 
-    content = send_reports_v2(rows)
-    print content
-    return
-    content = send_reports(rows,buy_stocknos,observe_stocks)
-
-    #print rows
+    content = str(send_reports_withT(rows))
     with open(get_suggest_local_file_name(),'w') as f:
         f.write(content)
         f.close()
-
     #send email
     subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
     emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
 
-def send_reports_v2(rows):
+def send_reports_withT(rows):
     render_suggest = web.template.frender('templates/suggest.html')
     rows = sorted(rows, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
-    data = web.storage(stocks=rows)
+    data = web.storage(stocks=rows,
+        total_count = len(rows),
+        last_close_up_count = len( [r for r in rows if r.last.close > r.last.open]),
+        today_current_up_count = len( [r for r in rows if r.close_price > r.open_price]),
+        today_new_high_count = len( [r for r in rows if r.is_new_high]) ,
+        title = "%s %s" % (rows[0].date,rows[0].time)
+        )
     return render_suggest(data)
-
-
-def send_reports(rows,buy_stocknos,observe_stocks):
-    #######
-    content = ''
-    for r in rows:
-        if r.stock_no not in buy_stocknos: continue
-        should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
-        content = content + '<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.stock_no,r.stock_no,should_sell,r.last_close,r.close_price) + '<br/>'
-    #10点前的high_price是一个重要的参考点?
-    tmp =[r for r in rows if r.raise_drop_rate<>-1 and r.raise_drop_rate>0.02]
-    tmp = sorted(tmp, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
-    content = content + '<br/>'.join(['%s,<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.is_new_high,r.stock_no,r.stock_no,r.high_price,r.close_price,r.raise_drop_rate) for r in tmp])
-    content = content + '<br/>new count:%s' %(len(observe_stocks))
-    content = content + '<br/>observe_stocks count:%s' %(len(tmp))
-    return content
 
 
 import time
 if __name__ == '__main__':
-    run()
-
-    #while True:
-        #run()
-    #    time.sleep(600)
+    while True:
+        run()
+        time.sleep(600)
 
     #a = load_buy_stocks(['600290','000897'])
     #stocks + a
