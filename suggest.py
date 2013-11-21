@@ -75,7 +75,7 @@ def run():
     buy_stocknos = ['600290','002290']
     if not comm.is_trade_time() :
         print "it's not tradding time !"
-        return
+        #return
 
     lfile = get_local_file_name()
     loger.info(lfile)
@@ -90,7 +90,22 @@ def run():
     browser.downad_and_save(url,lfile)
     rows = parse_data(lfile)
 
-    send_reports(rows,buy_stocknos,observe_stocks)
+    content = send_reports(rows,buy_stocknos,observe_stocks)
+
+    #print rows
+    with open(get_suggest_local_file_name(),'w') as f:
+        f.write(content)
+        f.close()
+
+    #send email
+    subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
+    emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
+
+render_suggest = web.template.frender('templates/suggest.html')
+def send_reports_v2(rows,buy_stocknos,observe_stocks):
+    rows = sorted(rows, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
+    data = web.storage(stocks=rows)
+    return render_suggest(data)
 
 
 def send_reports(rows,buy_stocknos,observe_stocks):
@@ -106,20 +121,16 @@ def send_reports(rows,buy_stocknos,observe_stocks):
     content = content + '<br/>'.join(['%s,<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml">%s</a>,%s,%s,%s' % (r.is_new_high,r.stock_no,r.stock_no,r.high_price,r.close_price,r.raise_drop_rate) for r in tmp])
     content = content + '<br/>new count:%s' %(len(observe_stocks))
     content = content + '<br/>observe_stocks count:%s' %(len(tmp))
-    #print rows
-    with open(get_suggest_local_file_name(),'w') as f:
-        f.write(content)
-        f.close()
+    return content
 
-    #send email
-    subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
-    emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
 import time
 if __name__ == '__main__':
-    while True:
-        run()
-        time.sleep(600)
+    run()
+
+    #while True:
+        #run()
+    #    time.sleep(600)
 
     #a = load_buy_stocks(['600290','000897'])
     #stocks + a

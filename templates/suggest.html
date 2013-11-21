@@ -1,0 +1,10 @@
+﻿$def with(module)
+$var style: ''
+<table>
+<tr><td>Stock No</td><td>is_new_high</td><td>high_price</td><td>close_price</td><td>raise_drop_rate</td><td>should_sell</td></tr>
+$for stock in module.stocks:
+    $ style=''
+    $if stock.should_sell=='sell':
+        $ style = 'background-color:red;'
+    <tr style="$style"><td><a href="http://stockhtm.finance.qq.com/sstock/ggcx/$(stock.stock_no).shtml" target="_blank">$(stock.stock_no)</a></td><td>$(stock.is_new_high)</td><td>$(stock.high_price)</td><td>$(stock.close_price)</td><td>$(stock.raise_drop_rate)</td><td>$(stock.should_sell)</td> </tr>
+</table>
