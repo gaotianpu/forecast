@@ -33,8 +33,6 @@ def run():
         except Exception ,e:
             loger.error(s.stock_no + " " + str(e))
 
-
-
 if __name__ == '__main__':
     run()
     #gen_new_field_sql()
