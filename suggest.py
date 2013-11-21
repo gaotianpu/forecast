@@ -71,6 +71,10 @@ def parse_data(lfile):
     #rows = [r for r in rows if r['new_high'] ]  当前价就是今天的最高价
     return rows
 
+def get_last_data(stocks,stock_no):
+    [s for s in stocks if s.stock_no == stock_no]
+
+
 def run():
     buy_stocknos = ['600290','002290']
     if not comm.is_trade_time() :
@@ -89,7 +93,13 @@ def run():
 
     browser.downad_and_save(url,lfile)
     rows = parse_data(lfile)
+    for r in rows:
+        r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
+        r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
 
+    content = send_reports_v2(rows)
+    print content
+    return
     content = send_reports(rows,buy_stocknos,observe_stocks)
 
     #print rows
@@ -102,7 +112,7 @@ def run():
     emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
 render_suggest = web.template.frender('templates/suggest.html')
-def send_reports_v2(rows,buy_stocknos,observe_stocks):
+def send_reports_v2(rows):
     rows = sorted(rows, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
     data = web.storage(stocks=rows)
     return render_suggest(data)
