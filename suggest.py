@@ -21,7 +21,7 @@ def get_current_hhmm():
 
 def load_high_stocks():
     #'high_date_90=trade_date and high_date_188=trade_date and close=high and open<>close';
-    results = dbr.select('stock_base_infos',where="high_date_90=trade_date and high_date_188=trade_date")
+    results = dbr.select('stock_base_infos',where="high_date_188=trade_date")
     return list(results)
 
 def load_buy_stocks(stock_nos):
