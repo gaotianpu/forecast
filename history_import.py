@@ -38,6 +38,5 @@ def import_trade_record(stock_no,rows):
     sql = "replace into z_% (date,stock_no,open_price,high_price,low_price,close_price,volume,amount,adj_close)values()" % (stock_no)
     dbw.query(sql)
 
-
 if __name__ == '__main__':
     create_tables()
