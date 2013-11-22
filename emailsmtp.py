@@ -1,20 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''it's a python script to get the pv,then send email to managers.'''
-import os
-import sys
-sys.path.insert(0, os.path.join('..'))
-import da
-import web
 import smtplib,time
 from email.MIMEText import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 from datetime import datetime,date,timedelta
 
 def sendmail(subject,content,tousrs):
-    hostname ='smtp.163.com'
-    from_usr ='name@163.com'
-    from_usr_pwd='poss'
+
+
     msg = MIMEText(content,'html','utf-8')
     msg['Subject']= subject
     msg['To'] = ','.join(tousrs)
