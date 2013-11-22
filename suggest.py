@@ -38,7 +38,7 @@ def get_suggest_local_file_name():
     strHM = strHM[0:-1] #10∑÷÷”“ª¥Œ
     return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
-buy_stocknos = ['600290','002290','000897']
+buy_stocknos = ['600290','002290','000897','200553']
 
 def run():
     lfile = get_local_file_name()
@@ -57,7 +57,7 @@ def run():
         r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
 
-    content = str(send_reports_withT(rows))
+    content = send_reports_withT(rows)
     with open(get_suggest_local_file_name(),'w') as f:
         f.write(content)
         f.close()
@@ -67,8 +67,6 @@ def run():
 
 
 def send_reports_withT(rows):
-    render_suggest = web.template.frender('templates/suggest.html')
-
     i=0
     rows = sorted(rows, cmp=lambda x,y : cmp(y.last.volumn, x.last.volumn))
     for r in rows:
@@ -95,7 +93,9 @@ def send_reports_withT(rows):
         title = "%s %s" % (rows[0].date,rows[0].time),
         buy_stocks = buy_stocknos
         )
-    return render_suggest(data)
+
+    render_suggest = web.template.frender('templates/suggest.html')
+    return str(render_suggest(data))
 
 def tmp():
     while True:
