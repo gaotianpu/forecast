@@ -6,7 +6,7 @@ from config import dbr,dbw,const_root_local,init_log
 
 def load_all_stocks():
     return list(dbr.select('stock_base_infos',
-        what='stock_no,market_code,market_code_yahoo,pinyin2',
+        what='pk_id,stock_no,market_code,market_code_yahoo,pinyin2',
         where="days<>0",
         #where="market_code_yahoo in ('ss','sz')",
         #offset=0,limit=1,

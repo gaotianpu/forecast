@@ -99,8 +99,8 @@ def load_max_min(stock_no,days):
 
 def load_all_last_5():
     #加载过去5天内股票
-    #SELECT * FROM `stock_daily_records` WHERE TO_DAYS(NOW())-TO_DAYS(date) < 8 order by stock_no,date desc
+    #SELECT * FROM `stock_daily_records` WHERE TO_DAYS(NOW())-TO_DAYS(date) < 8 and volume<>0 order by stock_no,date desc
     results = dbr.select('stock_daily_records',
-        where="stock_no='000001' and TO_DAYS(NOW())-TO_DAYS(date) < 8", #考虑到排除周末情况？
+        where="TO_DAYS(NOW())-TO_DAYS(date) < 8 and volume<>0", #考虑到排除周末情况？
         order="stock_no,date desc",vars=locals())
     return list(results)
