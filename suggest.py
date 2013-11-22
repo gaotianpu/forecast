@@ -98,10 +98,10 @@ def send_reports_withT(rows):
     return render_suggest(data)
 
 def tmp():
-    if not comm.is_trade_time() :
-        print "it's not tradding time !"
-        return
     while True:
+        if not comm.is_trade_time() :
+            print "it's not tradding time !"
+            return
         run()
         time.sleep(600)
 
