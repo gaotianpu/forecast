@@ -38,13 +38,9 @@ def get_suggest_local_file_name():
     strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
     return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
+buy_stocknos = ['600290','002290','000897']
 
 def run():
-    if not comm.is_trade_time() :
-        print "it's not tradding time !"
-        return
-    buy_stocknos = ['600290','002290']
-
     lfile = get_local_file_name()
     loger.info(lfile)
 
@@ -72,22 +68,49 @@ def run():
 
 def send_reports_withT(rows):
     render_suggest = web.template.frender('templates/suggest.html')
+
+    i=0
+    rows = sorted(rows, cmp=lambda x,y : cmp(y.last.volumn, x.last.volumn))
+    for r in rows:
+        r.last_volume_index = i
+        i = i + 1
+
+    i=0
+    rows = sorted(rows, cmp=lambda x,y : cmp(y.volume, x.volume))
+    for r in rows:
+        r.today_volume_index = i
+        i = i + 1
+
+    i=0
     rows = sorted(rows, cmp=lambda x,y : cmp(y.raise_drop_rate, x.raise_drop_rate))
+    for r in rows:
+        r.raise_drop_index = i
+        i = i + 1
+
     data = web.storage(stocks=rows,
         total_count = len(rows),
         last_close_up_count = len( [r for r in rows if r.last.close > r.last.open]),
         today_current_up_count = len( [r for r in rows if r.close_price > r.open_price]),
         today_new_high_count = len( [r for r in rows if r.is_new_high]) ,
-        title = "%s %s" % (rows[0].date,rows[0].time)
+        title = "%s %s" % (rows[0].date,rows[0].time),
+        buy_stocks = buy_stocknos
         )
     return render_suggest(data)
 
-
-import time
-if __name__ == '__main__':
+def tmp():
+    if not comm.is_trade_time() :
+        print "it's not tradding time !"
+        return
     while True:
         run()
         time.sleep(600)
+
+import time
+if __name__ == '__main__':
+    tmp()
+
+
+
 
     #a = load_buy_stocks(['600290','000897'])
     #stocks + a

@@ -39,7 +39,7 @@ def parse_daily_data(lfile):
 
         r = web.storage(stock_no=stockno[0],open_price=fields[1],high_price=fields[4],
             low_price=fields[5],close_price=close_price,last_close=last_close,
-            volume=fields[8],amount=fields[9] ,
+            volume=int(fields[8]),amount=fields[9] ,
             raise_drop=raise_drop, raise_drop_rate=raise_drop_rate,
             is_new_high = fields[4]==fields[3],
             is_new_low = fields[5]==fields[3],
