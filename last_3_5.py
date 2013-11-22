@@ -4,8 +4,11 @@ import web
 from config import dbr,dbw,const_root_local,init_log
 import da
 
-def update(stock_no,result):
-    pass
+def update(pk_id,result):
+    dbw.update('stock_base_infos',
+        days_count_5=result.days_count_5,trend_5=result.trend_5,trend_3=result.trend_3,
+        prate_3=result.prate_3,prate_5=result.prate_5,
+        where='pk_id=$pk_id',vars=locals())
 
 def compute_trend(rows):
     rows = sorted(rows, cmp=lambda x,y : cmp(x.close_price, y.close_price))
@@ -39,20 +42,20 @@ def compute_5_3(stock_trade_records_5):
     trend_5 = compute_trend(stock_trade_records_5)
 
     #print trend_3,day_3_price_rate,trend_5,day_5_price_rate
-    return web.storage(days_count=days_count,trend_5=trend_5,trend_3=trend_3,
-        day_3_price_rate=day_3_price_rate,day_5_price_rate=day_5_price_rate)
+    return web.storage(days_count_5=days_count,trend_5=trend_5,trend_3=trend_3,
+        prate_3=day_3_price_rate,prate_5=day_5_price_rate)
 
 def run():
     trade_records_5 = da.dailyrecords.load_all_last_5()
 
-    stocks = [web.storage(stock_no='000001')] #da.stockbaseinfos.load_all_stocks()
+    stocks = [web.storage(stock_no='000001',pk_id=332)] #da.stockbaseinfos.load_all_stocks()
     for s in stocks:
         stock_trade_records_5 = [r for r in trade_records_5 if r.stock_no==s.stock_no]
         if not stock_trade_records_5:
             continue
         result = compute_5_3(stock_trade_records_5)
         print result
-        update(s.stock_no,result)
+        update(s.pk_id,result)
 
 
 if __name__ == "__main__":
