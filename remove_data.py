@@ -29,6 +29,7 @@ def run():
     for r in rows:
         if r.date >  datetime.date(2013,1,1) :
             print 'date big than 2013-1-1'
+            return False
             break
         try:
             replace_z_records(r)

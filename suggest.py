@@ -97,25 +97,17 @@ def send_reports_withT(rows):
     render_suggest = web.template.frender('templates/suggest.html')
     return str(render_suggest(data))
 
-def tmp():
+def run_release():
     while True:
         if not comm.is_trade_time() :
             print "it's not tradding time !"
-            return
+            continue
         run()
         time.sleep(600)
 
 import time
 if __name__ == '__main__':
-    tmp()
-
-
-
-
-    #a = load_buy_stocks(['600290','000897'])
-    #stocks + a
-    #print datetime.datetime.now().strftime('%Y%m%d%H%M')[0:-1]
-
-    #parse_data('D:\\gaotp\\stocks\\daily\\20131111_0.txt')
+    run_release()
+    #run()
 
 

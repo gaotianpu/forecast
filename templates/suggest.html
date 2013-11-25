@@ -14,7 +14,7 @@ $var style: ''
 </div>
 <table>
 <tr><td>stock_no</td><td>stock_name</td><td>is_new_high</td><td>high_price</td><td>current_price</td><td>raise_drop_rate</td><td>should_sell</td><td>last_close</td>
-<td>raise_drop_index</td><td>last_volume_index</td><td>today_volume_index</td>
+<td>raise_drop_index</td><td>last_volume_index</td><td>today_volume_index</td><td>trend_5</td><td>prate_5</td><td>trend_3</td><td>prate_3</td>
 </tr>
 $for stock in module.stocks:
     $ style=''
@@ -25,7 +25,7 @@ $for stock in module.stocks:
     <tr style="$style"><td><a href="http://stockhtm.finance.qq.com/sstock/ggcx/$(stock.stock_no).shtml" target="_blank">$(stock.stock_no)</a></td>
     <td>$(stock.last.stock_name)</td><td>$(stock.is_new_high)</td><td>$(stock.high_price)</td><td>$(stock.close_price)</td><td> $( "{0:.2f}".format(stock.raise_drop_rate) )</td>
     <td>$(stock.should_sell)</td><td>$(stock.last.close > stock.last.open)</td>
-    <td>$(stock.raise_drop_index)</td><td>$(stock.last_volume_index)</td><td>$(stock.today_volume_index)</td>
+    <td>$(stock.raise_drop_index)</td><td>$(stock.last_volume_index)</td><td>$(stock.today_volume_index)</td><td>$(stock.last.trend_5)</td><td>$(stock.last.prate_5)</td><td>$(stock.last.trend_3)</td><td>$(stock.last.prate_3)</td>
     </tr>
 </table>
 </body></html>
