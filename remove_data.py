@@ -24,10 +24,10 @@ def delete_daily_record(pk_id):
 
 loger = init_log("remove_data")
 
-def run():
+def run(end_date):
     rows = load_daily_records()
     for r in rows:
-        if r.date >  datetime.date(2013,1,1) :
+        if r.date >  end_date :
             print 'date big than 2013-1-1'
             return False
             break
@@ -40,12 +40,12 @@ def run():
 
     return len(rows)
 
-def run_more():
+def run_more(end_date):
     while True:
         result = run()
         if not result:
             break
 
 if __name__ == '__main__':
-    run_more()
+    run_more(datetime.date(2013,1,1) )
 

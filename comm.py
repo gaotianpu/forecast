@@ -6,7 +6,7 @@ from decimal import *
 import web
 
 def is_trade_day():
-    #不包含工作日
+    #涓嶅寘鍚伐浣滄棩
     return datetime.datetime.now().weekday() not in (5,6)
 
 def is_trade_time():
@@ -15,7 +15,7 @@ def is_trade_time():
     current_hhmm = int(datetime.datetime.now().strftime('%Y%m%d%H%M')[8:])
     return not (current_hhmm < 930 or current_hhmm > 1510 or (current_hhmm>1140 and current_hhmm<1300 ))
 
-##解析每日数据
+##瑙ｆ瀽姣忔棩鏁版嵁
 def parse_daily_data(lfile):
     #file exit?
     with open(lfile,'rb') as f:
@@ -47,9 +47,24 @@ def parse_daily_data(lfile):
 
         #print r
         rows.append(r)
-    #rows = [r for r in rows if r['new_high'] ]  当前价就是今天的最高价
+    #rows = [r for r in rows if r['new_high'] ]  褰撳墠浠峰氨鏄粖澶╃殑鏈�楂樹环
     return rows
 
+import csv
+def parse_history_data(lfile):
+    l=[]
+    with open(lfile,'rb') as f:
+        reader = csv.reader(f, delimiter=',')
+        for date,openp,highp,lowp,closep,volume,adjclose in reader:
+            if date == 'Date' or volume=='000':
+                continue
+            r = web.storage(date=date,open_price=openp,high_price=highp,low_price=lowp,close_price=closep,volume=volume)
+            #print r
+            l.append(r)
+    return l
+
+
 if __name__ == '__main__':
-    print is_trade_time()
+    parse_history_data('D:\\gaotp\\stocks\\dailyh\\000001.sz.csv')
+    #print is_trade_time()
 

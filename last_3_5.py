@@ -7,7 +7,7 @@ import da
 def update(pk_id,result):
     dbw.update('stock_base_infos',
         days_count_5=result.days_count_5,trend_5=result.trend_5,trend_3=result.trend_3,
-        prate_3=result.prate_3,prate_5=result.prate_5,
+        prate_3=result.prate_3,prate_5=result.prate_5,ratetrend_date=web.SQLLiteral('NOW()'),
         where='pk_id=$pk_id',vars=locals())
 
 def compute_trend(rows):

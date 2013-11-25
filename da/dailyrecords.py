@@ -102,5 +102,5 @@ def load_all_last_5():
     #SELECT * FROM `stock_daily_records` WHERE TO_DAYS(NOW())-TO_DAYS(date) < 8 and volume<>0 order by stock_no,date desc
     results = dbr.select('stock_daily_records',
         where="TO_DAYS(NOW())-TO_DAYS(date) < 8 and volume<>0", #考虑到排除周末情况？
-        order="stock_no,date desc",vars=locals())
+        order="date desc",vars=locals())
     return list(results)
