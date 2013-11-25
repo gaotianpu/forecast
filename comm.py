@@ -59,7 +59,7 @@ def parse_history_data(lfile):
             if date == 'Date' or volume=='000':
                 continue
             r = web.storage(date=date,open_price=openp,high_price=highp,low_price=lowp,close_price=closep,volume=volume)
-            #print r
+            print r
             l.append(r)
     return l
 

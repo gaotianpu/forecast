@@ -6,39 +6,13 @@ import browser
 import datetime
 import os
 import csv
+import da,comm
 
 #doc:http://www.bizeway.net/read.php?317
 #http://table.finance.yahoo.com/table.csv?s=000001.sz
 
 loger = init_log("history_daily")
 const_root_url = "http://table.finance.yahoo.com/table.csv?"
-
-def get_url(params):
-    return '%ss=%s' % (const_root_url,params['s'])
-
-def get_local_file_name(params):
-    return '%s/dailyh/%s.csv' %(const_root_local,params['s'])
-    #return lfile
-
-def parse_data(lfile):
-    l=[]
-    with open(lfile,'rb') as f:
-        reader = csv.reader(f, delimiter=',')
-        for date,openp,highp,lowp,closep,volume,adjclose in reader:
-            if date == 'Date':
-                continue
-            l.append({'date':date,'open_price':openp,'high_price':highp,
-                'low_price':lowp,'close_price':closep,'volume':int(volume)/100,'adj_close':adjclose})
-    return l
-
-##database operations
-def load_all_stocks():
-    return list(dbr.select('stock_base_infos',
-        what='stock_no,market_code,market_code_yahoo',
-        where="days<>0",
-        #where="market_code_yahoo in ('ss','sz')",
-        #offset=0,limit=1,
-        order="market_code,stock_no"))
 
 def load_stock_dates(stock_no):
     rows = dbr.select('stock_daily_records',what='date',where="stock_no=$stock_no", vars=locals())
@@ -66,45 +40,37 @@ def import_stock_daily_data(market_code,stock_no,data):
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('stock_daily_records',l)
 
-###
-def download_all(stocks):
-    print "stocks count %s" % (len(stocks))
+def import_into_db(stock,rows):
+    pass
+
+
+def download_and_parse_data(stock):
+    scode = '%s.%s' % (stock.stock_no,stock.market_code_yahoo)
+    url = '%ss=%s' % (const_root_url,scode)
+    lfile = '%s/dailyh/%s.csv' %(const_root_local,scode)
+    try:
+        if not os.path.exists(lfile):
+            print url
+            loger.info("downloading " + url)
+            browser.downad_and_save(url,lfile)
+        rows = comm.parse_history_data(lfile)
+        return rows
+    except Exception,e:
+        loger.error(url + " " + str(e) )
+    return False
+
+
+def run():
+    stocks = da.stockbaseinfos.load_all_stocks()
     for s in stocks:
-        scode = '%s.%s' % (s.stock_no,s.market_code_yahoo)
-        #params={'s':scode}
-        params={'s':scode,'a':'00','b':'01','c':2013,'d':'9','e':'01','f':'2013','g':'d'}
-        lfile = get_local_file_name(params)
-        url = get_url(params)
-        #print lfile
-        #print url
-        try:
-            if not os.path.exists(lfile):
-                print url
-                loger.info("downloading " + url)
-                browser.downad_and_save(url,lfile)
-            data = parse_data(lfile)
-            import_stock_daily_data(s.market_code,s.stock_no,data)
-        except Exception,e:
-            loger.error(url + " " + str(e) )
+        rows = download_and_parse_data(s)
+        import_into_db(s,rows)
 
-
-def load_failed_stock():
-    #cat  github/forecast/log2.txt  | grep 'except' | awk -F '[=&]' '{print $4}' > github/forecast/fail_stocks.txt
-    l = []
-    with open('fail_stocks.txt') as f:
-        reader = csv.reader(f, delimiter='.')
-        for stock_no,market_code in reader:
-            l.append(web.storage(market_code=market_code,stock_no=stock_no))
-    return l
-
-def test_one_stock():
-    lfile = download(params)
-    data = parse_data(lfile)
-    import_stock_daily_data('sa','600000',data)
 
 if __name__ == '__main__':
+    run()
     #print load_all_stocks()
-    download_all(load_all_stocks())
+    #download_all(da.stockbaseinfos.load_all_stocks())
 
     #stock_dates = load_stock_dates('300001')
     #max_date = max(stock_dates)
