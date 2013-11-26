@@ -5,12 +5,12 @@ import math
 import da
 import re
 import datetime
-import browser
 from decimal import *
 import config
 from config import const_root_local,init_log,dbr,dbw
 import comm
-import emailsmtp
+import util
+from util import browser
 
 loger = init_log("suggest")
 
@@ -63,7 +63,7 @@ def run():
         f.close()
     #send email
     subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
-    emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
+    util.emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
 
 def send_reports_withT(rows):

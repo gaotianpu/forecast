@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import web
 from config import dbr,dbw,const_root_local,init_log
-import browser
+from util import browser
 import datetime
 import os
 import csv

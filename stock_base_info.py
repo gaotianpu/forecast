@@ -6,7 +6,7 @@ import datetime
 import os
 import BeautifulSoup
 from config import dbr,dbw,const_root_local,init_log
-import browser
+from util import browser
 import da
 
 const_root_url = 'http://app.finance.ifeng.com/list/stock.php?'
