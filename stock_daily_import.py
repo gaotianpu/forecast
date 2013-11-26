@@ -66,6 +66,18 @@ def parse_data_and_import_to_db(lfile,i):
     ##insert into
     da.stockbaseinfos.import_daily_records('stock_daily_records',rows)
 
+def import_stockbaseinfos(today,rows):
+    #stock_base_infos
+    for r in rows:
+        #update(stockno,stockname,openp,close,high,low,volumn,amount,trade_day):
+        da.stockbaseinfos.update(r.stock_no,open_price=r.open_price,high_price=r.high_price,
+            low_price = r.low_price,close_price=r.close_price,volume=r.volume,amount=r.amount,
+            adj_close = r.adj_close,
+            raise_drop = r.raise_drop,
+            raise_drop_rate = r.raise_drop_rate ,
+            last_update=datetime.datetime.now())
+    #stock_daily_records
+
 def run():
     if not comm.is_trade_day(): return
     today = datetime.datetime.now()
@@ -83,6 +95,8 @@ def run():
         print i,url
         lfile = get_local_file_name(i)
         browser.downad_and_save(url,lfile)
+        #rows = comm.parse_daily_data(lfile)
+
         parse_data_and_import_to_db(lfile,i)
 
     da.dailyrecords.update_marketcode(today)
@@ -90,6 +104,7 @@ def run():
 
 if __name__ == '__main__':
     run()
+
     import max_min_date
     max_min_date.run()
 
