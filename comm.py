@@ -43,12 +43,36 @@ def parse_daily_data(lfile):
             raise_drop=raise_drop, raise_drop_rate=raise_drop_rate,
             is_new_high = fields[4]==fields[3],
             is_new_low = fields[5]==fields[3],
-            date=fields[30],time=fields[31])
+            date=fields[30],time=fields[31],
+            candle = get_candle_data(fields[1],close_price,fields[4],fields[5])  )
 
         #print r
         rows.append(r)
     #rows = [r for r in rows if r['new_high'] ]  当前价就是今天的最高价
     return rows
+
+def get_candle_data(open,close,high,low):
+    open = float(open)
+    close = float(close)
+    high = float(high)
+    low = float(low)
+
+    if open==0 : return 0
+
+    hl = (high-low)*0.1
+    #print open,close,high,low,hl
+    if hl==0:
+        return 0
+    #print  (high-close)/(high-low), str(int(round((high-close)/hl)))
+
+    result = 0
+    if close>open:
+        result = str(int(round((high-close)/hl)))+ str(int(round((close-open)/hl)))+ str(int(round((open-low)/hl)))
+        result = int(result)
+    else:
+        result = str(int(round((high-open)/hl))) + str(int(round((open-close)/hl)))+ str(int(round((close-low)/hl)))
+        result = -int(result)
+    return result
 
 import csv
 def parse_history_data(lfile):
@@ -58,13 +82,15 @@ def parse_history_data(lfile):
         for date,openp,highp,lowp,closep,volume,adjclose in reader:
             if date == 'Date' or volume=='000':
                 continue
-            r = web.storage(date=date,open_price=openp,high_price=highp,low_price=lowp,close_price=closep,volume=volume)
+            r = web.storage(date=date,open_price=openp,high_price=highp,low_price=lowp,close_price=closep,volume=volume,
+                candle = get_candle_data(openp,closep,highp,lowp))
             print r
             l.append(r)
     return l
 
 
 if __name__ == '__main__':
+    #parse_daily_data('D:\\gaotp\stocks\\daily\\20131125_0.txt')
     parse_history_data('D:\\gaotp\\stocks\\dailyh\\000001.sz.csv')
     #print is_trade_time()
 
