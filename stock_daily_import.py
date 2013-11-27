@@ -45,13 +45,14 @@ def parse_data_and_import_to_db(lfile,i):
         #
         stock_name = fields[0].split('"')[1].decode('gbk').encode("utf-8")
         #da.stockbaseinfos.update(stockno[0],stock_name,fields[1],fields[3],fields[4],fields[5],int(fields[8])/100,fields[9],fields[30])
-
+        stock_market_no = comm.get_market_codes(stockno[0])['plate']
         if pkids and stockno[0] in pkids.keys():
             da.dailyrecords.update(pkids[stockno[0]],open_price=fields[1],high_price=fields[4],
             low_price=fields[5],close_price=fields[3],volume=int(fields[8])/100,amount=fields[9],
             adj_close=fields[2],
             raise_drop = raise_drop,
             raise_drop_rate = raise_drop_rate ,
+            stock_market_no = stock_market_no,
             last_update=datetime.datetime.now())
             continue
 
@@ -61,6 +62,7 @@ def parse_data_and_import_to_db(lfile,i):
             'adj_close':fields[2],
             'raise_drop':raise_drop,
             'raise_drop_rate':raise_drop_rate,
+            'stock_market_no' : stock_market_no,
             'create_date':datetime.datetime.now()})
 
     ##insert into
@@ -94,10 +96,10 @@ def run_release():
 
     today = datetime.datetime.now()
     try:
-        da.dailyrecords.update_marketcode(today)
+        #da.dailyrecords.update_marketcode(today)
         da.dailyrecords.import_date_sums(today.strftime('%Y%m%d'))
     except Exception,ex:
-        loger.error('update_marketcode' + str(ex))
+        loger.error('import_date_sums' + str(ex))
 
     import max_min_date
     max_min_date.run()
@@ -107,6 +109,10 @@ def run_release():
 
 if __name__ == '__main__':
     run_release()
+
+    #da.dailyrecords.update_marketcode(datetime.datetime.now())
+
+
 
 
 

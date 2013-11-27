@@ -45,7 +45,8 @@ def parse_daily_data(lfile):
             is_new_high = fields[4]==fields[3],
             is_new_low = fields[5]==fields[3],
             date=fields[30],time=fields[31],
-            candle = get_candle_data(fields[1],close_price,fields[4],fields[5])  )
+            candle = get_candle_data(fields[1],close_price,fields[4],fields[5]),
+            market_codes = get_market_codes(stockno[0]) )
 
         #print r
         rows.append(r)
@@ -89,9 +90,24 @@ def parse_history_data(lfile):
             l.append(r)
     return l
 
+def get_market_codes(stock_no):
+    #深圳股票代码“002”开头的是中小板，“000”开头的是主板，“3”开头的是创业板；上海股票代码“6”开头的，全部的上海股票都为主板
+    if stock_no[:3]=='002':
+        return web.storage(yahoo='sz',plate='zxb',pinyin='sz')
+    if stock_no[:3]=='000':
+        return web.storage(yahoo='sz',plate='sa',pinyin='sz')
+    if stock_no[:1]=='3':
+        return web.storage(yahoo='sz',plate='cyb',pinyin='sz')
+    if stock_no[:1]=='6':
+        return web.storage(yahoo='ss',plate='ha',pinyin='sh')
+    return web.storage(yahoo='',plate='',pinyin='')
 
 if __name__ == '__main__':
+    get_market_codes('0024556')
+    get_market_codes('0004556')
+    get_market_codes('3004556')
+    get_market_codes('6004556')
     #parse_daily_data('D:\\gaotp\stocks\\daily\\20131125_0.txt')
-    parse_history_data('D:\\gaotp\\stocks\\dailyh\\000001.sz.csv')
+    #parse_history_data('D:\\gaotp\\stocks\\dailyh\\000001.sz.csv')
     #print is_trade_time()
 
