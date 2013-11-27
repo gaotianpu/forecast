@@ -90,6 +90,7 @@ def send_reports_withT(rows):
         last_close_up_count = len( [r for r in rows if r.last.close > r.last.open]),
         today_current_up_count = len( [r for r in rows if r.close_price > r.open_price]),
         today_new_high_count = len( [r for r in rows if r.is_new_high]) ,
+        sell_count = len( [r for r in rows if r.raise_drop_rate< -0.019]) ,
         title = "%s %s" % (rows[0].date,rows[0].time),
         buy_stocks = buy_stocknos
         )

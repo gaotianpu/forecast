@@ -42,7 +42,7 @@ def run(end_date):
 
 def run_more(end_date):
     while True:
-        result = run()
+        result = run(end_date)
         if not result:
             break
 
