@@ -36,6 +36,7 @@ def parse_daily_data(lfile):
 
         raise_drop = Decimal(close_price) - Decimal(last_close)
         raise_drop_rate = raise_drop / Decimal(last_close) if Decimal(last_close) != 0 else 0
+        stock_name = fields[0].split('"')[1].decode('gbk').encode("utf-8")
 
         r = web.storage(stock_no=stockno[0],open_price=fields[1],high_price=fields[4],
             low_price=fields[5],close_price=close_price,last_close=last_close,

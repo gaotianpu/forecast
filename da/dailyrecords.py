@@ -9,7 +9,7 @@ def update(pk_id,**kv):
     dbw.update('stock_daily_records',where='pk_id=$pk_id',vars=locals(),**kv)
 
 def update_marketcode(date):
-    dbw.query("update `stock_daily_records` a, stock_base_infos b set a.stock_market_no=b.market_code where a.date='"+ date.strftime('%Y%m%d') +"' and a.stock_no = b.stock_no")
+    dbw.query("update `stock_daily_records` a, stock_base_infos b set a.stock_market_no=b.market_code where a.date='"+ date.strftime('%Y-%m-%d') +"' and a.stock_no = b.stock_no")
 
 def load_by_date(date):
     return dbr.select('stock_daily_records',what='pk_id,stock_no',where='date=$date',vars=locals())

@@ -46,6 +46,7 @@ def run():
 
     #generate url
     observe_stocks = load_high_stocks()
+    #last_stocks_4_6 =  [r.stock_no for r in observe_stocks if r]
     stocks = observe_stocks + load_buy_stocks(buy_stocknos) #load_buy_stocks 额外指定已购买的
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
     params = list(set(params))

@@ -44,7 +44,7 @@ def parse_data_and_import_to_db(lfile,i):
 
         #
         stock_name = fields[0].split('"')[1].decode('gbk').encode("utf-8")
-        da.stockbaseinfos.update(stockno[0],stock_name,fields[1],fields[3],fields[4],fields[5],int(fields[8])/100,fields[9],fields[30])
+        #da.stockbaseinfos.update(stockno[0],stock_name,fields[1],fields[3],fields[4],fields[5],int(fields[8])/100,fields[9],fields[30])
 
         if pkids and stockno[0] in pkids.keys():
             da.dailyrecords.update(pkids[stockno[0]],open_price=fields[1],high_price=fields[4],
@@ -66,21 +66,9 @@ def parse_data_and_import_to_db(lfile,i):
     ##insert into
     da.stockbaseinfos.import_daily_records('stock_daily_records',rows)
 
-def import_stockbaseinfos(today,rows):
-    #stock_base_infos
-    for r in rows:
-        #update(stockno,stockname,openp,close,high,low,volumn,amount,trade_day):
-        da.stockbaseinfos.update(r.stock_no,open_price=r.open_price,high_price=r.high_price,
-            low_price = r.low_price,close_price=r.close_price,volume=r.volume,amount=r.amount,
-            adj_close = r.adj_close,
-            raise_drop = r.raise_drop,
-            raise_drop_rate = r.raise_drop_rate ,
-            last_update=datetime.datetime.now())
-    #stock_daily_records
 
 def run():
     if not comm.is_trade_day(): return
-    today = datetime.datetime.now()
 
     stocks = da.stockbaseinfos.load_all_stocks()
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
@@ -95,21 +83,32 @@ def run():
         print i,url
         lfile = get_local_file_name(i)
         browser.downad_and_save(url,lfile)
-        #rows = comm.parse_daily_data(lfile)
+        rows = comm.parse_daily_data(lfile)
+        #update stockbaseinfos
+        da.stockbaseinfos.import_rows(rows)
 
         parse_data_and_import_to_db(lfile,i)
 
-    da.dailyrecords.update_marketcode(today)
-    da.dailyrecords.import_date_sums(today.strftime('%Y%m%d'))
-
-if __name__ == '__main__':
+def run_release():
     run()
+
+    today = datetime.datetime.now()
+    try:
+        da.dailyrecords.update_marketcode(today)
+        da.dailyrecords.import_date_sums(today.strftime('%Y%m%d'))
+    except Exception,ex:
+        loger.error('update_marketcode' + str(ex))
 
     import max_min_date
     max_min_date.run()
 
     import last_3_5
     last_3_5.run()
+
+if __name__ == '__main__':
+    run_release()
+
+
 
 
 

@@ -11,7 +11,7 @@ import da,comm
 #doc:http://www.bizeway.net/read.php?317
 #http://table.finance.yahoo.com/table.csv?s=000001.sz
 
-loger = init_log("history_daily")
+loger = init_log("stock_history_daily")
 const_root_url = "http://table.finance.yahoo.com/table.csv?"
 
 def load_stock_dates(stock_no):

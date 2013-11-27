@@ -3,7 +3,7 @@
 import da
 from config import dbr,dbw,const_root_local,init_log
 
-loger = init_log("stock_daily_import")
+loger = init_log("max_min_date")
 types = {'date':'date','price':'decimal(8,2)','volume':''}
 
 def gen_new_field_sql():
