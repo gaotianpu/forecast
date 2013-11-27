@@ -7,9 +7,7 @@ from email.MIMEMultipart import MIMEMultipart
 from datetime import datetime,date,timedelta
 
 def sendmail(subject,content,tousrs):
-    hostname ='smtp.163.com'
-    from_usr ='gaotianpu@163.com'
-    from_usr_pwd='nopass.2'
+
 
     msg = MIMEText(content,'html','utf-8')
     msg['Subject']= subject
