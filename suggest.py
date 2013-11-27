@@ -46,7 +46,7 @@ def run():
 
     #generate url
     observe_stocks = load_high_stocks()
-    #last_stocks_4_6 =  [r.stock_no for r in observe_stocks if r]
+    last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]
     stocks = observe_stocks + load_buy_stocks(buy_stocknos) #load_buy_stocks 额外指定已购买的
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
     params = list(set(params))
@@ -57,6 +57,7 @@ def run():
     for r in rows:
         r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
+        r.last_in_range = r.stock_no in last_stocks_rate_range_stocknos
 
     content = send_reports_withT(rows)
     with open(get_suggest_local_file_name(),'w') as f:

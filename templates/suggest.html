@@ -21,8 +21,10 @@ $for stock in module.stocks:
     $ style=''
     $if stock.should_sell=='sell':
         $ style = 'background-color:gray;'
+    $if stock.last_in_range:
+        $ style = style + 'color:orange;'
     $if stock.stock_no in module.buy_stocks:
-        $ style = style+'font-size:weight;color:green'
+        $ style = style + 'color:green;'
     <tr style="$style"><td><a href="http://stockhtm.finance.qq.com/sstock/ggcx/$(stock.stock_no).shtml" target="_blank">$(stock.stock_no)</a></td>
     <td>$(stock.last.stock_name)</td><td>$(stock.is_new_high)</td><td>$(stock.high_price)</td><td>$(stock.close_price)</td><td> $( "{0:.2f}".format(stock.raise_drop_rate) )</td>
     <td>$(stock.should_sell)</td><td>$(stock.last.close > stock.last.open)</td>
