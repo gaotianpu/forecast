@@ -38,7 +38,7 @@ def get_suggest_local_file_name():
     strHM = strHM[0:-1] #10∑÷÷”“ª¥Œ
     return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
-buy_stocknos = ['600290','002290','000897','200553','600879']
+buy_stocknos = ['600879']
 
 def run():
     lfile = get_local_file_name()
