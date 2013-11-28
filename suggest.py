@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ï»¿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
 import math
@@ -28,17 +28,29 @@ def load_buy_stocks(stock_nos):
     results = dbr.select('stock_base_infos',where="stock_no in $stock_nos ",vars=locals())
     return list(results)
 
+
+def get_last_count(field_name):
+    sql="SELECT count(*) as count FROM `stock_base_infos` where  %s=trade_date;" % (field_name)
+    return list(dbr.query(sql))[0].count
+
+def get_all_count():
+    d = web.storage()
+    fields = ['high_date_7','high_date_30','high_date_90','high_date_188','high_date_365','low_date_7','low_date_30','low_date_90','low_date_188','low_date_365']
+    for f in fields:
+        d[f] = get_last_count(f)
+    return d
+
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
+    strHM = strHM[0:-1] #10åˆ†é’Ÿä¸€æ¬¡
     return '%s/dailym/%s.txt' %(const_root_local,strHM)
 
 def get_suggest_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
+    strHM = strHM[0:-1] #10åˆ†é’Ÿä¸€æ¬¡
     return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
-buy_stocknos = ['600879']
+buy_stocknos = ['600879','601766']
 
 def run():
     lfile = get_local_file_name()
@@ -46,8 +58,10 @@ def run():
 
     #generate url
     observe_stocks = load_high_stocks()
+
     last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]
-    stocks = observe_stocks + load_buy_stocks(buy_stocknos) #load_buy_stocks ¶îÍâÖ¸¶¨ÒÑ¹ºÂòµÄ
+
+    stocks = observe_stocks + load_buy_stocks(buy_stocknos) #load_buy_stocks é¢å¤–æŒ‡å®šå·²è´­ä¹°çš„
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
     params = list(set(params))
     url = config.const_base_url + ','.join(params)
@@ -94,7 +108,8 @@ def send_reports_withT(rows):
         today_new_high_count = len( [r for r in rows if r.is_new_high]) ,
         sell_count = len( [r for r in rows if r.raise_drop_rate< -0.019]) ,
         title = "%s %s" % (rows[0].date,rows[0].time),
-        buy_stocks = buy_stocknos
+        buy_stocks = buy_stocknos,
+        count = get_all_count()
         )
 
     render_suggest = web.template.frender('templates/suggest.html')
