@@ -46,6 +46,16 @@ def run_more(end_date):
         if not result:
             break
 
+def remove_v2():
+    while True:
+        results = list(dbr.query("select date FROM `stock_daily_records` order by date limit 100;"))
+        print results[-1].date
+        if results[-1].date == datetime.date(2012,6,1):
+            break
+        dbr.query("delete FROM `stock_daily_records` order by date limit 100;")
+
+
 if __name__ == '__main__':
-    run_more(datetime.date(2013,1,1) )
+    remove_v2()
+    #run_more(datetime.date(2013,1,1) )
 

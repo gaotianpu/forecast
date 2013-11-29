@@ -1,4 +1,4 @@
-ï»¿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
 import math
@@ -21,13 +21,8 @@ def get_current_hhmm():
 
 def load_high_stocks():
     #'high_date_90=trade_date and high_date_188=trade_date and close=high and open<>close';
-    results = dbr.select('stock_base_infos',where="high_date_188=trade_date")
+    results = dbr.select('stock_base_infos',where="high_date_188=trade_date and market_code<>'sb'")
     return list(results)
-
-def load_buy_stocks(stock_nos):
-    results = dbr.select('stock_base_infos',where="stock_no in $stock_nos ",vars=locals())
-    return list(results)
-
 
 def get_last_count(field_name):
     sql="SELECT count(*) as count FROM `stock_base_infos` where  %s=trade_date;" % (field_name)
@@ -42,12 +37,12 @@ def get_all_count():
 
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-    strHM = strHM[0:-1] #10åˆ†é’Ÿä¸€æ¬¡
+    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
     return '%s/dailym/%s.txt' %(const_root_local,strHM)
 
 def get_suggest_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-    strHM = strHM[0:-1] #10åˆ†é’Ÿä¸€æ¬¡
+    strHM = strHM[0:-1] #10·ÖÖÓÒ»´Î
     return '%s/suggest/%s.htm' %(const_root_local,strHM)
 
 buy_stocknos = ['600879','601766']
@@ -61,7 +56,7 @@ def run():
 
     last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]
 
-    stocks = observe_stocks + load_buy_stocks(buy_stocknos) #load_buy_stocks é¢å¤–æŒ‡å®šå·²è´­ä¹°çš„
+    stocks = observe_stocks + da.stockbaseinfos.load_by_stocknos(buy_stocknos) #load_by_stocknos ¶îÍâÖ¸¶¨ÒÑ¹ºÂòµÄ
     params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
     params = list(set(params))
     url = config.const_base_url + ','.join(params)

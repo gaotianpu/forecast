@@ -12,6 +12,10 @@ def load_all_stocks():
         #offset=0,limit=1,
         order="market_code,stock_no"))
 
+def load_by_stocknos(stock_nos):
+    results = dbr.select('stock_base_infos',where="stock_no in $stock_nos ",vars=locals())
+    return list(results)
+
 def update(stockno,stockname,openp,close,high,low,volumn,amount,trade_day):
     #
     dbw.update('stock_base_infos',
