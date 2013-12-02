@@ -35,6 +35,10 @@ def get_all_count():
         d[f] = get_last_count(f)
     return d
 
+def get_plate_cout():
+    sql="SELECT market_code,count(*) as count  FROM `stock_base_infos` where high_date_188=trade_date and market_code<>'sb' group by market_code order by count(*) desc;"
+    return list(dbr.query(sql))
+
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
     strHM = strHM[0:-1] #10∑÷÷”“ª¥Œ
@@ -104,7 +108,8 @@ def send_reports_withT(rows):
         sell_count = len( [r for r in rows if r.raise_drop_rate< -0.019]) ,
         title = "%s %s" % (rows[0].date,rows[0].time),
         buy_stocks = buy_stocknos,
-        count = get_all_count()
+        count = get_all_count(),
+        plate_count = get_plate_cout()
         )
 
     render_suggest = web.template.frender('templates/suggest.html')
@@ -120,7 +125,7 @@ def run_release():
         time.sleep(600)
 
 import time
-if __name__ == '__main__':
+if __name__ == '__main__':    
     run_release()
     #run()
 
