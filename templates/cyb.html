@@ -1,0 +1,30 @@
+﻿$def with(module)
+$var style: ''
+<!DOCTYPE html>
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<div>
+    当前价大开 : $(module.today_current_up_count)<br/>
+    需卖出: $(module.sell_count)<br/>
+    创新高 : $(module.total_count) <br/>
+    收大开: $(module.last_close_up_count) <br/>    
+ 
+</div>
+<h3>$(module.title)</h3>
+<table>
+<tr><td>stock_no</td><td>stock_name</td><td>high_price</td><td>current_price</td><td>raise_drop_rate</td><td>should_sell</td><td>last_close</td>
+<td>raise_drop_index</td><td>last_volume_index</td><td>last.prate</td><td>trend_5</td><td>prate_5</td><td>trend_3</td><td>prate_3</td>
+</tr>
+$for stock in module.stocks:
+    $ style=''
+    $if stock.stock_no in module.buy_stocks:
+        $ style = style + 'color:green;'
+    <tr style="$style"><td><a href="http://stockhtm.finance.qq.com/sstock/ggcx/$(stock.stock_no).shtml" target="_blank">$(stock.stock_no)</a></td>
+    <td>$(stock.last.stock_name)</td><td>$(stock.high_price)</td><td>$(stock.close_price)</td><td> $( "{0:.2f}".format(stock.raise_drop_rate) )</td>
+    <td>$(stock.should_sell)</td><td>$(stock.last.close > stock.last.open)</td>
+    <td>$(stock.raise_drop_index)</td><td>$(stock.last_volume_index)</td><td>$(stock.last.prate)</td><td>$(stock.last.trend_5)</td><td>$(stock.last.prate_5)</td><td>$(stock.last.trend_3)</td><td>$(stock.last.prate_3)</td>
+    </tr>
+</table>
+</body></html>

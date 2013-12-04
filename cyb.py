@@ -19,25 +19,13 @@ loger = init_log("cyb")
 def get_current_hhmm():
     return int(datetime.datetime.now().strftime('%Y%m%d%H%M')[8:])
 
-def load_cyb_stocks():
-    #'high_date_90=trade_date and high_date_188=trade_date and close=high and open<>close';
+def load_cyb_stocks():   
     results = dbr.select('stock_base_infos',where="market_code='cyb'")
     return list(results)
 
 def get_last_count(field_name):
     sql="SELECT count(*) as count FROM `stock_base_infos` where  %s=trade_date;" % (field_name)
     return list(dbr.query(sql))[0].count
-
-def get_all_count():
-    d = web.storage()
-    fields = ['high_date_7','high_date_30','high_date_90','high_date_188','high_date_365','low_date_7','low_date_30','low_date_90','low_date_188','low_date_365']
-    for f in fields:
-        d[f] = get_last_count(f)
-    return d
-
-def get_plate_cout():
-    sql="SELECT market_code,count(*) as count  FROM `stock_base_infos` where high_date_188=trade_date and market_code<>'sb' group by market_code order by count(*) desc;"
-    return list(dbr.query(sql))
 
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
@@ -49,7 +37,7 @@ def get_suggest_local_file_name():
     strHM = strHM[0:-1] 
     return '%s/cyb/%s.htm' %(const_root_local,strHM)
 
-buy_stocknos = ['600879','601766','000921']
+buy_stocknos = ['300133']
 
 def run():
     lfile = get_local_file_name()
@@ -64,12 +52,14 @@ def run():
     browser.downad_and_save(url,lfile)
     rows = comm.parse_daily_data(lfile)
 
+    last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]    
+
     for r in rows:
         r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
         r.last_in_range = r.stock_no in last_stocks_rate_range_stocknos
 
-    last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]    
+    
     content = send_reports_withT(rows)
     
     with open(get_suggest_local_file_name(),'w') as f:
@@ -108,13 +98,11 @@ def send_reports_withT(rows):
         today_new_high_count = len( [r for r in rows if r.is_new_high]) ,
         sell_count = len( [r for r in rows if r.raise_drop_rate< -0.019]) ,
         title = "%s %s" % (rows[0].date,rows[0].time),
-        buy_stocks = buy_stocknos,
-        count = get_all_count(),
-        plate_count = get_plate_cout()
+        buy_stocks = buy_stocknos 
         )
 
-    render_suggest = web.template.frender('templates/suggest.html')
-    return str(render_suggest(data))
+    render = web.template.frender('templates/cyb.html')
+    return str(render(data))
 
 def run_release():
     while True:
