@@ -107,6 +107,9 @@ def run_release():
     import last_3_5
     last_3_5.run()
 
+    import daily_sum_report
+    daily_sum_report.run()
+
 if __name__ == '__main__':
     run_release()
 

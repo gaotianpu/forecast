@@ -12,16 +12,16 @@ import comm
 import util
 from util import browser
 
-loger = init_log("suggest")
+loger = init_log("cyb")
 
 #http://www.cnblogs.com/kingwolfofsky/archive/2011/08/14/2138081.html
 
 def get_current_hhmm():
     return int(datetime.datetime.now().strftime('%Y%m%d%H%M')[8:])
 
-def load_high_stocks():
+def load_cyb_stocks():
     #'high_date_90=trade_date and high_date_188=trade_date and close=high and open<>close';
-    results = dbr.select('stock_base_infos',where="high_date_188=trade_date and market_code<>'sb'")
+    results = dbr.select('stock_base_infos',where="market_code='cyb'")
     return list(results)
 
 def get_last_count(field_name):
@@ -42,12 +42,12 @@ def get_plate_cout():
 def get_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
     strHM = strHM[0:-1] #10分钟一次
-    return '%s/dailym/%s.txt' %(const_root_local,strHM)
+    return '%s/cyb/%s.txt' %(const_root_local,strHM)
 
 def get_suggest_local_file_name():
     strHM = datetime.datetime.now().strftime('%Y%m%d_%H%M')
     strHM = strHM[0:-1] 
-    return '%s/suggest/%s.htm' %(const_root_local,strHM)
+    return '%s/cyb/%s.htm' %(const_root_local,strHM)
 
 buy_stocknos = ['600879','601766','000921']
 
@@ -56,28 +56,28 @@ def run():
     loger.info(lfile)
 
     #generate url
-    observe_stocks = load_high_stocks()
-
-    last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]
-
-    stocks = observe_stocks + da.stockbaseinfos.load_by_stocknos(buy_stocknos) #load_by_stocknos 额外指定已购买的
-    params = ['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]
-    params = list(set(params))
+    observe_stocks = load_cyb_stocks()
+    stocks = observe_stocks  #+ da.stockbaseinfos.load_by_stocknos(buy_stocknos) #load_by_stocknos 
+    
+    params = list(set(['%s%s'%(s.pinyin2,s.stock_no)  for s in stocks]))     
     url = config.const_base_url + ','.join(params)
-
     browser.downad_and_save(url,lfile)
     rows = comm.parse_daily_data(lfile)
+
     for r in rows:
         r.should_sell = 'sell' if float(r.close_price) < float(r.last_close)*0.98 else '...'
         r.last = [s for s in stocks if s.stock_no == r.stock_no][0]
         r.last_in_range = r.stock_no in last_stocks_rate_range_stocknos
 
+    last_stocks_rate_range_stocknos =  [r.stock_no for r in observe_stocks if r.prate>0.03 and r.prate<0.07]    
     content = send_reports_withT(rows)
+    
     with open(get_suggest_local_file_name(),'w') as f:
         f.write(content)
         f.close()
+
     #send email
-    subject='stock_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
+    subject='stockCYB_%s' % (datetime.datetime.now().strftime('%m%d_%H%M')[0:-1])
     util.emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
 
@@ -127,7 +127,7 @@ def run_release():
 
 import time
 if __name__ == '__main__':    
-    run_release()
-    #run()
+    #run_release()
+    run()
 
 

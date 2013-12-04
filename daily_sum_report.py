@@ -51,11 +51,13 @@ def run():
     l = l + convert(get_market_avg())
     l = l + convert(close_high_than_open())
 
-    data = web.storage(day=datetime.datetime.now().strftime('%y-%m-%d'),rows=l)
+    data = web.storage(day=datetime.datetime.now().strftime('%Y-%m-%d'),rows=l,
+        row_names=['count','cho_count','avg_open','avg_close','avg_high','avg_low','avg_volume','avg_amount','high_date_365_count','high_date_188_count','high_date_90_count','high_date_30_count','high_date_7_count','low_date_365_count','low_date_188_count','low_date_90_count','low_date_30_count','low_date_7_count'],
+        column_names = ['cyb','ha','sa','zxb'])
     render_sum = web.template.frender('templates/sum.html')
     content = str(render_sum(data))     
 
-    subject='sum_%s' % ( datetime.datetime.now().strftime('%y-%m-%d') )
+    subject='sum_%s' % ( datetime.datetime.now().strftime('%Y-%m-%d') )
     util.emailsmtp.sendmail(subject,content,['462042991@qq.com']) 
 
 if __name__ == "__main__":   
