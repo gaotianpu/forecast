@@ -20,7 +20,7 @@ def get_current_hhmm():
     return int(datetime.datetime.now().strftime('%Y%m%d%H%M')[8:])
 
 def load_cyb_stocks():   
-    results = dbr.select('stock_base_infos',where="market_code='cyb'")
+    results = dbr.select('stock_base_infos',where="market_code='cyb'",order='prate desc')
     return list(results)
 
 def get_last_count(field_name):
@@ -113,9 +113,17 @@ def run_release():
         run()
         time.sleep(600)
 
+def run_chart():
+    stocks = load_cyb_stocks()
+    render = web.template.frender('templates/cyb2.html')
+    content = str(render(stocks))
+    subject='K_CYB_%s' % (stocks[0].trade_date)
+    util.emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
+
+    
 import time
 if __name__ == '__main__':    
     #run_release()
-    run()
+    run_chart()
 
 

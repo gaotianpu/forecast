@@ -101,14 +101,28 @@ def run_release():
     except Exception,ex:
         loger.error('import_date_sums' + str(ex))
 
-    import max_min_date
-    max_min_date.run()
+    try:    
+        import max_min_date
+        max_min_date.run()
+    except Exception,ex:
+        loger.error('max_min_date' + str(ex))
 
-    import last_3_5
-    last_3_5.run()
-
-    import daily_sum_report
-    daily_sum_report.run()
+    try:        
+        import last_3_5
+        last_3_5.run()
+    except Exception,ex:
+        loger.error('last_3_5' + str(ex))
+    try:    
+        import daily_sum_report
+        daily_sum_report.run()
+    except Exception,ex:
+        loger.error('daily_sum_report' + str(ex))
+        
+    try:    
+        import cyb
+        cyb.run_chart()
+    except Exception,ex:
+        loger.error('cyb.run_chart' + str(ex))
 
 if __name__ == '__main__':
     run_release()
