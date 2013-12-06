@@ -25,13 +25,14 @@ def create_table(stock_no):
   `volume_updown_rate` decimal(30,2) DEFAULT NULL,
   PRIMARY KEY (`date`),
   KEY `volume_idx` (`volume`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;""" % (stock_no)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;""" % (stock_no)
     dbw.query(sql)
 
 def create_tables():
     rows = da.stockbaseinfos.load_all_stocks()
-    for r in rows:
-        create_table(r.stock_no)
+    for r in rows:        
+        dbw.query("ALTER TABLE `z_%s` ENGINE=MyISAM;" % (r.stock_no))
+        #create_table(r.stock_no)
 
 #import history records
 def import_trade_record(stock_no,rows):
