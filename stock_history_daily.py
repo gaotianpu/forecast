@@ -64,7 +64,8 @@ def run():
     stocks = da.stockbaseinfos.load_all_stocks()
     for s in stocks:
         rows = download_and_parse_data(s)
-        import_into_db(s,rows)
+        if rows:
+        	da.dailyrecords.import_history_rows(s.stock_no,rows)
 
 
 if __name__ == '__main__':

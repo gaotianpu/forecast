@@ -112,12 +112,24 @@ def run_release():
         last_3_5.run()
     except Exception,ex:
         loger.error('last_3_5' + str(ex))
+
+    try:        
+        da.dailyrecords.remove_daily_records(datetime.datetime.now().strftime("%y-%m-%d"))
+    except Exception,ex:
+        loger.error('last_3_5' + str(ex))
+
     try:    
         import daily_sum_report
         daily_sum_report.run()
     except Exception,ex:
         loger.error('daily_sum_report' + str(ex))
-        
+
+    try:    
+        import gua
+        gua.run()
+    except Exception,ex:
+        loger.error('gua' + str(ex))
+
     try:    
         import cyb
         cyb.run_chart()
@@ -126,6 +138,7 @@ def run_release():
 
 if __name__ == '__main__':
     run_release()
+    #da.dailyrecords.remove_daily_records('2013-12-10')
 
     #da.dailyrecords.update_marketcode(datetime.datetime.now())
 

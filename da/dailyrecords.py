@@ -104,3 +104,23 @@ def load_all_last_5():
         where="TO_DAYS(NOW())-TO_DAYS(date) < 8 and volume<>0", #考虑到排除周末情况？
         order="date desc",vars=locals())
     return list(results)
+
+def load_stock_last_days(stock_no,days):
+    results = dbr.select('stock_daily_records',
+        where="stock_no=$stock_no and volume<>0", #考虑到排除周末情况？
+        order="date desc",limit=days,vars=locals())
+    return list(results)
+
+def remove_daily_records(date):
+    results = dbr.select('stock_daily_records',where="date=$date",vars=locals())
+    fields =  ['date','stock_no','open_price','high_price','low_price','close_price','create_date','last_update', 'volume','amount','adj_close','raise_drop','raise_drop_rate','is_traday','volume_updown','volume_updown_rate']
+    for r in results:
+        str_field_value_list = ','.join(["%s='%s'" % (k,v)  for k,v in r.items()  if k in fields and v is not None])         
+        dbw.query('replace into z_%s set %s' % (r.stock_no,str_field_value_list))
+
+
+def import_history_rows(stock_no,rows):
+    fields =  ['date', 'open_price','high_price','low_price','close_price', 'volume','amount','adj_close']
+    for r in rows:
+        str_field_value_list = ','.join(["%s='%s'" % (k,v)  for k,v in r.items()  if k in fields and v is not None])         
+        dbw.query('replace into z_%s set %s' % (stock_no,str_field_value_list))

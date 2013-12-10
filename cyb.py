@@ -123,7 +123,7 @@ def run_chart():
     
 import time
 if __name__ == '__main__':    
-    #run_release()
-    run_chart()
+    run_release()
+    #run_chart()
 
 
