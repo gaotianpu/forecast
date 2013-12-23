@@ -1,0 +1,10 @@
+﻿$def with(stocks)
+<!DOCTYPE html>
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<a href="http://stockhtm.finance.qq.com/sstock/ggcx/930263.shtml"><img src="http://image.sinajs.cn/newchart/daily/n/sh930263.gif" style=""/></a>
+$for s in stocks:
+    <a href="http://stockhtm.finance.qq.com/sstock/ggcx/$(s.stock_no).shtml"><img src="http://image.sinajs.cn/newchart/daily/n/$(s.pinyin2)$(s.stock_no).gif" style=""/></a>
+</body></html>

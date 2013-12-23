@@ -120,10 +120,17 @@ def run_chart():
     subject='K_CYB_%s' % (stocks[0].trade_date)
     util.emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
 
+def run_tengan100_chart():
+    stocks = list(dbr.select('stock_base_infos',where="tengan100=1",order='prate desc'))
+    render = web.template.frender('templates/tengan100.html')
+    content = str(render(stocks))
+    subject='K_TengAn100_%s' % (stocks[0].trade_date)
+    util.emailsmtp.sendmail(subject,content,['462042991@qq.com']) #,'5632646@qq.com'
     
 import time
 if __name__ == '__main__':    
-    run_release()
-    #run_chart()
+    #run_release()
+    run_chart()
+    run_tengan100_chart()
 
 
