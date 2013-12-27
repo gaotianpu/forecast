@@ -86,9 +86,13 @@ def run():
         lfile = get_local_file_name(i)
         browser.downad_and_save(url,lfile)
         rows = comm.parse_daily_data(lfile)
+        try:
+            da.stockdaily_cud.import_rows(rows)
+        except Exception,ex:
+            loger.error('stockdaily_cud import_rows ' + str(ex))
+
         #update stockbaseinfos
         da.stockbaseinfos.import_rows(rows)
-
         parse_data_and_import_to_db(lfile,i)
 
 def run_release():
@@ -137,7 +141,8 @@ def run_release():
         loger.error('cyb.run_chart' + str(ex))
 
 if __name__ == '__main__':
-    run_release()
+    run()
+    #run_release()
     #da.dailyrecords.remove_daily_records('2013-12-10')
 
     #da.dailyrecords.update_marketcode(datetime.datetime.now())

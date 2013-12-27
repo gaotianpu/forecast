@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import web
+import datetime
+from config import dbr,dbw,const_root_local,init_log
+
+
+def check_exist(date,stock_no):
+    return list(dbr.select('stock_daily',where="trade_date=$date and stock_no=$stock_no",vars=locals()))
+
+def insert_row(date,stock_no):
+    return dbw.insert('stock_daily',trade_date=date,stock_no=stock_no,create_date = web.SQLLiteral('NOW()'),)
+
+
+def import_rows(rows):
+    date = rows[0].date 
+    for r in rows:
+        candle = r.candle_2
+        results = check_exist(date,r.stock_no)
+        pk_id = insert_row(date,r.stock_no) if not results else results[0].pk_id
+        dbw.update('stock_daily',
+            open=r.open_price,close=r.close_price,high=r.high_price,low=r.low_price,volume=r.volume,amount=r.amount,last_close=r.last_close,
+            high_low = r.high_low, close_open = r.close_open, open_last_close = r.open_last_close, 
+            jump_rate=r.jump_rate, price_rate=r.raise_drop_rate, high_rate = r.high_rate, low_rate = r.low_rate, hig_low_rate =  r.high_rate -  r.low_rate,
+            range_1=candle[0],range_2=candle[1],range_3=candle[2],
+            last_update = web.SQLLiteral('NOW()'),
+            where='pk_id=$pk_id',vars=locals())
+        
+

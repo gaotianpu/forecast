@@ -7,7 +7,8 @@ import web
 
 def is_trade_day():
     #不包含工作日
-    return datetime.datetime.now().weekday() not in (5,6)
+    tday = datetime.datetime.now().weekday() not in (5,6)
+    return tday
 
 def is_trade_time():
     if not is_trade_day():
@@ -31,27 +32,53 @@ def parse_daily_data(lfile):
         stockno = regex.findall(fields[0])
         if not stockno: break
 
-        last_close = fields[2]
-        close_price = fields[3]
+        last_close = Decimal(fields[2])
+        close_price = Decimal(fields[3])
 
-        raise_drop = Decimal(close_price) - Decimal(last_close)
-        raise_drop_rate = raise_drop / Decimal(last_close) if Decimal(last_close) != 0 else 0
+        raise_drop = close_price - last_close
+        raise_drop_rate = raise_drop / last_close if last_close != 0 else 0
         stock_name = fields[0].split('"')[1].decode('gbk').encode("utf-8")
 
         r = web.storage(stock_no=stockno[0],open_price=fields[1],high_price=fields[4],
             low_price=fields[5],close_price=close_price,last_close=last_close,
             volume=int(fields[8]),amount=fields[9] ,
             raise_drop=raise_drop, raise_drop_rate=raise_drop_rate,
+            high_low = Decimal(fields[4]) - Decimal(fields[5]) ,
+            close_open = close_price - Decimal(fields[1]) ,
+            open_last_close = Decimal(fields[1]) - last_close,
             is_new_high = fields[4]==fields[3],
             is_new_low = fields[5]==fields[3],
+            jump_rate =  (Decimal(fields[1]) - last_close)/last_close,
+            high_rate = (Decimal(fields[4]) - last_close)/last_close,
+            low_rate = (Decimal(fields[5]) - last_close)/last_close,
             date=fields[30],time=fields[31],
             candle = get_candle_data(fields[1],close_price,fields[4],fields[5]),
+            candle_2 = get_candle_2(fields[1],close_price,fields[4],fields[5]),
             market_codes = get_market_codes(stockno[0]) )
 
         #print r
         rows.append(r)
     #rows = [r for r in rows if r['new_high'] ]  当前价就是今天的最高价
     return rows
+
+def get_candle_2(open,close,high,low):
+    open = float(open)
+    close = float(close)
+    high = float(high)
+    low = float(low)
+    
+    print open,close,high,low
+
+    if open==0 : return (0,0,0)
+
+    hl = high-low
+    if hl==0:
+        return (0,0,0,0)
+    rang_top = (high-close)/hl if close-open > 0  else (high-open)/hl
+    rang_middle = (close - open)/hl  
+    rang_bottom = (open-low)/hl if close-open > 0  else (close-low)/hl
+
+    return (int((round(rang_top*10))),int((round(rang_middle*10))),int((round(rang_bottom*10))),high-low)
 
 def get_candle_data(open,close,high,low):
     open = float(open)

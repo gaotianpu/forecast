@@ -7,6 +7,9 @@ import datetime
 t = 0
 
 def run():
+    project_path = os.path.split(os.path.realpath(__file__))[0]    
+    os.system('mysqldump -uroot -proot -d forecast > %s/forecast.sql' % (project_path))      
+
     date = datetime.datetime.now().strftime('%Y%m%d')
     os.system('mysqldump -uroot -proot -d forecast > %s/db/forecast_%s_%s.sql' % (const_root_local,date,t))
 
