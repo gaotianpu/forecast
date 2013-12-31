@@ -5,8 +5,8 @@ from config import dbr,dbw,const_root_local,init_log
 
 #create tables
 def create_table(stock_no):
-    dbw.query("DROP TABLE IF EXISTS `z_%s`;" % (stock_no))
-    sql = """CREATE TABLE `z_%s` (
+    dbw.query("DROP TABLE IF EXISTS forecast_backup.`z_%s`;" % (stock_no))
+    sql = """CREATE TABLE forecast_backup.`z_%s` (
   `date` date NOT NULL DEFAULT '0000-00-00',
   `stock_no` varchar(10) DEFAULT NULL,
   `open_price` decimal(8,2) DEFAULT NULL,
@@ -31,12 +31,12 @@ def create_table(stock_no):
 def create_tables():
     rows = da.stockbaseinfos.load_all_stocks()
     for r in rows:        
-        dbw.query("ALTER TABLE `z_%s` ENGINE=MyISAM;" % (r.stock_no))
+        dbw.query("ALTER TABLE forecast_backup.`z_%s` ENGINE=MyISAM;" % (r.stock_no))
         #create_table(r.stock_no)
 
 #import history records
 def import_trade_record(stock_no,rows):
-    sql = "replace into z_% (date,stock_no,open_price,high_price,low_price,close_price,volume,amount,adj_close)values()" % (stock_no)
+    sql = "replace into forecast_backup.z_% (date,stock_no,open_price,high_price,low_price,close_price,volume,amount,adj_close)values()" % (stock_no)
     dbw.query(sql)
 
 if __name__ == '__main__':

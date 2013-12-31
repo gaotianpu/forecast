@@ -15,7 +15,7 @@ def replace_z_records(record):
     strfields = 'date,stock_no,open_price,high_price,low_price,close_price,volume,amount,adj_close,raise_drop,raise_drop_rate,is_traday,volume_updown,volume_updown_rate,create_date,last_update'
     fields = strfields.split(',')
 
-    sql="replace into z_%s set %s" % (record.stock_no, ','.join(["%s='%s'" % (k,v)  for k,v in record.items() if k in fields and v is not None]))
+    sql="replace into forecast_backup.z_%s set %s" % (record.stock_no, ','.join(["%s='%s'" % (k,v)  for k,v in record.items() if k in fields and v is not None]))
     dbw.query(sql)
 
 
