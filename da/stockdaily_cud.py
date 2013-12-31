@@ -11,6 +11,15 @@ def check_exist(date,stock_no):
 def insert_row(date,stock_no):
     return dbw.insert('stock_daily',trade_date=date,stock_no=stock_no,create_date = web.SQLLiteral('NOW()'),)
 
+def update_last_high_low():
+    trade_dates = load_trade_dates()
+    today = trade_dates[0].trade_date
+    last_day = trade_dates[1].trade_date   
+    sql = """update stock_daily s,
+        (SELECT stock_no,high_low FROM `stock_daily` where trade_date='%s' ) as last 
+        set s.last_high_low = last.high_low 
+        where s.trade_date='%s' and s.stock_no=last.stock_no""" % (last_day,today)
+    dbw.query(sql)
 
 def import_rows(rows):
     date = rows[0].date 
@@ -26,4 +35,6 @@ def import_rows(rows):
             last_update = web.SQLLiteral('NOW()'),
             where='pk_id=$pk_id',vars=locals())
         
-
+def load_trade_dates():
+    sql = "SELECT DISTINCT trade_date FROM `stock_daily` ORDER BY trade_date desc limit 0,10"
+    return list(dbr.query(sql))

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import da
 
 def run(openp,close,high,low):
     t = [openp,close,high,low]
@@ -16,4 +17,5 @@ def run(openp,close,high,low):
 
 
 if __name__ == '__main__':
-    run(11.12,10.88,11.16,10.75)
+	da.stockdaily_cud.update_last_high_low()
+    #run(11.12,10.88,11.16,10.75)

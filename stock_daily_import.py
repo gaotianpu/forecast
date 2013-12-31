@@ -87,7 +87,7 @@ def run():
         browser.downad_and_save(url,lfile)
         rows = comm.parse_daily_data(lfile)
         try:
-            da.stockdaily_cud.import_rows(rows)
+            da.stockdaily_cud.import_rows(rows)            
         except Exception,ex:
             loger.error('stockdaily_cud import_rows ' + str(ex))
 
@@ -97,6 +97,11 @@ def run():
 
 def run_release():
     run()
+    
+    try:    
+        da.stockdaily_cud.update_last_high_low()
+    except Exception,ex:
+        loger.error('stockdaily_cud update_last_high_low' + str(ex))
 
     today = datetime.datetime.now()
     try:
