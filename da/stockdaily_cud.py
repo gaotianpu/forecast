@@ -21,6 +21,19 @@ def update_last_high_low():
         where s.trade_date='%s' and s.stock_no=last.stock_no""" % (last_day,today)
     dbw.query(sql)
 
+def update_avg_volume_10():  
+    trade_dates = load_trade_dates()
+
+    today = trade_dates[0].trade_date
+    begin_day = trade_dates[-1].trade_date
+    end_day = trade_dates[1].trade_date  
+
+    sql = """update stock_daily s,
+        (SELECT stock_no,avg(volume) as avg_volume FROM `stock_daily` where trade_date BETWEEN '%s' and '%s' group by stock_no) as avg10
+        set s.volume_avg_10 = avg10.avg_volume 
+        where s.trade_date='%s' and s.stock_no=avg10.stock_no""" % (begin_day,end_day,today)
+    dbw.query(sql)
+
 def import_rows(rows):
     date = rows[0].date 
     for r in rows:
