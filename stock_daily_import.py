@@ -97,11 +97,16 @@ def run():
 
 def run_release():
     run()
-    
-    try:    
+    #lowprice_3_5
+    try:            
         da.stockdaily_cud.update_last_high_low()
     except Exception,ex:
         loger.error('stockdaily_cud update_last_high_low' + str(ex))
+    
+    try:            
+        lowprice_3_5.run()
+    except Exception,ex:
+        loger.error('lowprice_3_5 run' + str(ex))
 
     today = datetime.datetime.now()
     try:

@@ -34,6 +34,9 @@ def update_avg_volume_10():
         where s.trade_date='%s' and s.stock_no=avg10.stock_no""" % (begin_day,end_day,today)
     dbw.query(sql)
 
+def update_trend3(trade_date,stock_no,trend3):
+    dbw.update('stock_daily',trend_3=trend3,where="trade_date=$trade_date and stock_no=$stock_no",vars=locals())
+
 def import_rows(rows):
     date = rows[0].date 
     for r in rows:
@@ -51,3 +54,7 @@ def import_rows(rows):
 def load_trade_dates():
     sql = "SELECT DISTINCT trade_date FROM `stock_daily` ORDER BY trade_date desc limit 0,10"
     return list(dbr.query(sql))
+
+def load_by_beginDate(date):
+    return list(dbr.select('stock_daily',where="trade_date>=$date",order="stock_no", vars=locals()))
+     

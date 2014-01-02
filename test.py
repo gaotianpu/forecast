@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import da
 
+
 def run(openp,close,high,low):
     t = [openp,close,high,low]
     t.sort()

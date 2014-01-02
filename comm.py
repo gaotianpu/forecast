@@ -129,6 +129,22 @@ def get_market_codes(stock_no):
         return web.storage(yahoo='ss',plate='ha',pinyin='sh')
     return web.storage(yahoo='',plate='',pinyin='')
 
+
+def get_trend(rows):
+    rows = sorted(rows, cmp=lambda x,y : cmp(x.low, y.low))
+
+    i=1
+    for r in rows:
+        r.index = i
+        i = i + 1
+
+    t=''
+    rows = sorted(rows, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
+    for r in rows:
+        t = t + str(r.index)
+
+    return int(t) 
+
 if __name__ == '__main__':
     get_market_codes('0024556')
     get_market_codes('0004556')
