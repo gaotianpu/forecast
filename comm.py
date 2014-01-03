@@ -131,7 +131,7 @@ def get_market_codes(stock_no):
 
 
 def get_trend(rows):
-    rows = sorted(rows, cmp=lambda x,y : cmp(x.low, y.low))
+    rows = sorted(rows, cmp=lambda x,y : cmp(x.close, y.close))
 
     i=1
     for r in rows:

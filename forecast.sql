@@ -200,7 +200,7 @@ CREATE TABLE `stock_daily` (
   PRIMARY KEY (`pk_id`),
   KEY `ix_trade_date` (`trade_date`),
   KEY `ix_stock_no` (`stock_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=7805 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=10073 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,7 +234,7 @@ CREATE TABLE `stock_daily_records` (
   KEY `date_idx` (`date`),
   KEY `volume_idx` (`volume`),
   KEY `stock_no_idx` (`stock_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=5259948 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5262216 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -341,4 +341,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-02  8:58:57
+-- Dump completed on 2014-01-03  8:58:54

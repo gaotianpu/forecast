@@ -57,4 +57,11 @@ def load_trade_dates():
 
 def load_by_beginDate(date):
     return list(dbr.select('stock_daily',where="trade_date>=$date",order="stock_no", vars=locals()))
-     
+
+
+def load_for_buy(date):
+    return list(dbr.select('stock_daily',
+        what="stock_no",
+        where="trade_date=$date and volume<>0 and trend_3=321 and range_3>5",
+        order="range_3 desc",
+        vars=locals()))
