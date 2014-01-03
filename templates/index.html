@@ -1,0 +1,14 @@
+$def with(module)
+<!DOCTYPE html>
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<form method="post">
+	<textarea name="sql" style="width:90%;">$(module.query)</textarea> <input type="submit" value="query" />
+</form>
+<h3> $(module.count) </h3>
+<hr/> 
+$for s in module.stocks:
+    <a href="http://stockhtm.finance.qq.com/sstock/ggcx/$(s.stock_no).shtml"><img src="http://image.sinajs.cn/newchart/daily/n/$(s.pinyin2)$(s.stock_no).gif" style=""/></a>
+</body></html>
