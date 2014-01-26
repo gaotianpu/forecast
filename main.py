@@ -13,9 +13,7 @@ class Index:
      	return render.index(r)
     def POST(self):
     	i = web.input(sql="")
-    	rows = list(dbr.select('stock_daily',
-    		where="trade_date='2014-1-3' and volume<>0 and (" + i.sql + ")",
-    		vars=locals()))
+    	rows = list(dbr.query(i.sql))
 
     	l = []
     	for r in rows:

@@ -4,3 +4,4 @@
 import stockbaseinfos
 import dailyrecords
 import stockdaily_cud
+import stockdaily

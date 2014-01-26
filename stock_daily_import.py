@@ -103,7 +103,8 @@ def run_release():
     except Exception,ex:
         loger.error('stockdaily_cud update_last_high_low' + str(ex))
     
-    try:            
+    try:
+        import lowprice_3_5            
         lowprice_3_5.run()
     except Exception,ex:
         loger.error('lowprice_3_5 run' + str(ex))
@@ -151,7 +152,9 @@ def run_release():
         loger.error('cyb.run_chart' + str(ex))
 
 if __name__ == '__main__':
-    run()
+    run_release()
+
+    #
     #run_release()
     #da.dailyrecords.remove_daily_records('2013-12-10')
 
