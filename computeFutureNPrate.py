@@ -4,7 +4,7 @@ import web
 import da
 from config import dbr,dbw
 
-def run(stock_no):   
+def compute_one_stock(stock_no):   
     records = da.stockdaily.load_stockno(stock_no)
     for r in records:
         i = records.index(r)        
@@ -21,7 +21,10 @@ def run(stock_no):
             sql = 'update stock_daily set future3_prate=%s where pk_id=%s' % (prate,r.pk_id) 
             dbw.query(sql)
              
-    
+def run_all():
+    stocks = da.stockbaseinfos.load_all_stocks() #[web.storage(stock_no='000001',pk_id=332)] #test
+    for s in stocks:
+        compute_one_stock(s.stock_no)    
 
 if __name__ == '__main__':
-    run('300233')
+    run_all()
