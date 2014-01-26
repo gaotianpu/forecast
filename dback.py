@@ -13,8 +13,8 @@ def run():
     date = datetime.datetime.now().strftime('%Y%m%d')
     os.system('mysqldump -uroot -proot -d forecast > %s/db/forecast_%s_%s.sql' % (const_root_local,date,t))
 
-    backtables = ['stock_base_infos','date_sums','date_sum_infos','stock_daily_records','trading_records','trading_strategies_records','trend_daily']
-    for table_name in backtables:
+    backtables = ['stock_base_infos','stock_daily']
+    for table_name in backtables:    	
         os.system('mysqldump -uroot -proot forecast %s > %s/db/%s_%s_%s.sql'% (table_name,const_root_local,table_name,date,t) )
 
 if __name__ == "__main__":

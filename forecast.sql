@@ -197,8 +197,12 @@ CREATE TABLE `stock_daily` (
   `trend_3` int(11) DEFAULT NULL,
   `trend_5` int(11) DEFAULT NULL,
   `volume_avg_10` int(11) DEFAULT NULL,
-  `future3_prate` float(7,4) DEFAULT NULL,
-  `future5_prate` float(7,4) DEFAULT NULL,
+  `future1_prate` int(11) DEFAULT NULL,
+  `future2_prate` int(11) DEFAULT NULL,
+  `future3_prate` int(11) DEFAULT NULL,
+  `future1_range` tinyint(4) DEFAULT '0',
+  `future2_range` tinyint(4) DEFAULT '0',
+  `future3_range` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`pk_id`),
   KEY `ix_trade_date` (`trade_date`),
   KEY `ix_stock_no` (`stock_no`)
@@ -343,4 +347,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-26  8:58:59
+-- Dump completed on 2014-01-26 18:45:33
