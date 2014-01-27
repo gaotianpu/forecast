@@ -7,12 +7,16 @@ import comm
 
 def getFutureRange(prate):
     if prate>10:  #1%
-        return 3
-    if prate < -20: #-2%
-        return 1 
-    if prate<=10 and prate>=-20:
         return 2
-    return 0    
+    if prate<=10:
+        return 1
+    return 0
+
+    # if prate < -20: #-2%
+    #     return 1 
+    # if prate<=10 and prate>=-20:
+    #     return 2
+    # return 0    
 
 def computeFuture(records):
     for r in records:
@@ -49,9 +53,9 @@ def run_all():
     stocks = da.stockbaseinfos.load_all_stocks()  
     for s in stocks:         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
-        #computeFuture(stock_daily_records)
-        computeTrend(stock_daily_records)
-         
+        computeFuture(stock_daily_records)
+        #computeTrend(stock_daily_records)
+
 
 if __name__ == '__main__':
     run_all()
