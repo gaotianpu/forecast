@@ -11,11 +11,9 @@ def getFutureRange(prate):
         return 1 
     if prate<=10 and prate>=-20:
         return 2
-    return 0
-    
+    return 0    
 
-def compute_one_stock(stock_no):   
-    records = da.stockdaily.load_stockno(stock_no)
+def computeFuture(records,stock_no):
     for r in records:
         i = records.index(r)        
         if i>1:
@@ -37,7 +35,8 @@ def compute_one_stock(stock_no):
 def run_all():
     stocks = da.stockbaseinfos.load_all_stocks()  
     for s in stocks:
-        compute_one_stock(s.stock_no)    
+        records = da.stockdaily.load_stockno(s.stock_no)
+        computeFuture(records,s.stock_no)    
 
 if __name__ == '__main__':
     run_all()

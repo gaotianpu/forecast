@@ -6,6 +6,7 @@ import comm
 import util
 import datetime
 
+
 def run():
     dates = da.stockdaily_cud.load_trade_dates()
     today = dates[0].trade_date    
