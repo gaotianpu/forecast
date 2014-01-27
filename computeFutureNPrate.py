@@ -3,6 +3,7 @@
 import web
 import da
 from config import dbr,dbw
+import comm
 
 def getFutureRange(prate):
     if prate>10:  #1%
@@ -13,7 +14,7 @@ def getFutureRange(prate):
         return 2
     return 0    
 
-def computeFuture(records,stock_no):
+def computeFuture(records):
     for r in records:
         i = records.index(r)        
         if i>1:
@@ -31,12 +32,26 @@ def computeFuture(records,stock_no):
             frange = getFutureRange(prate)
             sql = 'update stock_daily set future3_prate=%s,future3_range=%s where pk_id=%s' % (prate,frange,r.pk_id) 
             dbw.query(sql)
+
+def computeTrend(records):
+    count = len(records)
+    for i in range(0,count):        
+        if count-i>2:
+            t3 = comm.get_trend(records[i:i+3])
+            sql = 'update stock_daily set trend_3=%s where pk_id=%s' % (t3,records[i].pk_id) 
+            dbw.query(sql)
+        if count-i>4:
+            t5 = comm.get_trend(records[i:i+5])
+            sql = 'update stock_daily set trend_5=%s where pk_id=%s' % (t5,records[i].pk_id) 
+            dbw.query(sql) 
              
 def run_all():
     stocks = da.stockbaseinfos.load_all_stocks()  
-    for s in stocks:
-        records = da.stockdaily.load_stockno(s.stock_no)
-        computeFuture(records,s.stock_no)    
+    for s in stocks:         
+        stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
+        #computeFuture(stock_daily_records)
+        computeTrend(stock_daily_records)
+         
 
 if __name__ == '__main__':
     run_all()
