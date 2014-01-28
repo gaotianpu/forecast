@@ -49,12 +49,39 @@ def computeTrend(records):
             sql = 'update stock_daily set trend_5=%s where pk_id=%s' % (t5,records[i].pk_id) 
             dbw.query(sql) 
 
+def computeVolume(records):
+    count = len(records)
+    for i in range(0,count):   
+        r10 = records[i:i+10]        
+        l = [r.volume for r in r10]
+        volume_avg_10 = reduce(lambda x, y: x + y, l) / len(l)
+        volume_p = float(records[i].volume) / volume_avg_10
+        
+        #对volume进行分类
+        volume_level = 0 
+        if volume_p>=3:
+            volume_level = 31
+        elif volume_p<3 and volume_p>=2:
+            volume_level = 21
+        elif volume_p<2 and volume_p>=0.5:
+            volume_level = 19
+        elif volume_p<0.5 and volume_p>=0.33:
+            volume_level = 12
+        elif volume_p<0.33:
+            volume_level = 13
+        else:
+            volume_level = 0 
+
+        sql = 'update stock_daily set volume_avg_10=%s,volume_level=%s where pk_id=%s' % (volume_avg_10,volume_level,records[i].pk_id) 
+        dbw.query(sql)  
+
 def computeCandle(records):
     count = len(records)
     for i in range(0,count):
         r = records[i]
         result = comm.get_candle_2(r.open,r.close,r.high,r.low)
-        sql = 'update stock_daily set candle_sort=%s where pk_id=%s' % (result[4],records[i].pk_id) 
+        up_or_down = 2 if result[1]>0 else 1
+        sql = 'update stock_daily set candle_sort=%s,up_or_down=%s where pk_id=%s' % (result[4],up_or_down,records[i].pk_id) 
         dbw.query(sql) 
 
 
@@ -63,12 +90,18 @@ def computeForecast(records,categories,allpp):
     count = len(records)
     for i in range(0,count):
         if not records[i].trend_3:
-            continue
+            continue   
         if not records[i].trend_5:
-            continue
+            continue          
         if not records[i].candle_sort:
             continue
-        x = test2.run([records[i].trend_3,records[i].trend_5],categories,allpp)
+        fields = {'trend_3':records[i].trend_3,
+        'trend_5':records[i].trend_5,
+        'candle_sort':records[i].candle_sort,
+        'up_or_down':records[i].up_or_down,
+        'volume_level':records[i].volume_level}
+        #print fields
+        x = test2.run(fields,categories,allpp)
         sql = 'update stock_daily set forecast=%s where pk_id=%s' % (x[2]/x[1],records[i].pk_id) 
         dbw.query(sql)     
 
@@ -78,12 +111,15 @@ def run_all():
     allpp = test2.loadP() 
 
     stocks = da.stockbaseinfos.load_all_stocks()  
-    for s in stocks:         
+    for s in stocks:
+        print s.stock_no         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
         #computeFuture(stock_daily_records)
         #computeTrend(stock_daily_records)
         #computeCandle(stock_daily_records)
+        #computeVolume(stock_daily_records)
         computeForecast(stock_daily_records,categories,allpp)
+        #break
 
 
 if __name__ == '__main__':

@@ -5,10 +5,11 @@ from config import dbr,dbw
 
 tableName = 'stock_daily'
 categoryField = 'future1_range'
-featureFields =('trend_3','trend_5','candle_sort')
+featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level')
 
 def updateP(p,count,category,feature,featureField):
     cfKey = "%s|%s" % (feature,category) if featureField else (category if category else 'none')
+    cfKey = "%s|%s" % (cfKey,featureField)
     row = list(dbr.select('category_feature_probability',where='cfKey=$cfKey',vars=locals()))
     sql = "insert into category_feature_probability set probability=%s,category='%s',feature='%s',cfKey='%s',count=%s,field='%s'"  % (p,category,feature,cfKey,count,featureField) 
     if row:
@@ -71,8 +72,9 @@ def run(features,categories,allpp):
     d={}
     for catName,cat in categories.items():
         p = cat.probability
-        for f in features:
-            k = '%s|%s'%(f,cat.category)
+        for field,f  in features.items():
+            k = '%s|%s|%s'%(f,cat.category,field)
+            print k
             if k in allpp: 
                 p =  allpp[k].probability * p
             else:
@@ -115,7 +117,7 @@ def tmp():
      
 if __name__ == "__main__":
     compute()
-    
+
     a = 4.11657157258e-05
     b = 1.0775093246e-05
     print b/a
