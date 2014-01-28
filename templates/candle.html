@@ -18,15 +18,6 @@ $for row in module.rows:
 			<div class="$(row.updown)" style='height:$(abs(row.range_2)*10)%'></div>
 			<div style='height:$(row.range_3*10)%'></div>
 		</div>
-		<div>$(row.range_1)$(abs(row.range_2))$(row.range_3)</div>
-	</div>
-<div class="container">
-	<div class="candle" title="333">
-		<div style='height:33%'></div>
-		<div class="up" style='height:33%'></div>
-		<div style='height:33%'></div>
-	</div>
-	<div>333</div>
-</div>
-
+		<div>$(row.range_1)$(abs(row.range_2))$(row.range_3)<br/>$(row.candle_sort) </div>
+	</div> 
 </body></html>

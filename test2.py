@@ -5,7 +5,7 @@ from config import dbr,dbw
 
 tableName = 'stock_daily'
 categoryField = 'future1_range'
-featureFields =('trend_3','trend_5')
+featureFields =('trend_3','trend_5','candle_sort')
 
 def updateP(p,count,category,feature,featureField):
     cfKey = "%s|%s" % (feature,category) if featureField else (category if category else 'none')
@@ -114,6 +114,8 @@ def tmp():
 
      
 if __name__ == "__main__":
+    compute()
+    
     a = 4.11657157258e-05
     b = 1.0775093246e-05
     print b/a

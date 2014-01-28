@@ -49,6 +49,15 @@ def computeTrend(records):
             sql = 'update stock_daily set trend_5=%s where pk_id=%s' % (t5,records[i].pk_id) 
             dbw.query(sql) 
 
+def computeCandle(records):
+    count = len(records)
+    for i in range(0,count):
+        r = records[i]
+        result = comm.get_candle_2(r.open,r.close,r.high,r.low)
+        sql = 'update stock_daily set candle_sort=%s where pk_id=%s' % (result[4],records[i].pk_id) 
+        dbw.query(sql) 
+
+
 import test2
 def computeForecast(records,categories,allpp):
     count = len(records)
@@ -57,9 +66,12 @@ def computeForecast(records,categories,allpp):
             continue
         if not records[i].trend_5:
             continue
+        if not records[i].candle_sort:
+            continue
         x = test2.run([records[i].trend_3,records[i].trend_5],categories,allpp)
         sql = 'update stock_daily set forecast=%s where pk_id=%s' % (x[2]/x[1],records[i].pk_id) 
         dbw.query(sql)     
+
              
 def run_all():
     categories = test2.getCategories()
@@ -68,8 +80,9 @@ def run_all():
     stocks = da.stockbaseinfos.load_all_stocks()  
     for s in stocks:         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
-        computeFuture(stock_daily_records)
-        computeTrend(stock_daily_records)
+        #computeFuture(stock_daily_records)
+        #computeTrend(stock_daily_records)
+        #computeCandle(stock_daily_records)
         computeForecast(stock_daily_records,categories,allpp)
 
 

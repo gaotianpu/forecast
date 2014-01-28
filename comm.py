@@ -69,16 +69,24 @@ def get_candle_2(open,close,high,low):
     
     print open,close,high,low
 
-    if open==0 : return (0,0,0)
+    if open==0 : return (0,0,0,0,0)
 
     hl = high-low
     if hl==0:
-        return (0,0,0,0)
+        return (0,0,0,0,0)
     rang_top = (high-close)/hl if close-open > 0  else (high-open)/hl
     rang_middle = (close - open)/hl  
     rang_bottom = (open-low)/hl if close-open > 0  else (close-low)/hl
 
-    return (int((round(rang_top*10))),int((round(rang_middle*10))),int((round(rang_bottom*10))),high-low)
+    candleSort = []
+    candleSort.append('9' if rang_top>=0.15 else '6') 
+    candleSort.append('9' if abs(rang_middle)>=0.15 else '6') 
+    candleSort.append('9' if rang_bottom>=0.15 else '6')
+
+    #tmp = int(''.join(candleSort))
+    #tmp = int(tmp) if rang_middle>0 else 0-int(tmp)
+    return (int((round(rang_top*10))),int((round(rang_middle*10))),int((round(rang_bottom*10))),
+        high-low,int(''.join(candleSort)))
 
 def get_candle_data(open,close,high,low):
     open = float(open)

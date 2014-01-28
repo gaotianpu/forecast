@@ -29,9 +29,9 @@ class Index:
 
 class Candle:
     def GET(self):
-        rows = list(dbr.select('stock_daily',what='range_1,range_2,range_3',
-            where="volume>0 and trade_date='2014-01-27'",
-            offset=0,limit=2000,order="range_2 desc",vars=locals()))
+        rows = list(dbr.select('stock_daily',what='candle_sort,range_1,range_2,range_3',
+            where="volume>0 and stock_no='002639'",
+            offset=0,limit=2000,order="trade_date asc",vars=locals()))
         for r in rows:
             r.updown = "up" if r.range_2>0 else "down"
             print r.range_2
