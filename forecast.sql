@@ -24,14 +24,14 @@ DROP TABLE IF EXISTS `category_feature_probability`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `category_feature_probability` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `cfKey` varchar(11) DEFAULT NULL,
-  `probability` float(7,4) DEFAULT NULL,
+  `cfKey` varchar(50) DEFAULT NULL,
+  `probability` float(8,7) DEFAULT NULL,
   `count` int(11) DEFAULT NULL,
-  `category` varchar(11) DEFAULT NULL,
-  `feature` varchar(11) DEFAULT NULL,
-  `field` varchar(11) DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `feature` varchar(50) DEFAULT NULL,
+  `field` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=255 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=283 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,11 +222,14 @@ CREATE TABLE `stock_daily` (
   `future1_range` tinyint(4) DEFAULT '0',
   `future2_range` tinyint(4) DEFAULT '0',
   `future3_range` tinyint(4) DEFAULT '0',
+  `candle_sort` int(11) DEFAULT '0',
   `forecast` float DEFAULT '0',
+  `up_or_down` int(11) DEFAULT '2',
+  `volume_level` int(11) DEFAULT '0',
   PRIMARY KEY (`pk_id`),
   KEY `ix_trade_date` (`trade_date`),
   KEY `ix_stock_no` (`stock_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=48617 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=50884 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -260,7 +263,7 @@ CREATE TABLE `stock_daily_records` (
   KEY `date_idx` (`date`),
   KEY `volume_idx` (`volume`),
   KEY `stock_no_idx` (`stock_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=5300760 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5303027 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -367,4 +370,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-28  8:58:54
+-- Dump completed on 2014-01-28 16:27:04
