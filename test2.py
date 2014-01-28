@@ -49,7 +49,7 @@ def computeOneFeatue(categories,field):
     for cat,catV in categories.items():       
         for f in features:
             if not f:
-                continue   #none的情况
+                continue   #none的情况?
             f_count = sum([r.count for r in l if r[categoryField]==cat and r[field]==f])
             probability = float(f_count)/catV.count
             d['%s|%s'%(f,cat)] = web.storage(probability=probability,count=f_count) 
@@ -77,12 +77,13 @@ def run(features,categories,allpp):
                 p =  allpp[k].probability * p
             else:
                 p = 0        
+         
         d[cat.category] = p    
   
     print '-------------------------'
     for k,v in d.items():
         print k,v
-   
+    #d[2]/abp[1] #上升概率是下降概率的多少倍
     return d #l
 
 #####
@@ -113,10 +114,14 @@ def tmp():
 
      
 if __name__ == "__main__":
-    categories = getCategories()
-    allpp = loadP() 
+    a = 4.11657157258e-05
+    b = 1.0775093246e-05
+    print b/a
+
+    #categories = getCategories()
+    #allpp = loadP() 
     #run([u'321',u'12345'],categories,allpp)
-    tmp()
+    #tmp()
     #compute()
     #l = run([u'321',u'12345'])
     #for  i in l:

@@ -48,13 +48,29 @@ def computeTrend(records):
             t5 = comm.get_trend(records[i:i+5])
             sql = 'update stock_daily set trend_5=%s where pk_id=%s' % (t5,records[i].pk_id) 
             dbw.query(sql) 
+
+import test2
+def computeForecast(records,categories,allpp):
+    count = len(records)
+    for i in range(0,count):
+        if not records[i].trend_3:
+            continue
+        if not records[i].trend_5:
+            continue
+        x = test2.run([records[i].trend_3,records[i].trend_5],categories,allpp)
+        sql = 'update stock_daily set forecast=%s where pk_id=%s' % (x[2]/x[1],records[i].pk_id) 
+        dbw.query(sql)     
              
 def run_all():
+    categories = test2.getCategories()
+    allpp = test2.loadP() 
+
     stocks = da.stockbaseinfos.load_all_stocks()  
     for s in stocks:         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
         computeFuture(stock_daily_records)
-        #computeTrend(stock_daily_records)
+        computeTrend(stock_daily_records)
+        computeForecast(stock_daily_records,categories,allpp)
 
 
 if __name__ == '__main__':

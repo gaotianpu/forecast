@@ -4,7 +4,10 @@ import web
 from config import dbr,dbw,const_root_local,init_log
 import comm
 
-urls = ('/','Index')
+urls = (
+    '/candle','Candle',
+    '/','Index')
+
 render = web.template.render('templates')
 
 class Index:
@@ -23,6 +26,19 @@ class Index:
 
     	r = web.storage(stocks=l,query=i.sql,count = len(l)) 
      	return render.index(r)
+
+class Candle:
+    def GET(self):
+        rows = list(dbr.select('stock_daily',what='range_1,range_2,range_3',
+            where="volume>0 and trade_date='2014-01-27'",
+            offset=0,limit=2000,order="range_2 desc",vars=locals()))
+        for r in rows:
+            r.updown = "up" if r.range_2>0 else "down"
+            print r.range_2
+            
+        r = web.storage(rows=rows,query='',count=len(rows)) 
+        return render.candle(r)
+
 
 app = web.application(urls, globals())
 
