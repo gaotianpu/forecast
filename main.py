@@ -6,6 +6,7 @@ import comm
 
 urls = (
     '/candle','Candle',
+    '/trend','Trend',
     '/','Index')
 
 render = web.template.render('templates')
@@ -38,6 +39,18 @@ class Candle:
             
         r = web.storage(rows=rows,query='',count=len(rows)) 
         return render.candle(r)
+
+import csv
+class Trend:
+    def GET(self):
+        rows = []
+        with open('trend5upradiocount.csv', 'rb') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            for row in spamreader:
+                if row[0]=='trend5':continue
+                rows.append(web.storage(trend=row[0],p=row[1],count=row[2]))        
+        r = web.storage(rows=rows,query='',count=len(rows)) 
+        return render.trend(r)  
 
 
 app = web.application(urls, globals())
