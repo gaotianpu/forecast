@@ -98,7 +98,7 @@ def computeForecast(records,categories,allpp):
         fields = {'trend_3':records[i].trend_3,
         'trend_5':records[i].trend_5,
         'candle_sort':records[i].candle_sort,
-        'up_or_down':records[i].up_or_down,
+        #'up_or_down':records[i].up_or_down,
         'volume_level':records[i].volume_level}
         #print fields
         x = test2.run(fields,categories,allpp)
