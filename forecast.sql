@@ -31,7 +31,7 @@ CREATE TABLE `category_feature_probability` (
   `feature` varchar(50) DEFAULT NULL,
   `field` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=283 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=293 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -203,6 +203,7 @@ CREATE TABLE `stock_daily` (
   `close_open` decimal(8,2) DEFAULT NULL,
   `open_last_close` decimal(8,2) DEFAULT NULL,
   `jump_rate` float DEFAULT NULL,
+  `jump_level` tinyint(4) DEFAULT '0',
   `price_rate` float DEFAULT NULL,
   `high_rate` float DEFAULT NULL,
   `low_rate` float DEFAULT NULL,
@@ -226,6 +227,9 @@ CREATE TABLE `stock_daily` (
   `forecast` float DEFAULT '0',
   `up_or_down` int(11) DEFAULT '2',
   `volume_level` int(11) DEFAULT '0',
+  `ma_5` decimal(8,2) DEFAULT NULL,
+  `ma_10` decimal(8,2) DEFAULT NULL,
+  `ma_5_10` decimal(8,2) DEFAULT NULL,
   PRIMARY KEY (`pk_id`),
   KEY `ix_trade_date` (`trade_date`),
   KEY `ix_stock_no` (`stock_no`)
@@ -370,4 +374,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-29  8:58:53
+-- Dump completed on 2014-01-29 15:05:17
