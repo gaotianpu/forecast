@@ -105,6 +105,22 @@ def computeJump(records):
         sql = 'update stock_daily set jump_level=%s,jump_rate=%s where pk_id=%s' % (jump_level,jump_rate,records[i].pk_id) 
         dbw.query(sql) 
 
+def computeMA(records):
+    count = len(records)
+    for i in range(0,count):
+        ma5 = ma10 = 0
+        if count-i>=5:
+            l5 = [r.close for r in records[i:i+5]]
+            ma5 = reduce(lambda x, y: x  + y , l5) / 5           
+        if count-i>=10:
+            l10 = [r.close for r in records[i:i+10]]
+            ma10 = reduce(lambda x, y: x  + y , l10) / 10
+        ma_5_10 = 0
+        if ma5<>0 and ma10<>0:
+            ma_5_10 = 2 if ma5>ma10 else 1 
+        sql = 'update stock_daily set ma_5=%s,ma_10=%s,ma_5_10=%s where pk_id=%s' % (ma5,ma10,ma_5_10,records[i].pk_id) 
+        dbw.query(sql)      
+
 import test2
 def computeForecast(records,categories,allpp):
     count = len(records)
@@ -121,12 +137,15 @@ def computeForecast(records,categories,allpp):
             continue
         if not records[i].jump_level:
             continue
+        if not records[i].ma_5_10:
+            continue
         fields = {'trend_3':records[i].trend_3,
         'trend_5':records[i].trend_5,
         'candle_sort':records[i].candle_sort,
-        'up_or_down':records[i].up_or_down,
+        #'up_or_down':records[i].up_or_down,
         'volume_level':records[i].volume_level
         ,'jump_level':records[i].jump_level
+        ,'ma_5_10':records[i].ma_5_10
         }
         #print fields
         x = test2.run(fields,categories,allpp)
@@ -142,13 +161,14 @@ def run_all():
     for s in stocks:
         print s.stock_no         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
-        #computeFuture(stock_daily_records)
-        #computeTrend(stock_daily_records)
-        #computeCandle(stock_daily_records)
-        #computeVolume(stock_daily_records)
-        #computeJump(stock_daily_records)
+        computeFuture(stock_daily_records)
+        computeTrend(stock_daily_records)
+        computeCandle(stock_daily_records)
+        computeVolume(stock_daily_records)
+        computeJump(stock_daily_records)
+        computeMA(stock_daily_records)
         computeForecast(stock_daily_records,categories,allpp)
-        #break
+        # break
 
 
 if __name__ == '__main__':
