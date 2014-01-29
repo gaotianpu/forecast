@@ -5,7 +5,7 @@ from config import dbr,dbw
 
 tableName = 'stock_daily'
 categoryField = 'future1_range'
-featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level')
+featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level')
 
 def updateP(p,count,category,feature,featureField):
     cfKey = "%s|%s" % (feature,category) if featureField else (category if category else 'none')

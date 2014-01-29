@@ -84,6 +84,26 @@ def computeCandle(records):
         sql = 'update stock_daily set candle_sort=%s,up_or_down=%s where pk_id=%s' % (result[4],up_or_down,records[i].pk_id) 
         dbw.query(sql) 
 
+def computeJump(records):
+    count = len(records)
+    for i in range(0,count):
+        if count-i<2:break
+        last_price = records[i+1].last_close 
+        open_last_close = records[i].open - last_price 
+        jump_rate = open_last_close / last_price 
+        jump_level = 0 
+
+        if jump_rate*100>=2:
+            jump_level = 3
+        elif jump_rate*100>=0 and jump_rate*100<2:
+            jump_level = 2
+        elif jump_rate*100<0:
+            jump_level = 1
+        else:
+            jump_level = 50 
+
+        sql = 'update stock_daily set jump_level=%s,jump_rate=%s where pk_id=%s' % (jump_level,jump_rate,records[i].pk_id) 
+        dbw.query(sql) 
 
 import test2
 def computeForecast(records,categories,allpp):
@@ -92,14 +112,22 @@ def computeForecast(records,categories,allpp):
         if not records[i].trend_3:
             continue   
         if not records[i].trend_5:
-            continue          
+            continue 
         if not records[i].candle_sort:
+            continue         
+        if not records[i].up_or_down:
+            continue
+        if not records[i].volume_level:
+            continue
+        if not records[i].jump_level:
             continue
         fields = {'trend_3':records[i].trend_3,
         'trend_5':records[i].trend_5,
         'candle_sort':records[i].candle_sort,
-        #'up_or_down':records[i].up_or_down,
-        'volume_level':records[i].volume_level}
+        'up_or_down':records[i].up_or_down,
+        'volume_level':records[i].volume_level
+        ,'jump_level':records[i].jump_level
+        }
         #print fields
         x = test2.run(fields,categories,allpp)
         sql = 'update stock_daily set forecast=%s where pk_id=%s' % (x[2]/x[1],records[i].pk_id) 
@@ -118,6 +146,7 @@ def run_all():
         #computeTrend(stock_daily_records)
         #computeCandle(stock_daily_records)
         #computeVolume(stock_daily_records)
+        #computeJump(stock_daily_records)
         computeForecast(stock_daily_records,categories,allpp)
         #break
 
