@@ -64,6 +64,7 @@ import time
 def run():
     stocks = da.stockbaseinfos.load_all_stocks()
     for s in stocks:
+        if int(s.stock_no) > 300000 : continue
         rows = download_and_parse_data(s)
         if not rows:
             time.sleep(30)
@@ -82,25 +83,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-    #print load_all_stocks()
-    #download_all(da.stockbaseinfos.load_all_stocks())
-
-    #stock_dates = load_stock_dates('300001')
-    #max_date = max(stock_dates)
-    #print max_date
-    #print '2012-01-01' > max_date
-    #print '2014-01-01' > max_date
-
-
-    #load_all_stocks()
-
-
-    #stocks = load_failed_stock()
-    #download_all(stocks)
-
-    #download(params)
-    #test_one_stock()
-
-
-
-

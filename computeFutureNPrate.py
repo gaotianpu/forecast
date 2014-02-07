@@ -121,7 +121,7 @@ def computeMA(records):
         sql = 'update stock_daily set ma_5=%s,ma_10=%s,ma_5_10=%s where pk_id=%s' % (ma5,ma10,ma_5_10,records[i].pk_id) 
         dbw.query(sql)      
 
-import test2
+import computeP
 def computeForecast(records,categories,allpp):
     count = len(records)
     for i in range(0,count):
@@ -148,7 +148,7 @@ def computeForecast(records,categories,allpp):
         ,'ma_5_10':records[i].ma_5_10
         }
         #print fields
-        x = test2.run(fields,categories,allpp)
+        x = computeP.run(fields,categories,allpp)
         sql = 'update stock_daily set forecast=%s where pk_id=%s' % (x[2]/x[1],records[i].pk_id) 
         dbw.query(sql)     
 
@@ -177,11 +177,11 @@ def computeLastClosePrice(records):
 
              
 def run_all():
-    categories = test2.getCategories()
-    allpp = test2.loadP() 
+    categories = computeP.getCategories()
+    allpp = computeP.loadP() 
 
     stocks = da.stockbaseinfos.load_all_stocks()  
-    for s in stocks:
+    for s in stocks:        
         print s.stock_no         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
         computeLastClosePrice(stock_daily_records)        
