@@ -1,43 +1,106 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import da
+import web
 from config import dbr,dbw,const_root_local,init_log
+from util import browser
+import datetime
+import os
+import csv
+import da,comm
 
-#create tables
-def create_table(stock_no):
-    dbw.query("DROP TABLE IF EXISTS forecast_backup.`z_%s`;" % (stock_no))
-    sql = """CREATE TABLE forecast_backup.`z_%s` (
-  `date` date NOT NULL DEFAULT '0000-00-00',
-  `stock_no` varchar(10) DEFAULT NULL,
-  `open_price` decimal(8,2) DEFAULT NULL,
-  `high_price` decimal(8,2) DEFAULT NULL,
-  `low_price` decimal(8,2) DEFAULT NULL,
-  `close_price` decimal(8,2) DEFAULT NULL,
-  `volume` bigint(11) DEFAULT NULL,
-  `amount` bigint(11) DEFAULT NULL,
-  `adj_close` decimal(8,2) DEFAULT NULL,
-  `create_date` datetime DEFAULT NULL,
-  `last_update` datetime DEFAULT NULL,
-  `raise_drop` decimal(8,2) DEFAULT NULL,
-  `raise_drop_rate` decimal(7,3) DEFAULT NULL,
-  `is_traday` int(11) DEFAULT NULL,
-  `volume_updown` bigint(11) DEFAULT NULL,
-  `volume_updown_rate` decimal(30,2) DEFAULT NULL,
-  PRIMARY KEY (`date`),
-  KEY `volume_idx` (`volume`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;""" % (stock_no)
-    dbw.query(sql)
+#doc:http://www.bizeway.net/read.php?317
+#http://table.finance.yahoo.com/table.csv?s=000001.sz
 
-def create_tables():
-    rows = da.stockbaseinfos.load_all_stocks()
-    for r in rows:        
-        dbw.query("ALTER TABLE forecast_backup.`z_%s` ENGINE=MyISAM;" % (r.stock_no))
-        #create_table(r.stock_no)
+loger = init_log("stock_history_daily")
+const_root_url = "http://table.finance.yahoo.com/table.csv?"
 
-#import history records
-def import_trade_record(stock_no,rows):
-    sql = "replace into forecast_backup.z_% (date,stock_no,open_price,high_price,low_price,close_price,volume,amount,adj_close)values()" % (stock_no)
-    dbw.query(sql)
+def load_stock_dates(stock_no):
+    rows = dbr.select('stock_daily_records',what='date',where="stock_no=$stock_no", vars=locals())
+    dates = [row.date.strftime('%Y-%m-%d')  for row in rows]
+    return dates
+
+
+def import_stock_daily_data(market_code,stock_no,data):
+    stock_dates = load_stock_dates(stock_no)
+    max_date = max(stock_dates) if stock_dates else '1900-01-01'
+    l=[]
+    for row in data:
+        #if row['date'] <= max_date: break
+        if row['date'] in stock_dates:
+            continue
+        row['stock_market_no'] = market_code
+        row['stock_no'] = stock_no
+        row['create_date'] = datetime.datetime.now()
+        row['last_update'] = datetime.datetime.now()
+        l.append(row)
+
+    print '%s.%s csv len is %s' %(market_code,stock_no,len(data))
+    print '%s.%s insert len is %s' %(market_code,stock_no,len(l))
+
+    dbw.supports_multiple_insert = True
+    dbw.multiple_insert('stock_daily_records',l)
+
+def import_into_db(stock,rows):
+    pass
+
+
+def download_and_parse_data(stock):
+    scode = '%s.%s' % (stock.stock_no,stock.market_code_yahoo)
+    url = '%ss=%s' % (const_root_url,scode)
+    lfile = '%s/dailyh/%s.csv' %(const_root_local,scode)
+    try:
+        if not os.path.exists(lfile):
+            print url
+            loger.info("downloading " + url)
+            browser.downad_and_save(url,lfile)
+        rows = comm.parse_history_data(lfile)
+        return rows
+    except Exception,e:
+        loger.error(url + " " + str(e) )
+    return False
+
+
+import time
+def run():
+    stocks = da.stockbaseinfos.load_all_stocks()
+    for s in stocks:
+        rows = download_and_parse_data(s)
+        if not rows:
+            time.sleep(30)
+            continue        
+        trade_dates = da.stockdaily.load_dates(s.stock_no)
+        db_dates = set([r.trade_date.strftime('%Y-%m-%d') for r in trade_dates])
+        file_dates = set([r.date for r in rows])
+        tmp = file_dates - db_dates
+        for r in rows:
+            if r.date in tmp:
+                da.stockdaily_cud.insert(r.date,s.stock_no,r.open_price,r.close_price,r.high_price,r.low_price,r.volume)
+            else:
+                pass #?update
+           
+        print s.stock_no,'end'       
 
 if __name__ == '__main__':
-    create_tables()
+    run()
+    #print load_all_stocks()
+    #download_all(da.stockbaseinfos.load_all_stocks())
+
+    #stock_dates = load_stock_dates('300001')
+    #max_date = max(stock_dates)
+    #print max_date
+    #print '2012-01-01' > max_date
+    #print '2014-01-01' > max_date
+
+
+    #load_all_stocks()
+
+
+    #stocks = load_failed_stock()
+    #download_all(stocks)
+
+    #download(params)
+    #test_one_stock()
+
+
+
+

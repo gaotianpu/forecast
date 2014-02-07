@@ -11,6 +11,16 @@ def check_exist(date,stock_no):
 def insert_row(date,stock_no):
     return dbw.insert('stock_daily',trade_date=date,stock_no=stock_no,create_date = web.SQLLiteral('NOW()'),)
 
+def insert(date,stock_no,open,close,high,low,volume):
+    return dbw.insert('stock_daily',trade_date=date,stock_no=stock_no,
+        open = open,
+        close = close,
+        high = high,
+        low = low,
+        volume = volume,         
+        create_date = web.SQLLiteral('NOW()'),
+        last_update = web.SQLLiteral('NOW()'),)
+
 def update_last_high_low():
     trade_dates = load_trade_dates()
     today = trade_dates[0].trade_date

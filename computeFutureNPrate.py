@@ -87,7 +87,7 @@ def computeCandle(records):
 def computeJump(records):
     count = len(records)
     for i in range(0,count):
-        if count-i<2:break
+        if count-i==2:break
         last_price = records[i+1].last_close 
         open_last_close = records[i].open - last_price 
         jump_rate = open_last_close / last_price 
@@ -152,6 +152,29 @@ def computeForecast(records,categories,allpp):
         sql = 'update stock_daily set forecast=%s where pk_id=%s' % (x[2]/x[1],records[i].pk_id) 
         dbw.query(sql)     
 
+def computeLastClosePrice(records):
+    count = len(records)
+    for i in range(0,count):
+        if (count-i) == 1:
+            break
+        last_close = records[i+1].close
+        open_last_close = records[i].open - records[i+1].close
+        high_low = records[i].high - records[i].low
+        close_open = records[i].close - records[i].open
+        price_rate = (records[i].close - last_close)/last_close
+        high_rate = (records[i].high - last_close)/last_close
+        low_rate = (records[i].low - last_close)/last_close
+        high_low_rate = high_rate - low_rate
+        candle = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
+        range_1 = candle[0]
+        range_2 = candle[1]
+        range_3 = candle[2]
+        pk_id = records[i].pk_id
+        dbw.update('stock_daily',high_low=high_low,last_close=last_close,open_last_close=open_last_close,
+            price_rate=price_rate,high_rate=high_rate,low_rate=low_rate,hig_low_rate=high_low_rate,
+            range_1 = range_1,range_2 = range_2,range_3 = range_3,
+            where="pk_id=$pk_id",vars=locals())
+
              
 def run_all():
     categories = test2.getCategories()
@@ -161,6 +184,7 @@ def run_all():
     for s in stocks:
         print s.stock_no         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
+        computeLastClosePrice(stock_daily_records)        
         computeFuture(stock_daily_records)
         computeTrend(stock_daily_records)
         computeCandle(stock_daily_records)
@@ -168,7 +192,7 @@ def run_all():
         computeJump(stock_daily_records)
         computeMA(stock_daily_records)
         computeForecast(stock_daily_records,categories,allpp)
-        # break
+        break
 
 
 if __name__ == '__main__':

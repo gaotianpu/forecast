@@ -18,5 +18,8 @@ def run(openp,close,high,low):
 
 
 if __name__ == '__main__':
-	da.stockdaily_cud.update_last_high_low()
+    a = set(['a','b','c','d'])
+    b = set(['a','c','e','f','d'])
+    print b-a
+	#da.stockdaily_cud.update_last_high_low()
     #run(11.12,10.88,11.16,10.75)
