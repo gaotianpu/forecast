@@ -122,7 +122,7 @@ def parse_history_data(lfile):
             r = web.storage(date=date,open_price=openp,high_price=highp,low_price=lowp,close_price=closep,volume=volume,
                 candle = get_candle_data(openp,closep,highp,lowp),
                 candle_2 = get_candle_2(openp,closep,highp,lowp) )
-            print r
+            #print r
             l.append(r)
     return l
 

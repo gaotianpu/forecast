@@ -84,26 +84,7 @@ def computeCandle(records):
         sql = 'update stock_daily set candle_sort=%s,up_or_down=%s where pk_id=%s' % (result[4],up_or_down,records[i].pk_id) 
         dbw.query(sql) 
 
-def computeJump(records):
-    count = len(records)
-    for i in range(0,count):
-        if count-i==2:break
-        last_price = records[i+1].last_close 
-        open_last_close = records[i].open - last_price 
-        jump_rate = open_last_close / last_price 
-        jump_level = 0 
 
-        if jump_rate*100>=2:
-            jump_level = 3
-        elif jump_rate*100>=0 and jump_rate*100<2:
-            jump_level = 2
-        elif jump_rate*100<0:
-            jump_level = 1
-        else:
-            jump_level = 50 
-
-        sql = 'update stock_daily set jump_level=%s,jump_rate=%s where pk_id=%s' % (jump_level,jump_rate,records[i].pk_id) 
-        dbw.query(sql) 
 
 def computeMA(records):
     count = len(records)
@@ -169,31 +150,50 @@ def computeLastClosePrice(records):
         range_1 = candle[0]
         range_2 = candle[1]
         range_3 = candle[2]
+
+        jump_rate = open_last_close / last_close 
+        jump_level = 0
+        if jump_rate*100>=2:
+            jump_level = 3
+        elif jump_rate*100>=0 and jump_rate*100<2:
+            jump_level = 2
+        elif jump_rate*100<0:
+            jump_level = 1
+        else:
+            jump_level = 50  
+
         pk_id = records[i].pk_id
         dbw.update('stock_daily',high_low=high_low,last_close=last_close,open_last_close=open_last_close,
             price_rate=price_rate,high_rate=high_rate,low_rate=low_rate,hig_low_rate=high_low_rate,
             range_1 = range_1,range_2 = range_2,range_3 = range_3,
+            jump_level = jump_level, jump_rate=jump_rate,
             where="pk_id=$pk_id",vars=locals())
+ 
 
+def run(stock_daily_records):
+    computeLastClosePrice(stock_daily_records)        
+    computeFuture(stock_daily_records)
+    computeTrend(stock_daily_records)
+    computeCandle(stock_daily_records)
+    computeVolume(stock_daily_records)     
+    computeMA(stock_daily_records)
              
 def run_all():
-    categories = computeP.getCategories()
-    allpp = computeP.loadP() 
+    # categories = computeP.getCategories()
+    # allpp = computeP.loadP() 
 
     stocks = da.stockbaseinfos.load_all_stocks()  
-    for s in stocks:        
+    for s in stocks: 
+        if int(s.stock_no)<300006:continue       
         print s.stock_no         
         stock_daily_records = da.stockdaily.load_stockno(s.stock_no)
-        computeLastClosePrice(stock_daily_records)        
-        computeFuture(stock_daily_records)
-        computeTrend(stock_daily_records)
-        computeCandle(stock_daily_records)
-        computeVolume(stock_daily_records)
-        computeJump(stock_daily_records)
-        computeMA(stock_daily_records)
-        computeForecast(stock_daily_records,categories,allpp)
-        break
-
+        run(stock_daily_records)        
+        # computeForecast(stock_daily_records,categories,allpp)   
+             
+def tmp():
+    stock_daily_records = da.stockdaily.load_stockno(300005)
+    run(stock_daily_records)  
 
 if __name__ == '__main__':
+    #tmp()
     run_all()

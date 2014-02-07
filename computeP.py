@@ -7,22 +7,6 @@ tableName = 'stock_daily'
 categoryField = 'future1_range'
 featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10')
 
-def updateP(p,count,category,feature,featureField):
-    cfKey = "%s|%s" % (feature,category) if featureField else (category if category else 'none')
-    cfKey = "%s|%s" % (cfKey,featureField)
-    row = list(dbr.select('category_feature_probability',where='cfKey=$cfKey',vars=locals()))
-    sql = "insert into category_feature_probability set probability=%s,category='%s',feature='%s',cfKey='%s',count=%s,field='%s'"  % (p,category,feature,cfKey,count,featureField) 
-    if row:
-        sql = "update category_feature_probability set probability=%s,category='%s',feature='%s',count=%s,field='%s' where id=%s"  % (p,category,feature,count,featureField,row[0].id) 
-    dbw.query(sql)
-
-def loadP():
-    d={}
-    rows = dbr.select('category_feature_probability')
-    for r in rows:
-        d[r.cfKey] = r
-    return d   
-
 def getCategories(): #where %s is not null
     sql = """select %s,count(*) as count from %s  group by %s """ % (categoryField,tableName,categoryField)
     l = list(dbr.query(sql))
@@ -39,6 +23,22 @@ def getCategories(): #where %s is not null
         updateP(probability,i.count,cat,'','')
     
     return d
+
+def updateP(p,count,category,feature,featureField):
+    cfKey = "%s|%s" % (feature,category) if featureField else (category if category else 'none')
+    cfKey = "%s|%s" % (cfKey,featureField)
+    row = list(dbr.select('category_feature_probability',where='cfKey=$cfKey',vars=locals()))
+    sql = "insert into category_feature_probability set probability=%s,category='%s',feature='%s',cfKey='%s',count=%s,field='%s'"  % (p,category,feature,cfKey,count,featureField) 
+    if row:
+        sql = "update category_feature_probability set probability=%s,category='%s',feature='%s',count=%s,field='%s' where id=%s"  % (p,category,feature,count,featureField,row[0].id) 
+    dbw.query(sql)
+
+def loadP():
+    d={}
+    rows = dbr.select('category_feature_probability')
+    for r in rows:
+        d[r.cfKey] = r
+    return d    
 
 def computeOneFeatue(categories,field):
     #where category is not null and feature1 is not null  
@@ -68,6 +68,7 @@ def compute():
     categories = getCategories()    
     allpp = computeMultiFeatures(categories)
 
+#############################################################
 def run(features,categories,allpp):    
     d={}
     for catName,cat in categories.items():
@@ -118,9 +119,9 @@ def tmp():
 if __name__ == "__main__":
     compute()
 
-    a = 4.11657157258e-05
-    b = 1.0775093246e-05
-    print b/a
+    # a = 4.11657157258e-05
+    # b = 1.0775093246e-05
+    # print b/a
 
     #categories = getCategories()
     #allpp = loadP() 
