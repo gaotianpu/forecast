@@ -154,6 +154,42 @@ def get_trend(rows):
 
     return int(t) 
 
+def get_volume_level(volume_p):
+    #对volume进行分类
+    volume_level = 0 
+    if volume_p>=3:
+        volume_level = 31
+    elif volume_p<3 and volume_p>=2:
+        volume_level = 21
+    elif volume_p<2 and volume_p>=0.5:
+        volume_level = 19
+    elif volume_p<0.5 and volume_p>=0.33:
+        volume_level = 12
+    elif volume_p<0.33:
+        volume_level = 13
+    else:
+        volume_level = 0 
+    return volume_level
+
+def get_jump_level(jump_rate):
+    jump_level = 0
+    if jump_rate*100>=2:
+        jump_level = 3
+    elif jump_rate*100>=0 and jump_rate*100<2:
+        jump_level = 2
+    elif jump_rate*100<0:
+        jump_level = 1
+    else:
+        jump_level = 50
+    return jump_level  
+
+def getFutureRange(prate):
+    if prate>10:  #1%
+        return 2
+    if prate<=10:
+        return 1
+    return 0
+
 if __name__ == '__main__':
     get_market_codes('0024556')
     get_market_codes('0004556')

@@ -7,6 +7,7 @@ import comm
 import multiprocessing
 import csv
 from decimal import *
+import json
 
 def parse_history_data(lfile):
     l=[]
@@ -14,22 +15,86 @@ def parse_history_data(lfile):
         reader = csv.reader(f, delimiter=',')
         for date,openp,high,low,close,volume,acp in reader:
             if date == 'Date': continue
-            r = web.storage(date=date,open=Decimal(openp),high=Decimal(high),
-                low=Decimal(low),close=Decimal(close),acp=Decimal(acp),volume=int(volume),)            
+            r = web.storage(trade_date=date,open=float(openp),high=float(high),
+                low=float(low),close=float(close),acp=float(acp),volume=int(volume),)            
             l.append(r)
     return l
 
-def process(filename):
+def process(filename):    
     fullpath = '%s/dailyh/%s' % (const_root_local,filename)
+    
     records = parse_history_data(fullpath)
-    count = len(records)
+    count = len(records)    
     for i in range(0,count):
-        records[i].last_close = 0 
-        records[i].lacp = 0         
+        records[i].high_low = records[i].high - records[i].low
+        records[i].close_open = records[i].close - records[i].open 
+        
         if (count-i) > 1: 
-            records[i].last_close =  records[i+1].close
-            records[i].lacp =  records[i+1].acp
-        print records[i]
+            records[i].last_close =  records[i+1].close  
+            records[i].last_acp =  records[i+1].acp  
+            records[i].open_lastclose = records[i].open - records[i].last_close  
+            records[i].jump_rate = records[i].open_lastclose / records[i].last_close  
+            records[i].jump_level = comm.get_jump_level(records[i].jump_rate)
+            records[i].price_rate = (records[i].close - records[i].last_close) / records[i].last_close  
+            records[i].high_rate = (records[i].high - records[i].last_close) / records[i].last_close  
+            records[i].low_rate = (records[i].low - records[i].last_close) / records[i].last_close  
+            records[i].hig_low_rate = records[i].high_rate - records[i].low_rate  
+
+        candles = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
+        records[i].range_1 = candles[0]
+        records[i].range_2 = candles[1]
+        records[i].range_3 = candles[2]
+        records[i].candle_sort  = candles[4]
+        records[i].up_or_down = 2 if candles[1]>0 else 1
+
+        r10 = records[i:i+10]        
+        l = [r.volume for r in r10]
+        volume_avg_10 = reduce(lambda x, y: x + y, l) / len(l)
+        volume_p = float(records[i].volume) / volume_avg_10  if volume_avg_10 else 0
+        records[i].volume_avg_10 = volume_avg_10
+        records[i].volume_level = comm.get_volume_level(volume_p)
+
+        if count-i>2:             
+            records[i].trend_3 = comm.get_trend(records[i:i+3])
+        if count-i>4:            
+            records[i].trend_5 = comm.get_trend(records[i:i+5])
+
+        l5 = [r.close for r in records[i:i+5]]
+        ma5 = reduce(lambda x, y: x  + y , l5) / 5
+        l10 = [r.close for r in records[i:i+10]]
+        ma10 = reduce(lambda x, y: x  + y , l10) / 10
+        ma_5_10 = 0
+        if ma5<>0 and ma10<>0:
+            ma_5_10 = 2 if ma5>ma10 else 1 
+        records[i].ma_5 = ma5
+        records[i].ma_10 = ma10
+        records[i].ma_5_10 = ma_5_10
+
+        if i>1:
+            prate = int((records[i-2].close - records[i-1].close) *1000 / records[i-1].close)
+            frange = comm.getFutureRange(prate) 
+            records[i].future1_prate = prate
+            records[i].future1_range = frange  
+        if i>2:
+            prate = int((records[i-3].close - records[i-1].close) *1000 / records[i-1].close )
+            frange = comm.getFutureRange(prate)
+            records[i].future2_prate = prate
+            records[i].future2_range = frange
+        if i>3:
+            prate = int((records[i-4].close - records[i-1].close) *1000 / records[i-1].close )
+            frange = comm.getFutureRange(prate)
+            records[i].future3_prate = prate
+            records[i].future3_range = frange    
+        #print records[i]  
+
+    content = '\r'.join([json.dumps(r) for r in records])
+    new_filepath = '%s/dailyh_add/%s' % (const_root_local,filename)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
+    print filename
+
+def process_callback():
+    pass
 
 def _____drop_multi_run(filename):
     ##须有最大进程数限制
@@ -40,7 +105,7 @@ def _____drop_multi_run(filename):
 def run():  
     local_dir = "%s/dailyh/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
-    mpPool = multiprocessing.Pool(processes=20)
+    mpPool = multiprocessing.Pool(processes=3)
     for f in filenames:     
         mpPool.apply_async(process,(f,))        
     mpPool.close()
@@ -48,5 +113,6 @@ def run():
 
 
 if __name__ == "__main__":
-    process('300001.sz.csv')
-    #run()
+    run()
+    #process('300003.sz.csv')
+    
