@@ -114,10 +114,10 @@ def mapfn(filename,records):
         l.append('category_%s:%s'%(k,v))   
     
     for fk in featureFields:
-        for ck,cv in categories.items(): 
-            cfvalues =dict(Counter('%s|%s|%s' % (fk,r[categoryField],r[fk]) for r in trade_records))
-            for k,v in cfvalues.items():
-                l.append('%s:%s' % (k,v)  )
+        # for ck,cv in categories.items(): 
+        cfvalues = dict(Counter('%s|%s|%s' % (fk,r[categoryField],r[fk]) for r in trade_records))
+        for k,v in cfvalues.items():
+            l.append('%s:%s' % (k,v)  )
           
     content = '\r\n'.join(l)
     new_filepath = '%s/dailyh_sum/%s' % (const_root_local,filename)    
@@ -129,16 +129,52 @@ def reducefn():
     local_dir = "%s/dailyh_sum/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
 
+    lt=[]
+    ll = []
     d = {}
     for f in filenames:
+        print f
         fullpath = '%s/dailyh_sum/%s' % (const_root_local,f) 
         with open(fullpath,'rb') as f:
             reader = csv.reader(f, delimiter=':')
-            for k,v in reader:                 
-                d[k] = d[k]+v if k in d else 0
+            l=[]
+            for k,v in reader:
+                d[k] = d[k] + int(v) if k in d else int(v)
+                l.append([k,d[k]])
+                ll=l
+
+                tmp = [r for r in lt if r[0]==k]
+                if not tmp:
+                    lt.append([k,int(v)]) 
+                else:
+                    item = tmp[0]
+                    count = item[1]
+                    item_index = lt.index(item)
+                    lt.remove(item)
+                    lt.insert(item_index, [k, count + int(v)] )  
+    d2={}                
+    for k,v in d.items():
+        print k,v
+        p = float(v) / int(d['trade'])  
+        d2[k] = '%s,%s' % (d[k],p)                
+                
+    # content = '\r\n'.join(['%s,%s' % (r[0],r[1])  for r in ll])
+    # new_filepath = '%s/dailyh_final/l.txt' % (const_root_local)    
+    # with open(new_filepath, 'w') as file: 
+    #     file.write(content)
+
+    content = '\r\n'.join(['%s,%s' % (r[0],r[1])  for r in lt])
+    new_filepath = '%s/dailyh_final/lt.txt' % (const_root_local)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
 
     content = '\r\n'.join(['%s,%s' % (k,v)  for k,v in d.items()])
-    new_filepath = '%s/dailyh_final/1.txt' % (const_root_local)    
+    new_filepath = '%s/dailyh_final/d.txt' % (const_root_local)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
+
+    content = '\r\n'.join(['%s,%s' % (k,v)  for k,v in d2.items()])
+    new_filepath = '%s/dailyh_final/d2.txt' % (const_root_local)    
     with open(new_filepath, 'w') as file: 
         file.write(content)
 
@@ -151,7 +187,7 @@ def _____drop_multi_run(filename):
 def run():  
     local_dir = "%s/dailyh/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
-    mpPool = multiprocessing.Pool(processes=3)
+    mpPool = multiprocessing.Pool(processes=3) #<=机器的cpu数目
     for f in filenames:     
         mpPool.apply_async(process,(f,))        
     mpPool.close()
@@ -159,8 +195,9 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
-    #process('300003.sz.csv')
+    #run()
     reducefn()
+    #process('000001.sz.csv')
+    #
     
     
