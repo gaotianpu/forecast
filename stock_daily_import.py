@@ -97,6 +97,7 @@ def run():
 
 def run_release():
     run()
+    
     #lowprice_3_5
     try:            
         da.stockdaily_cud.update_last_high_low()

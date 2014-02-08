@@ -67,7 +67,7 @@ def get_candle_2(open,close,high,low):
     high = float(high)
     low = float(low)
     
-    print open,close,high,low
+    #print open,close,high,low
 
     if open==0 : return (0,0,0,0,0)
 

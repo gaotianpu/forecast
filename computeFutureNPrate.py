@@ -164,6 +164,7 @@ def computeLastClosePrice(records):
 
         pk_id = records[i].pk_id
         dbw.update('stock_daily',high_low=high_low,last_close=last_close,open_last_close=open_last_close,
+            close_open = close_open,
             price_rate=price_rate,high_rate=high_rate,low_rate=low_rate,hig_low_rate=high_low_rate,
             range_1 = range_1,range_2 = range_2,range_3 = range_3,
             jump_level = jump_level, jump_rate=jump_rate,
@@ -190,8 +191,8 @@ def run_all():
         run(stock_daily_records)        
         # computeForecast(stock_daily_records,categories,allpp)   
              
-def tmp():
-    stock_daily_records = da.stockdaily.load_stockno(300005)
+def run_one(stock_no):
+    stock_daily_records = da.stockdaily.load_stockno(stock_no)
     run(stock_daily_records)  
 
 if __name__ == '__main__':
