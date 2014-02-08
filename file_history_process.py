@@ -128,55 +128,22 @@ import csv
 def reducefn():
     local_dir = "%s/dailyh_sum/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
-
-    lt=[]
-    ll = []
+    
     d = {}
     for f in filenames:
         print f
         fullpath = '%s/dailyh_sum/%s' % (const_root_local,f) 
         with open(fullpath,'rb') as f:
-            reader = csv.reader(f, delimiter=':')
-            l=[]
+            reader = csv.reader(f, delimiter=':')            
             for k,v in reader:
-                d[k] = d[k] + int(v) if k in d else int(v)
-                l.append([k,d[k]])
-                ll=l
-
-                tmp = [r for r in lt if r[0]==k]
-                if not tmp:
-                    lt.append([k,int(v)]) 
-                else:
-                    item = tmp[0]
-                    count = item[1]
-                    item_index = lt.index(item)
-                    lt.remove(item)
-                    lt.insert(item_index, [k, count + int(v)] )  
-    d2={}                
-    for k,v in d.items():
-        print k,v
-        p = float(v) / int(d['trade'])  
-        d2[k] = '%s,%s' % (d[k],p)                
+                d[k] = d[k] + int(v) if k in d else int(v) 
                 
-    # content = '\r\n'.join(['%s,%s' % (r[0],r[1])  for r in ll])
-    # new_filepath = '%s/dailyh_final/l.txt' % (const_root_local)    
-    # with open(new_filepath, 'w') as file: 
-    #     file.write(content)
-
-    content = '\r\n'.join(['%s,%s' % (r[0],r[1])  for r in lt])
-    new_filepath = '%s/dailyh_final/lt.txt' % (const_root_local)    
+    l = ['%s,%s,%s' % (k,v,float(v) / int(d['trade'])) for k,v in d.items()]
+    content = '\r\n'.join(l)
+    new_filepath = '%s/dailyh_final/cfp.csv' % (const_root_local)    
     with open(new_filepath, 'w') as file: 
         file.write(content)
 
-    content = '\r\n'.join(['%s,%s' % (k,v)  for k,v in d.items()])
-    new_filepath = '%s/dailyh_final/d.txt' % (const_root_local)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
-
-    content = '\r\n'.join(['%s,%s' % (k,v)  for k,v in d2.items()])
-    new_filepath = '%s/dailyh_final/d2.txt' % (const_root_local)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
 
 def _____drop_multi_run(filename):
     ##须有最大进程数限制
