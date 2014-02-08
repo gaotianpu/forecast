@@ -29,6 +29,7 @@ def process(filename):
         records[i].high_low = records[i].high - records[i].low
         records[i].close_open = records[i].close - records[i].open 
         
+        records[i].jump_level = 0
         if (count-i) > 1: 
             records[i].last_close =  records[i+1].close  
             records[i].last_acp =  records[i+1].acp  
@@ -54,10 +55,9 @@ def process(filename):
         records[i].volume_avg_10 = volume_avg_10
         records[i].volume_level = comm.get_volume_level(volume_p)
 
-        if count-i>2:             
-            records[i].trend_3 = comm.get_trend(records[i:i+3])
-        if count-i>4:            
-            records[i].trend_5 = comm.get_trend(records[i:i+5])
+                   
+        records[i].trend_3 = comm.get_trend(records[i:i+3]) if count-i>2 else 0                    
+        records[i].trend_5 = comm.get_trend(records[i:i+5]) if count-i>4 else 0
 
         l5 = [r.close for r in records[i:i+5]]
         ma5 = reduce(lambda x, y: x  + y , l5) / 5
@@ -86,7 +86,9 @@ def process(filename):
             records[i].future3_prate = prate
             records[i].future3_range = frange    
         #print records[i]  
-
+    
+    mapfn(filename,records)   
+     
     content = '\r'.join([json.dumps(r) for r in records])
     new_filepath = '%s/dailyh_add/%s' % (const_root_local,filename)    
     with open(new_filepath, 'w') as file: 
@@ -95,6 +97,50 @@ def process(filename):
 
 def process_callback():
     pass
+
+categoryField = 'future1_range'
+featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10')    
+from collections import Counter
+def mapfn(filename,records):
+    l = []
+    total_count = len(records)
+    trade_records = [r for r in records if r.volume>0]
+    trade_count = len(trade_records)
+    categories = dict(Counter(r[categoryField] for r in trade_records))
+
+    l.append('total:%s'%(total_count))
+    l.append('trade:%s'%(trade_count))     
+    for k,v in categories.items():
+        l.append('category_%s:%s'%(k,v))   
+    
+    for fk in featureFields:
+        for ck,cv in categories.items(): 
+            cfvalues =dict(Counter('%s|%s|%s' % (fk,r[categoryField],r[fk]) for r in trade_records))
+            for k,v in cfvalues.items():
+                l.append('%s:%s' % (k,v)  )
+          
+    content = '\r\n'.join(l)
+    new_filepath = '%s/dailyh_sum/%s' % (const_root_local,filename)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
+
+import csv
+def reducefn():
+    local_dir = "%s/dailyh_sum/"  % (const_root_local)   
+    filenames = os.listdir(local_dir)
+
+    d = {}
+    for f in filenames:
+        fullpath = '%s/dailyh_sum/%s' % (const_root_local,f) 
+        with open(fullpath,'rb') as f:
+            reader = csv.reader(f, delimiter=':')
+            for k,v in reader:                 
+                d[k] = d[k]+v if k in d else 0
+
+    content = '\r\n'.join(['%s,%s' % (k,v)  for k,v in d.items()])
+    new_filepath = '%s/dailyh_final/1.txt' % (const_root_local)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
 
 def _____drop_multi_run(filename):
     ##须有最大进程数限制
@@ -115,4 +161,6 @@ def run():
 if __name__ == "__main__":
     run()
     #process('300003.sz.csv')
+    reducefn()
+    
     
