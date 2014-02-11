@@ -18,10 +18,11 @@ def parse_history_data(lfile):
             r = web.storage(trade_date=date,open=float(openp),high=float(high),
                 low=float(low),close=float(close),acp=float(acp),volume=int(volume),)            
             l.append(r)
+    l = [r for r in l if r.volume>0]
     return l
 
 def process(filename):    
-    fullpath = '%s/dailyh/%s' % (const_root_local,filename)
+    fullpath = '%s/dailyh/%s.csv' % (const_root_local,filename)
     
     records = parse_history_data(fullpath)
     count = len(records)    
@@ -48,58 +49,76 @@ def process(filename):
         records[i].candle_sort  = candles[4]
         records[i].up_or_down = 2 if candles[1]>0 else 1
 
+        #成交量
         r10 = records[i:i+10]        
         l = [r.volume for r in r10]
         volume_avg_10 = reduce(lambda x, y: x + y, l) / len(l)
         volume_p = float(records[i].volume) / volume_avg_10  if volume_avg_10 else 0
         records[i].volume_avg_10 = volume_avg_10
         records[i].volume_level = comm.get_volume_level(volume_p)
-
                    
         records[i].trend_3 = comm.get_trend(records[i:i+3]) if count-i>2 else 0                    
         records[i].trend_5 = comm.get_trend(records[i:i+5]) if count-i>4 else 0
 
-        l5 = [r.close for r in records[i:i+5]]
-        ma5 = reduce(lambda x, y: x  + y , l5) / 5
-        l10 = [r.close for r in records[i:i+10]]
-        ma10 = reduce(lambda x, y: x  + y , l10) / 10
+        #移动平均线
+        MAs = comm.get_ma(records,i)  
+        # print MAs       
+        ma_5 = records[i].ma_5 = MAs['ma_5']
+        ma_10 = records[i].ma_10 = MAs['ma_10']
+        records[i].ma_20 = MAs['ma_20']
+        records[i].ma_50 = MAs['ma_50']
+        records[i].ma_100 = MAs['ma_100']
+        records[i].ma_200 = MAs['ma_200']
+
+        records[i].ma_p_2 = MAs['ma_p_2']
+        records[i].ma_p_3 = MAs['ma_p_3']
+        records[i].ma_p_4 = MAs['ma_p_4']
+        records[i].ma_p_5 = MAs['ma_p_5']         
+        # for i in range(2,6):
+        #     key = 'ma_p_%s' % (i)
+        #     records[i][key] = MAs[key] #几条移动平均线的上下关系
+        
         ma_5_10 = 0
-        if ma5<>0 and ma10<>0:
-            ma_5_10 = 2 if ma5>ma10 else 1 
-        records[i].ma_5 = ma5
-        records[i].ma_10 = ma10
+        if ma_5<>0 and ma_10<>0:
+            ma_5_10 = 2 if ma_5>ma_10 else 1 
         records[i].ma_5_10 = ma_5_10
 
+        records[i].future1_prate = 0
+        records[i].future1_range = 0
         if i>1:
             prate = int((records[i-2].close - records[i-1].close) *1000 / records[i-1].close)
             frange = comm.getFutureRange(prate) 
             records[i].future1_prate = prate
-            records[i].future1_range = frange  
+            records[i].future1_range = frange
+        records[i].future2_prate = 0
+        records[i].future2_range = 0  
         if i>2:
             prate = int((records[i-3].close - records[i-1].close) *1000 / records[i-1].close )
             frange = comm.getFutureRange(prate)
             records[i].future2_prate = prate
             records[i].future2_range = frange
+        records[i].future3_prate = 0
+        records[i].future3_range = 0  
         if i>3:
             prate = int((records[i-4].close - records[i-1].close) *1000 / records[i-1].close )
             frange = comm.getFutureRange(prate)
             records[i].future3_prate = prate
             records[i].future3_range = frange    
         #print records[i]  
-    
-    mapfn(filename,records)   
      
-    content = '\r'.join([json.dumps(r) for r in records])
-    new_filepath = '%s/dailyh_add/%s' % (const_root_local,filename)    
+    content = '\r\n'.join([json.dumps(r) for r in records])
+    new_filepath = '%s/dailyh_add/%s.csv' % (const_root_local,filename)    
     with open(new_filepath, 'w') as file: 
         file.write(content)
     print filename
+
+    mapfn(filename,records)   
 
 def process_callback():
     pass
 
 categoryField = 'future1_range'
-featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10')    
+featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')    
 from collections import Counter
 def mapfn(filename,records):
     l = []
@@ -108,23 +127,24 @@ def mapfn(filename,records):
     trade_count = len(trade_records)
     categories = dict(Counter(r[categoryField] for r in trade_records))
 
-    l.append('total:%s'%(total_count))
-    l.append('trade:%s'%(trade_count))     
+    l.append('total,,,%s'%(total_count))
+    l.append('trade,,,%s'%(trade_count))     
     for k,v in categories.items():
-        l.append('category_%s:%s'%(k,v))   
+        l.append('category,%s,,%s'%(k,v))   
     
     for fk in featureFields:
         # for ck,cv in categories.items(): 
         cfvalues = dict(Counter('%s|%s|%s' % (fk,r[categoryField],r[fk]) for r in trade_records))
         for k,v in cfvalues.items():
-            l.append('%s:%s' % (k,v)  )
+            tmps = ','.join(k.split('|'))
+            l.append('%s,%s' % (tmps,v)  )
           
     content = '\r\n'.join(l)
-    new_filepath = '%s/dailyh_sum/%s' % (const_root_local,filename)    
+    new_filepath = '%s/dailyh_sum/%s.csv' % (const_root_local,filename)    
     with open(new_filepath, 'w') as file: 
         file.write(content)
 
-import csv
+
 def reducefn():
     local_dir = "%s/dailyh_sum/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
@@ -134,9 +154,10 @@ def reducefn():
         print f
         fullpath = '%s/dailyh_sum/%s' % (const_root_local,f) 
         with open(fullpath,'rb') as f:
-            reader = csv.reader(f, delimiter=':')            
-            for k,v in reader:
-                d[k] = d[k] + int(v) if k in d else int(v) 
+            reader = csv.reader(f, delimiter=',')            
+            for fk,cv,fv,count in reader:
+                k='|'.join([r for r in (fk,cv,fv) if r])
+                d[k] = d[k] + int(count) if k in d else int(count) 
                 
     l = ['%s,%s,%s' % (k,v,float(v) / int(d['trade'])) for k,v in d.items()]
     content = '\r\n'.join(l)
@@ -144,6 +165,78 @@ def reducefn():
     with open(new_filepath, 'w') as file: 
         file.write(content)
 
+#####
+def load_stocks(stock_no):      
+    rows=[] 
+    with open('%s/dailyh_add/%s.csv' % (const_root_local,stock_no),'rb') as f:
+        lines = f.readlines()
+        rows = [json.loads(line.strip()) for line in lines if line] 
+    rows = [r for r in rows if int(r['volume'])>0]
+    print '--',len(rows)
+    return rows
+
+##读取概率
+def load_probability(): 
+    pfile = '%s/dailyh_final/cfp.csv' % (const_root_local) 
+    l = []  
+    with open(pfile,'rb') as f:
+        reader = csv.reader(f, delimiter=',')
+        for key,count,probability in reader:
+            segments = key.split('|')
+            if len(segments)==3:
+                l.append(web.storage(fk=segments[0],fv=segments[2],cv=segments[1],p=probability,count=count))
+            elif len(segments)==2:
+                l.append(web.storage(fk='category',fv='',cv=segments[1],p=probability,count=count))
+            else:                
+                pass #print '--',key,count,probability
+    return l
+
+featureFieldsvvvvvvvv =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')
+featureFieldssss =('trend_5','jump_level') 
+def compute_probability_one_stock(probabilities,stock_no):
+    trade_records = load_stocks(stock_no)
+    count = len(trade_records)
+    print 'a,b,c'
+    for i in range(0,count): 
+        c1 = 0.703895677153
+        c2 = 0.296104322847
+        for fk in featureFieldssss: 
+            fv = trade_records[i][fk]
+            ps = [p for p in probabilities if p.fk==fk and p.fv==str(fv)]
+            c1_p = [p.p for p in ps if p.cv=='1'][0] 
+            c1 = c1 * float(c1_p)
+            c2_p = [p.p for p in ps if p.cv=='2'][0] 
+            c2 = c2 * float(c2_p)
+            #print fk,fv,float(c1_p),float(c2_p)
+        future1_range = trade_records[i]['future1_range'] if 'future1_range' in  trade_records[i] else 0
+        print '%s,%s,%s' %(trade_records[i]['trade_date'],future1_range,c1/c2)
+        # print '---------------------'
+        # if i==5:    
+        #     break  
+
+def test(stock_no):
+    probabilities = load_probability()
+    compute_probability_one_stock(probabilities,stock_no)
+
+# def run(features,categories,allpp):    
+#     d={}
+#     for catName,cat in categories.items():
+#         p = cat.probability
+#         for field,f  in features.items():
+#             k = '%s|%s|%s'%(f,cat.category,field)
+#             print k
+#             if k in allpp: 
+#                 p =  allpp[k].probability * p
+#             else:
+#                 p = 0        
+         
+#         d[cat.category] = p    
+  
+#     print '-------------------------'
+#     for k,v in d.items():
+#         print k,v
+#     #d[2]/abp[1] #上升概率是下降概率的多少倍
+#     return d #l
 
 def _____drop_multi_run(filename):
     ##须有最大进程数限制
@@ -151,20 +244,35 @@ def _____drop_multi_run(filename):
     # worker_1 = multiprocessing.Process(name='worker 1',target=process,args=(filename,))  
     # worker_1.start()   
 
-def run():  
+def run():
     local_dir = "%s/dailyh/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
     mpPool = multiprocessing.Pool(processes=3) #<=机器的cpu数目
-    for f in filenames:     
-        mpPool.apply_async(process,(f,))        
+    for f in filenames:
+        param = '.'.join(f.split('.')[0:2])
+        mpPool.apply_async(process,(param,))        
     mpPool.close()
     mpPool.join()
 
 
 if __name__ == "__main__":
-    #run()
+    run()
     reducefn()
-    #process('000001.sz.csv')
+    #process('300104.sz')
+    # reducefn()
+    #load_stocks('000001.sz')
+    
+    #test('300104.sz')
+
+    # rows = load_probability()
+    # for r in rows:
+    #     print r
+    
+    # xx = load_probability()
+    # for x in xx:
+    #     print x.fk,x.fv,x.cv,x.p,x.count
+
+    #
     #
     
     

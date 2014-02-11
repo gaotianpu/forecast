@@ -196,7 +196,7 @@ CREATE TABLE `stock_daily` (
   `close` decimal(8,2) DEFAULT NULL,
   `high` decimal(8,2) DEFAULT NULL,
   `low` decimal(8,2) DEFAULT NULL,
-  `volume` int(8) DEFAULT NULL,
+  `volume` bigint(11) DEFAULT NULL,
   `amount` decimal(16,2) DEFAULT NULL,
   `last_close` decimal(16,2) DEFAULT NULL,
   `high_low` decimal(8,2) DEFAULT NULL,
@@ -233,7 +233,7 @@ CREATE TABLE `stock_daily` (
   PRIMARY KEY (`pk_id`),
   KEY `ix_trade_date` (`trade_date`),
   KEY `ix_stock_no` (`stock_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=50884 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5602857 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -267,7 +267,7 @@ CREATE TABLE `stock_daily_records` (
   KEY `date_idx` (`date`),
   KEY `volume_idx` (`volume`),
   KEY `stock_no_idx` (`stock_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=5303027 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5307459 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -374,4 +374,4 @@ CREATE TABLE `trend_daily` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-29 15:05:17
+-- Dump completed on 2014-02-11  8:58:54

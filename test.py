@@ -15,11 +15,18 @@ def run(openp,close,high,low):
 
     print l
 
-
-
-if __name__ == '__main__':
+def set_test():
+    split_cn()
     a = set(['a','b','c','d'])
     b = set(['a','c','e','f','d'])
-    print b-a
-	#da.stockdaily_cud.update_last_high_low()
-    #run(11.12,10.88,11.16,10.75)
+    print b-a 
+
+def map():
+    rows=[['ma5',1], ['ma10',4],['ma20',8],['ma50',1],['ma100',2],['ma200',3],]
+    rows = sorted(rows, cmp=lambda x,y : cmp(y[1], x[1]))
+    print '_'.join([r[0].replace('ma','') for r in rows])     
+
+if __name__ == '__main__':
+    map()
+    
+     

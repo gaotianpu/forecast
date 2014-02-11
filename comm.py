@@ -190,6 +190,23 @@ def getFutureRange(prate):
         return 1
     return 0
 
+def get_ma(records,index):
+    daysC=[5,10,20,50,100,200]
+    d={}
+    rows=[]
+    for days in daysC:
+        l = [r.close for r in records[index:index+days]]
+        maP = reduce(lambda x, y: x  + y , l) / days
+        rows.append([days,maP])
+        d['ma_%s'%(days)] = maP 
+
+    for i in range(2,6):
+        tmp = rows[0:i]
+        tmp = sorted(tmp, cmp=lambda x,y : cmp(y[1], x[1])) 
+        d['ma_p_%s'%(i)] = '_'.join([str(r[0]) for r in tmp]) 
+        
+    return d
+
 if __name__ == '__main__':
     get_market_codes('0024556')
     get_market_codes('0004556')
