@@ -184,11 +184,12 @@ def get_jump_level(jump_rate):
     return jump_level  
 
 def getFutureRange(prate):
-    if prate>10:  #1%
-        return 2
-    if prate<=10:
-        return 1
-    return 0
+    if prate<=-0.02:
+        return 1  #'bear' #熊
+    elif prate > 0.02:   
+        return 3 #'bull' #牛
+    else:
+        return 2 #'snake' #震荡
 
 def get_ma(records,index):
     daysC=[5,10,20,50,100,200]

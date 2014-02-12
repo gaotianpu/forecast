@@ -21,6 +21,8 @@ def parse_history_data(lfile):
     l = [r for r in l if r.volume>0]
     return l
 
+featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
+
 def process(filename):    
     fullpath = '%s/dailyh/%s.csv' % (const_root_local,filename)
     
@@ -73,7 +75,15 @@ def process(filename):
         records[i].ma_p_2 = MAs['ma_p_2']
         records[i].ma_p_3 = MAs['ma_p_3']
         records[i].ma_p_4 = MAs['ma_p_4']
-        records[i].ma_p_5 = MAs['ma_p_5']         
+        records[i].ma_p_5 = MAs['ma_p_5']
+
+        records[i].close_ma_5 = records[i].close > MAs['ma_5']
+        records[i].close_ma_10 = records[i].close > MAs['ma_10']        
+        records[i].close_ma_20 = records[i].close > MAs['ma_20']
+        records[i].close_ma_50 = records[i].close > MAs['ma_50']
+        records[i].close_ma_100 = records[i].close > MAs['ma_100']
+        records[i].close_ma_200 = records[i].close > MAs['ma_200']
+
         # for i in range(2,6):
         #     key = 'ma_p_%s' % (i)
         #     records[i][key] = MAs[key] #几条移动平均线的上下关系
@@ -86,21 +96,21 @@ def process(filename):
         records[i].future1_prate = 0
         records[i].future1_range = 0
         if i>1:
-            prate = int((records[i-2].close - records[i-1].close) *1000 / records[i-1].close)
+            prate = (records[i-2].close - records[i-1].close)  / records[i-1].close
             frange = comm.getFutureRange(prate) 
             records[i].future1_prate = prate
             records[i].future1_range = frange
         records[i].future2_prate = 0
         records[i].future2_range = 0  
         if i>2:
-            prate = int((records[i-3].close - records[i-1].close) *1000 / records[i-1].close )
+            prate = (records[i-3].close - records[i-1].close) / records[i-1].close
             frange = comm.getFutureRange(prate)
             records[i].future2_prate = prate
             records[i].future2_range = frange
         records[i].future3_prate = 0
         records[i].future3_range = 0  
         if i>3:
-            prate = int((records[i-4].close - records[i-1].close) *1000 / records[i-1].close )
+            prate = (records[i-4].close - records[i-1].close) / records[i-1].close
             frange = comm.getFutureRange(prate)
             records[i].future3_prate = prate
             records[i].future3_range = frange    
@@ -118,7 +128,7 @@ def process_callback():
     pass
 
 categoryField = 'future1_range'
-featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')    
+  
 from collections import Counter
 def mapfn(filename,records):
     l = []
@@ -145,21 +155,27 @@ def mapfn(filename,records):
         file.write(content)
 
 
+def get_cv(k):
+    segs = k.split('|')
+    if len(segs)>2:
+        return 'category|%s' % (k.split('|')[1])
+    else:
+        return 'trade' 
+
 def reducefn():
     local_dir = "%s/dailyh_sum/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
     
-    d = {}
-    for f in filenames:
-        print f
+    d = {}   
+    for f in filenames:        
         fullpath = '%s/dailyh_sum/%s' % (const_root_local,f) 
         with open(fullpath,'rb') as f:
             reader = csv.reader(f, delimiter=',')            
             for fk,cv,fv,count in reader:
                 k='|'.join([r for r in (fk,cv,fv) if r])
                 d[k] = d[k] + int(count) if k in d else int(count) 
-                
-    l = ['%s,%s,%s' % (k,v,float(v) / int(d['trade'])) for k,v in d.items()]
+
+    l = ['%s,%s,%s' % (k,v,float(v) / int(d[get_cv(k)])) for k,v in d.items()]
     content = '\r\n'.join(l)
     new_filepath = '%s/dailyh_final/cfp.csv' % (const_root_local)    
     with open(new_filepath, 'w') as file: 
@@ -172,7 +188,7 @@ def load_stocks(stock_no):
         lines = f.readlines()
         rows = [json.loads(line.strip()) for line in lines if line] 
     rows = [r for r in rows if int(r['volume'])>0]
-    print '--',len(rows)
+    # print '--',len(rows)
     return rows
 
 ##读取概率
@@ -192,24 +208,32 @@ def load_probability():
     return l
 
 featureFieldsvvvvvvvv =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')
-featureFieldssss =('trend_5','jump_level') 
+featureFieldssss =('trend_5','ma_p_5','ma_p_4','trend_3','candle_sort','ma_p_3','jump_level','volume_level','up_or_down','ma_5_10','ma_p_2',)
 def compute_probability_one_stock(probabilities,stock_no):
     trade_records = load_stocks(stock_no)
     count = len(trade_records)
-    print 'a,b,c'
+    print 'trade_date,c1,c2,c3,close,acp,future1_prate'
     for i in range(0,count): 
-        c1 = 0.703895677153
-        c2 = 0.296104322847
+        c1 = 0.194520338846
+        c2 = 0.604818399782
+        c3 = 0.199873024089
         for fk in featureFieldssss: 
             fv = trade_records[i][fk]
             ps = [p for p in probabilities if p.fk==fk and p.fv==str(fv)]
             c1_p = [p.p for p in ps if p.cv=='1'][0] 
             c1 = c1 * float(c1_p)
+            
             c2_p = [p.p for p in ps if p.cv=='2'][0] 
             c2 = c2 * float(c2_p)
+
+            c3_p = [p.p for p in ps if p.cv=='3'][0] 
+            c3 = c3 * float(c3_p)
+
             #print fk,fv,float(c1_p),float(c2_p)
         future1_range = trade_records[i]['future1_range'] if 'future1_range' in  trade_records[i] else 0
-        print '%s,%s,%s' %(trade_records[i]['trade_date'],future1_range,c1/c2)
+        future1_prate = trade_records[i]['future1_prate'] if 'future1_prate' in  trade_records[i] else 0
+
+        print '%s,%s,%s,%s,%s,%s,%s' %(trade_records[i]['trade_date'],c1,c2,c3,trade_records[i]['close'],trade_records[i]['acp'],future1_prate)
         # print '---------------------'
         # if i==5:    
         #     break  
@@ -262,7 +286,7 @@ if __name__ == "__main__":
     # reducefn()
     #load_stocks('000001.sz')
     
-    #test('300104.sz')
+    # test('300104.sz')
 
     # rows = load_probability()
     # for r in rows:
