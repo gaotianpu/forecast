@@ -24,7 +24,7 @@ def parse_history_data(lfile):
     l = [r for r in l if r.volume>0]
     return l 
 
-def process(filename):    
+def process1(filename):    
     fullpath = '%s/dailyh/%s.csv' % (const_root_local,filename)
     
     records = parse_history_data(fullpath)
@@ -116,12 +116,8 @@ def process(filename):
             records[i].future3_prate = prate
             records[i].future3_range = frange    
         #print records[i]  
-     
-    content = '\r\n'.join([json.dumps(r) for r in records])
-    new_filepath = '%s/dailyh_add/%s.csv' % (const_root_local,filename)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
-    print filename
+    
+    save_stocks(filename,records)
 
     content1 = ','.join([k for k,v in records[0].items()]) + '\r'
     content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
@@ -129,7 +125,8 @@ def process(filename):
     with open(new_filepath1, 'w') as file:
         file.write(content1)
 
-    mapfn(filename,records)   
+    return records
+      
 
 def process_callback():
     pass
@@ -188,15 +185,31 @@ def reducefn():
     with open(new_filepath, 'w') as file: 
         file.write(content)
 
-#####
+####
+def save_stocks(stock_no,records):
+    content = '\r\n'.join([json.dumps(r) for r in records])
+    new_filepath = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
+
 def load_stocks(stock_no):      
     rows=[] 
     with open('%s/dailyh_add/%s.csv' % (const_root_local,stock_no),'rb') as f:
         lines = f.readlines()
-        rows = [json.loads(line.strip()) for line in lines if line] 
-    rows = [r for r in rows if int(r['volume'])>0]
-    # print '--',len(rows)
+        rows = [web.storify(json.loads(line.strip())) for line in lines if line] 
+    rows = [r for r in rows if int(r['volume'])>0]    
     return rows
+#####
+
+def process2(stock_no):
+    records = load_stocks(stock_no)
+    count = len(records)    
+    for i in range(0,count):
+        records[i].ma5_trend_3 = comm.get_trend_2(records[i:i+3],'ma_5') if count-i>2 else 0                    
+        records[i].ma5_trend_5 = comm.get_trend_2(records[i:i+5],'ma_5') if count-i>4 else 0
+        # print '%s,%s,%s' %(records[i].ma5_trend_3,records[i].ma5_trend_5,records[i].future2_range)
+    save_stocks(stock_no,records)
+    return records
 
 ##读取概率
 def load_probability(): 
@@ -249,31 +262,18 @@ def test(stock_no):
     probabilities = load_probability()
     compute_probability_one_stock(probabilities,stock_no)
 
-# def run(features,categories,allpp):    
-#     d={}
-#     for catName,cat in categories.items():
-#         p = cat.probability
-#         for field,f  in features.items():
-#             k = '%s|%s|%s'%(f,cat.category,field)
-#             print k
-#             if k in allpp: 
-#                 p =  allpp[k].probability * p
-#             else:
-#                 p = 0        
-         
-#         d[cat.category] = p    
-  
-#     print '-------------------------'
-#     for k,v in d.items():
-#         print k,v
-#     #d[2]/abp[1] #上升概率是下降概率的多少倍
-#     return d #l
-
 def _____drop_multi_run(filename):
     ##须有最大进程数限制
     multiprocessing.Process(name=filename,target=process,args=(filename,)).start()     
     # worker_1 = multiprocessing.Process(name='worker 1',target=process,args=(filename,))  
     # worker_1.start()   
+
+########################
+def process(stock_no):
+    process1(stock_no)
+    records = process2(stock_no)
+    mapfn(stock_no,records)
+    print stock_no 
 
 def run():
     local_dir = "%s/dailyh/"  % (const_root_local)   
@@ -287,9 +287,12 @@ def run():
 
 
 if __name__ == "__main__":
-    # run()
-    # reducefn()
-    process('300104.sz')
+    run()     
+    reducefn()
+    #process('300104.sz')
+
+
+
     # reducefn()
     #load_stocks('000001.sz')
     

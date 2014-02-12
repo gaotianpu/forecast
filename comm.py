@@ -154,6 +154,21 @@ def get_trend(rows):
 
     return int(t) 
 
+def get_trend_2(rows,fieldName):
+    rows = sorted(rows, cmp=lambda x,y : cmp(x[fieldName], y[fieldName]))
+
+    i=1
+    for r in rows:
+        r.index = i
+        i = i + 1
+
+    t=''
+    rows = sorted(rows, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
+    for r in rows:
+        t = t + str(r.index)
+
+    return int(t) 
+
 def get_volume_level(volume_p):
     #对volume进行分类
     volume_level = 0 
