@@ -9,6 +9,9 @@ import csv
 from decimal import *
 import json
 
+categoryField = 'future1_range'
+featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
+
 def parse_history_data(lfile):
     l=[]
     with open(lfile,'rb') as f:
@@ -19,9 +22,7 @@ def parse_history_data(lfile):
                 low=float(low),close=float(close),acp=float(acp),volume=int(volume),)            
             l.append(r)
     l = [r for r in l if r.volume>0]
-    return l
-
-featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
+    return l 
 
 def process(filename):    
     fullpath = '%s/dailyh/%s.csv' % (const_root_local,filename)
@@ -122,12 +123,18 @@ def process(filename):
         file.write(content)
     print filename
 
+    content1 = ','.join([k for k,v in records[0].items()]) + '\r'
+    content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
+    new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,filename)    
+    with open(new_filepath1, 'w') as file:
+        file.write(content1)
+
     mapfn(filename,records)   
 
 def process_callback():
     pass
 
-categoryField = 'future1_range'
+
   
 from collections import Counter
 def mapfn(filename,records):
@@ -280,9 +287,9 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
-    reducefn()
-    #process('300104.sz')
+    # run()
+    # reducefn()
+    process('300104.sz')
     # reducefn()
     #load_stocks('000001.sz')
     
