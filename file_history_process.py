@@ -12,7 +12,10 @@ import json
 categoryField = 'future1_range'
 featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
 
-def parse_history_data(lfile):
+############读写数据 ####################
+
+def load_raw_records(stock_no):
+    lfile = '%s/dailyh/%s.csv' % (const_root_local,stock_no) 
     l=[]
     with open(lfile,'rb') as f:
         reader = csv.reader(f, delimiter=',')
@@ -22,12 +25,64 @@ def parse_history_data(lfile):
                 low=float(low),close=float(close),acp=float(acp),volume=int(volume),)            
             l.append(r)
     l = [r for r in l if r.volume>0]
-    return l 
+    return l
 
-def process1(filename):    
-    fullpath = '%s/dailyh/%s.csv' % (const_root_local,filename)
-    
-    records = parse_history_data(fullpath)
+###读写处理过的stock数据     
+def save_stocks(stock_no,records):
+    lfile = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no) 
+    content = '\r\n'.join([json.dumps(r) for r in records])       
+    with open(lfile, 'w') as file: 
+        file.write(content)
+
+def load_stocks(stock_no): 
+    lfile = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no)      
+    rows=[] 
+    with open(lfile,'rb') as f:
+        lines = f.readlines()
+        rows = [web.storify(json.loads(line.strip())) for line in lines if line] 
+    rows = [r for r in rows if int(r['volume'])>0]    
+    return rows
+
+###读写处理过的stock categroy,features的sum数据   
+def save_sum_records(stock_no,content):
+    new_filepath = '%s/dailyh_sum/%s.csv' % (const_root_local,stock_no)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content)
+
+def load_sum_records(stock_no):
+    fullpath = '%s/dailyh_sum/%s.csv' % (const_root_local,stock_no)
+    l=[] 
+    with open(fullpath,'rb') as f:
+        reader = csv.reader(f, delimiter=',')            
+        for fk,cv,fv,count,p in reader:
+            l.append(web.storage(fk=fk,cv=cv,fv=fv,count=count,p=p))
+    return l
+
+##读写Category,Feature概率
+def save_probability(content):
+    new_filepath = '%s/dailyh_final/cfp.csv' % (const_root_local)    
+    with open(new_filepath, 'w') as file: 
+        file.write(content) 
+
+def load_probability(): 
+    pfile = '%s/dailyh_final/cfp.csv' % (const_root_local) 
+    l = []  
+    with open(pfile,'rb') as f:
+        reader = csv.reader(f, delimiter=',')
+        for key,count,probability in reader:
+            segments = key.split('|')
+            if len(segments)==3:
+                l.append(web.storage(fk=segments[0],fv=segments[2],cv=segments[1],p=probability,count=count))
+            elif len(segments)==2:
+                l.append(web.storage(fk='category',fv='',cv=segments[1],p=probability,count=count))
+            else:                
+                pass #print '--',key,count,probability
+    return l
+
+#############################################
+
+def process1(stock_no):  
+    records = load_raw_records(stock_no)
     count = len(records)    
     for i in range(0,count):
         records[i].high_low = records[i].high - records[i].low
@@ -117,47 +172,50 @@ def process1(filename):
             records[i].future3_range = frange    
         #print records[i]  
     
-    save_stocks(filename,records)
+    save_stocks(stock_no,records)
 
     content1 = ','.join([k for k,v in records[0].items()]) + '\r'
     content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
-    new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,filename)    
+    new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,stock_no)    
     with open(new_filepath1, 'w') as file:
         file.write(content1)
 
     return records
-      
 
-def process_callback():
-    pass
+def process2(stock_no):
+    records = load_stocks(stock_no)
+    count = len(records)    
+    for i in range(0,count):
+        records[i].ma5_trend_3 = comm.get_trend_2(records[i:i+3],'ma_5') if count-i>2 else 0                    
+        records[i].ma5_trend_5 = comm.get_trend_2(records[i:i+5],'ma_5') if count-i>4 else 0
+        # print '%s,%s,%s' %(records[i].ma5_trend_3,records[i].ma5_trend_5,records[i].future2_range)
+    save_stocks(stock_no,records)
+    return records      
+
+
 
 
   
 from collections import Counter
-def mapfn(filename,records):
-    l = []
+def mapfn(stock_no,records):    
+    rows = []
     total_count = len(records)
     trade_records = [r for r in records if r.volume>0]
     trade_count = len(trade_records)
     categories = dict(Counter(r[categoryField] for r in trade_records))
 
-    l.append('total,,,%s'%(total_count))
-    l.append('trade,,,%s'%(trade_count))     
+    rows.append(web.storage(fk='total',cv='',fv='',count=total_count,p=float(total_count)/trade_count))
+    rows.append(web.storage(fk='trade',cv='',fv='',count=trade_count,p=float(trade_count)/trade_count))
     for k,v in categories.items():
-        l.append('category,%s,,%s'%(k,v))   
-    
-    for fk in featureFields:
-        # for ck,cv in categories.items(): 
+        rows.append(web.storage(fk='category',cv=k,fv='',count=int(v),p=float(v)/trade_count))    
+    for fk in featureFields:         
         cfvalues = dict(Counter('%s|%s|%s' % (fk,r[categoryField],r[fk]) for r in trade_records))
         for k,v in cfvalues.items():
-            tmps = ','.join(k.split('|'))
-            l.append('%s,%s' % (tmps,v)  )
-          
-    content = '\r\n'.join(l)
-    new_filepath = '%s/dailyh_sum/%s.csv' % (const_root_local,filename)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
-
+            segs = k.split('|')
+            rows.append(web.storage(fk=segs[0],cv=segs[1],fv=segs[2],count=int(v),p=float(v)/trade_count))
+    
+    content = '\r\n'.join(['%s,%s,%s,%s,%s' % (r.fk,r.cv,r.fv,r.count,r.p) for r in rows]) 
+    save_sum_records(stock_no,content) 
 
 def get_cv(k):
     segs = k.split('|')
@@ -171,61 +229,29 @@ def reducefn():
     filenames = os.listdir(local_dir)
     
     d = {}   
-    for f in filenames:        
-        fullpath = '%s/dailyh_sum/%s' % (const_root_local,f) 
-        with open(fullpath,'rb') as f:
-            reader = csv.reader(f, delimiter=',')            
-            for fk,cv,fv,count in reader:
-                k='|'.join([r for r in (fk,cv,fv) if r])
-                d[k] = d[k] + int(count) if k in d else int(count) 
-
+    for f in filenames:
+        stock_no = '.'.join(f.split('.')[0:2])
+        sum_records = load_sum_records(stock_no) 
+        for row in  sum_records:
+            k='|'.join([r for r in (row.fk,row.cv,row.fv) if r])
+            d[k] = d[k] + int(row.count) if k in d else int(row.count) 
+      
     l = ['%s,%s,%s' % (k,v,float(v) / int(d[get_cv(k)])) for k,v in d.items()]
     content = '\r\n'.join(l)
-    new_filepath = '%s/dailyh_final/cfp.csv' % (const_root_local)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
+    save_probability(content)
 
-####
-def save_stocks(stock_no,records):
-    content = '\r\n'.join([json.dumps(r) for r in records])
-    new_filepath = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
 
-def load_stocks(stock_no):      
-    rows=[] 
-    with open('%s/dailyh_add/%s.csv' % (const_root_local,stock_no),'rb') as f:
-        lines = f.readlines()
-        rows = [web.storify(json.loads(line.strip())) for line in lines if line] 
-    rows = [r for r in rows if int(r['volume'])>0]    
-    return rows
-#####
 
-def process2(stock_no):
+def gen_date_file(stock_no):
     records = load_stocks(stock_no)
-    count = len(records)    
-    for i in range(0,count):
-        records[i].ma5_trend_3 = comm.get_trend_2(records[i:i+3],'ma_5') if count-i>2 else 0                    
-        records[i].ma5_trend_5 = comm.get_trend_2(records[i:i+5],'ma_5') if count-i>4 else 0
-        # print '%s,%s,%s' %(records[i].ma5_trend_3,records[i].ma5_trend_5,records[i].future2_range)
-    save_stocks(stock_no,records)
-    return records
+    for r in records:
+        new_filepath = '%s/dailyh_dates/%s.csv' % (const_root_local,r.trade_date) 
+        content = ','.join([k for k,v in r.items()])  + '\r'   
+        content = content + ','.join([str(v) for k,v in r.items()])         
+        with open(new_filepath, 'w') as file: 
+            file.write(content)
 
-##读取概率
-def load_probability(): 
-    pfile = '%s/dailyh_final/cfp.csv' % (const_root_local) 
-    l = []  
-    with open(pfile,'rb') as f:
-        reader = csv.reader(f, delimiter=',')
-        for key,count,probability in reader:
-            segments = key.split('|')
-            if len(segments)==3:
-                l.append(web.storage(fk=segments[0],fv=segments[2],cv=segments[1],p=probability,count=count))
-            elif len(segments)==2:
-                l.append(web.storage(fk='category',fv='',cv=segments[1],p=probability,count=count))
-            else:                
-                pass #print '--',key,count,probability
-    return l
+
 
 featureFieldsvvvvvvvv =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')
 featureFieldssss =('trend_5','ma_p_5','ma_p_4','trend_3','candle_sort','ma_p_3','jump_level','volume_level','up_or_down','ma_5_10','ma_p_2',)
@@ -262,13 +288,17 @@ def test(stock_no):
     probabilities = load_probability()
     compute_probability_one_stock(probabilities,stock_no)
 
-def _____drop_multi_run(filename):
-    ##须有最大进程数限制
-    multiprocessing.Process(name=filename,target=process,args=(filename,)).start()     
-    # worker_1 = multiprocessing.Process(name='worker 1',target=process,args=(filename,))  
-    # worker_1.start()   
-
 ########################
+
+def _____drop_multi_run(stock_no):
+    ##须有最大进程数限制
+    multiprocessing.Process(name=stock_no,target=process,args=(stock_no,)).start()     
+    # worker_1 = multiprocessing.Process(name='worker 1',target=process,args=(stock_no,))  
+    # worker_1.start()  
+
+def process_callback():
+    pass
+
 def process(stock_no):
     process1(stock_no)
     records = process2(stock_no)
@@ -289,7 +319,8 @@ def run():
 if __name__ == "__main__":
     run()     
     reducefn()
-    #process('300104.sz')
+    # gen_date_file('300104.sz')
+    # process('300104.sz')
 
 
 

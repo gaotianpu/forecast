@@ -212,7 +212,7 @@ def get_ma(records,index):
     rows=[]
     for days in daysC:
         l = [r.close for r in records[index:index+days]]
-        maP = reduce(lambda x, y: x  + y , l) / days
+        maP = reduce(lambda x, y: x  + y , l) / len(l)
         rows.append([days,maP])
         d['ma_%s'%(days)] = maP 
 
