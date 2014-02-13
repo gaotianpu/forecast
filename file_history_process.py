@@ -184,13 +184,6 @@ def process1(stock_no):
     comm.fix_peak_trough(records,'peak_trough_5')
 
     save_stocks(stock_no,records)
-
-    content1 = ','.join([k for k,v in records[0].items()]) + '\r'
-    content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
-    new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,stock_no)    
-    with open(new_filepath1, 'w') as file:
-        file.write(content1)
-
     return records
 
 def process2(stock_no):
@@ -201,11 +194,9 @@ def process2(stock_no):
         records[i].ma5_trend_5 = comm.get_trend_2(records[i:i+5],'ma_5') if count-i>4 else 0
         # print '%s,%s,%s' %(records[i].ma5_trend_3,records[i].ma5_trend_5,records[i].future2_range)
     save_stocks(stock_no,records)
-    return records      
+    return records  
 
-
-
-
+##########################mapreduce#########################
   
 from collections import Counter
 def mapfn(stock_no,records):    
@@ -229,11 +220,7 @@ def mapfn(stock_no,records):
     save_sum_records(stock_no,content) 
 
 def get_cv(k):
-    segs = k.split('|')
-    if len(segs)>2:
-        return 'category|%s' % (k.split('|')[1])
-    else:
-        return 'trade' 
+    return 'category|%s' % (k.split('|')[1]) if len(k.split('|'))>2 else 'trade' 
 
 def reducefn():
     local_dir = "%s/dailyh_sum/"  % (const_root_local)   
@@ -314,6 +301,13 @@ def process(stock_no):
     process1(stock_no)
     records = process2(stock_no)
     mapfn(stock_no,records)
+
+    content1 = ','.join([k for k,v in records[0].items()]) + '\r'
+    content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
+    new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,stock_no)    
+    with open(new_filepath1, 'w') as file:
+        file.write(content1)
+
     print stock_no 
 
 def run():
