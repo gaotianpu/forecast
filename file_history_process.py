@@ -84,14 +84,15 @@ def load_probability():
 def process1(stock_no):  
     records = load_raw_records(stock_no)
     count = len(records)    
-    print 'trade_date,close,peak5,peak10'   
+    # print 'trade_date,close,peak5,peak10'   
 
-    for i in range(0,count):
-        current_record = records[i]
+    for i in range(0,count):        
         records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
         records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5)
 
-        print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
+        # current_record = records[i]
+        # print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
+
 
         records[i].high_low = records[i].high - records[i].low
         records[i].close_open = records[i].close - records[i].open 
@@ -178,8 +179,10 @@ def process1(stock_no):
             frange = comm.getFutureRange(prate)
             records[i].future3_prate = prate
             records[i].future3_range = frange    
-        #print records[i]  
-    
+        #print records[i] 
+     
+    comm.fix_peak_trough(records,'peak_trough_5')
+
     save_stocks(stock_no,records)
 
     content1 = ','.join([k for k,v in records[0].items()]) + '\r'
@@ -325,10 +328,10 @@ def run():
 
 
 if __name__ == "__main__":
-    # run()     
-    # reducefn()
+    run()     
+    reducefn()
     # gen_date_file('300104.sz')
-    process1('002639.sz')
+    # process1('002639.sz')
 
 
 

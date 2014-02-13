@@ -224,9 +224,9 @@ def get_ma(records,index):
     return d
 
 def get_peak_trough(records,count,index,days): 
-    if index<days: return 0
-    if index+days+1 > count : return 0
-     
+    # if index<days: return 0
+    # if index+days+1 > count : return 0
+
     left_records = records[index+1:index+days+1] if index+days+1 <  count else records[index+1:]
     right_records = records[index-days:index]  if index>days else records[:index]
     current_record = records[index]
@@ -244,6 +244,32 @@ def get_peak_trough(records,count,index,days):
     if peak: return  2
     return 0
 
+def fix_peak_trough(records,peak_trough_field):     
+    peak_trough_nodes = [r for r in records if r[peak_trough_field] <> 0]
+    rows = []
+    count = len(peak_trough_nodes)
+    for i in range(0,count):
+        if i > count-2: break
+        r = peak_trough_nodes[i]
+        if peak_trough_nodes[i][peak_trough_field] == peak_trough_nodes[i+1][peak_trough_field]:
+            rows.append(web.storage(peak_trough=r[peak_trough_field],begin=peak_trough_nodes[i+1].trade_date,end=r.trade_date) )
+     
+    for pt in rows:
+        tmpl = [r for r in records if r.trade_date>pt.begin and r.trade_date<pt.end]        
+        tmpl = sorted(tmpl, cmp=lambda x,y : cmp(x.close, y.close))
+        new_node = tmpl[-1] if pt.peak_trough==1 else tmpl[0] 
+        
+        i = records.index(new_node)
+        records[i][peak_trough_field] = 1 if pt.peak_trough==2 else 2
+
+        # print i,records[i][peak_trough_field], 1 if pt.peak_trough==2 else 2
+        # for t in tmpl:
+        #     print t.trade_date,t.close,t.volume
+        # print '#',pt.peak_trough, pt.begin,pt.end, new_node.close
+        # print '----------------'  
+         
+    return  records   
+     
 
 if __name__ == '__main__':
     l=[1,2,3,4,5]
