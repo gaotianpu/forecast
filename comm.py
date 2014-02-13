@@ -223,11 +223,36 @@ def get_ma(records,index):
         
     return d
 
+def get_peak_trough(records,count,index,days): 
+    if index<days: return 0
+    if index+days+1 > count : return 0
+     
+    left_records = records[index+1:index+days+1] if index+days+1 <  count else records[index+1:]
+    right_records = records[index-days:index]  if index>days else records[:index]
+    current_record = records[index]
+     
+    peak = True #波峰
+    trough = True #波谷
+    for r in left_records:        
+        trough = trough and r.close>current_record.close
+        peak = peak and r.close < current_record.close    
+
+    for r in right_records:        
+        trough = trough and r.close>current_record.close
+        peak = peak and r.close < current_record.close 
+    if trough: return 1
+    if peak: return  2
+    return 0
+
+
 if __name__ == '__main__':
-    get_market_codes('0024556')
-    get_market_codes('0004556')
-    get_market_codes('3004556')
-    get_market_codes('6004556')
+    l=[1,2,3,4,5]
+    print l[:2]
+    print l[2:]
+    # get_market_codes('0024556')
+    # get_market_codes('0004556')
+    # get_market_codes('3004556')
+    # get_market_codes('6004556')
     #parse_daily_data('D:\\gaotp\stocks\\daily\\20131125_0.txt')
     #parse_history_data('D:\\gaotp\\stocks\\dailyh\\000001.sz.csv')
     #print is_trade_time()

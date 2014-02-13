@@ -84,7 +84,15 @@ def load_probability():
 def process1(stock_no):  
     records = load_raw_records(stock_no)
     count = len(records)    
+    print 'trade_date,close,peak5,peak10'   
+
     for i in range(0,count):
+        current_record = records[i]
+        records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
+        records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5)
+
+        print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
+
         records[i].high_low = records[i].high - records[i].low
         records[i].close_open = records[i].close - records[i].open 
         
@@ -317,10 +325,10 @@ def run():
 
 
 if __name__ == "__main__":
-    run()     
-    reducefn()
+    # run()     
+    # reducefn()
     # gen_date_file('300104.sz')
-    # process('300104.sz')
+    process1('002639.sz')
 
 
 
