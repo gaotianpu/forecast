@@ -88,7 +88,7 @@ def process1(stock_no):
 
     for i in range(0,count):        
         records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
-        records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5)
+        records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5) 
 
         # current_record = records[i]
         # print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
@@ -180,6 +180,9 @@ def process1(stock_no):
             records[i].future3_prate = prate
             records[i].future3_range = frange    
         #print records[i] 
+
+        comm.get_test(records,i)
+        continue
      
     comm.fix_peak_trough(records,'peak_trough_5')
 
@@ -328,7 +331,7 @@ if __name__ == "__main__":
     # run()     
     # reducefn()
     # gen_date_file('300104.sz')
-    process('300104.sz')
+    process1('000001.sz')
 
 
 

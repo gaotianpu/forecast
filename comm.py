@@ -289,7 +289,25 @@ def fix_peak_trough(records,peak_trough_field):
     #     print '%s,%s,%s,%s,%s' %(r.trade_date,r.close,r.future1_range,r[peak_trough_field],tmp) 
 
     return  records   
-     
+
+def get_test(records,index):
+    days = 100
+    last_records = records[index:index+days]   
+    if len(last_records) == 100:
+        tmpl = sorted(last_records, cmp=lambda x,y : cmp(x.close, y.close))
+        max_record = tmpl[-1] 
+        min_record = tmpl[0]
+        print records[index].trade_date,records[index].close,max_record.close-records[index].close/max_record.close
+        # if max_record.trade_date == records[index].trade_date:
+        #     # print min_record.trade_date,min_record.close
+        #     tmpl = sorted(tmpl, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
+        #     min_index = tmpl.index(min_record)
+        #     tmpll = sorted(tmpl[:min_index], cmp=lambda x,y : cmp(x.close, y.close))
+        #     #print len(tmpll), '#',tmpll[-1].trade_date, tmpll[-1].close
+        #     print min_index,records[index].trade_date, min_record.trade_date,max_record.close,min_record.close
+        #     #tmpl[0].trade_date,tmpl[1].trade_date, tmpl[0].close, tmpl[-1].close
+
+        # print len(last_records),records[index].trade_date,tmpl[0].trade_date,tmpl[1].trade_date, tmpl[0].close, tmpl[-1].close
 
 if __name__ == '__main__':
     l=[1,2,3,4,5]
