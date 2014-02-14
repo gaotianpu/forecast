@@ -302,8 +302,11 @@ def process(stock_no):
     records = process2(stock_no)
     mapfn(stock_no,records)
 
-    content1 = ','.join([k for k,v in records[0].items()]) + '\r'
-    content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
+    # content1 = ','.join([k for k,v in records[0].items()]) + '\r'
+    # content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
+
+    content1 = 'trade,close,volume\r'
+    content1 =  content1 + '\r'.join(['%s,%s,%s' %(r.trade_date,r.close,r.volume) for r in records])    
     new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,stock_no)    
     with open(new_filepath1, 'w') as file:
         file.write(content1)
@@ -322,10 +325,10 @@ def run():
 
 
 if __name__ == "__main__":
-    run()     
-    reducefn()
+    # run()     
+    # reducefn()
     # gen_date_file('300104.sz')
-    # process1('002639.sz')
+    process('300104.sz')
 
 
 

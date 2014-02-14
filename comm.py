@@ -224,8 +224,8 @@ def get_ma(records,index):
     return d
 
 def get_peak_trough(records,count,index,days): 
-    # if index<days: return 0
-    # if index+days+1 > count : return 0
+    if index<days: return 0
+    if index+days+1 > count : return 0
 
     left_records = records[index+1:index+days+1] if index+days+1 <  count else records[index+1:]
     right_records = records[index-days:index]  if index>days else records[:index]
@@ -254,20 +254,40 @@ def fix_peak_trough(records,peak_trough_field):
         if peak_trough_nodes[i][peak_trough_field] == peak_trough_nodes[i+1][peak_trough_field]:
             rows.append(web.storage(peak_trough=r[peak_trough_field],begin=peak_trough_nodes[i+1].trade_date,end=r.trade_date) )
      
-    for pt in rows:
-        tmpl = [r for r in records if r.trade_date>pt.begin and r.trade_date<pt.end]        
-        tmpl = sorted(tmpl, cmp=lambda x,y : cmp(x.close, y.close))
-        new_node = tmpl[-1] if pt.peak_trough==1 else tmpl[0] 
-        
-        i = records.index(new_node)
-        records[i][peak_trough_field] = 1 if pt.peak_trough==2 else 2
+    # for pt in rows:
+    #     tmpl = [r for r in records if r.trade_date>pt.begin and r.trade_date<pt.end] 
+    #     tmpl = sorted(tmpl, cmp=lambda x,y : cmp(x.close, y.close))
+    #     new_node = tmpl[-1] if pt.peak_trough==1 else tmpl[0]         
+    #     i = records.index(new_node)
+    #     records[i][peak_trough_field] = 1 if pt.peak_trough==2 else 2
 
-        # print i,records[i][peak_trough_field], 1 if pt.peak_trough==2 else 2
-        # for t in tmpl:
-        #     print t.trade_date,t.close,t.volume
-        # print '#',pt.peak_trough, pt.begin,pt.end, new_node.close
-        # print '----------------'  
+    tmpl = sorted(records, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
+    peak_trough = 0 
+    index = 0 
+    for r in tmpl:
+        pass
+        # print '%s,%s,%s,%s,%s' %(r.trade_date,r.volume,r.close,r.ma_5,r[peak_trough_field] )
+        # if r[peak_trough_field]<>0:
+        #     peak_trough = r[peak_trough_field] )
+        #     index = tmpl.index(r)   
          
+        # if (tmpl.index(r)-index)==2:
+        #     print '%s,%s,%s' %(r.trade_date,'buy' if peak_trough==1 else 'sell',r.close)         
+        # print r.trade_date,r.close,r[peak_trough_field],index,tmpl.index(r),tmpl.index(r)-index    
+
+    # peak_trough = 0  
+    # for r in records:
+    #     if  r[peak_trough_field]:
+    #         peak_trough = r[peak_trough_field] 
+    #     tmp = ''
+    #     if peak_trough==0:
+    #         tmp = 'unknown'
+    #     elif peak_trough==1:
+    #         tmp = 'down'
+    #     else:
+    #         tmp = 'up'           
+    #     print '%s,%s,%s,%s,%s' %(r.trade_date,r.close,r.future1_range,r[peak_trough_field],tmp) 
+
     return  records   
      
 
