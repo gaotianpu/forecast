@@ -16,7 +16,8 @@ loger = init_log("stock_daily_import")
 const_base_url="http://hq.sinajs.cn/list="
 
 def get_local_file_name(index):
-    return '%s/daily/%s_%s.txt' %(const_root_local,datetime.datetime.now().strftime('%Y%m%d'),index)
+    return '%s/daily/%s_%s.txt' %(const_root_local,'20140217',index) 
+    #datetime.datetime.now().strftime('%Y%m%d')
 
 regex = re.compile("_[a-z]{2}([\d]+)=")
 def parse_data_and_import_to_db(lfile,i):
@@ -68,7 +69,7 @@ def parse_data_and_import_to_db(lfile,i):
     ##insert into
     da.stockbaseinfos.import_daily_records('stock_daily_records',rows)
 
-
+import file_history_process 
 def run():
     if not comm.is_trade_day(): return
 
@@ -86,6 +87,12 @@ def run():
         lfile = get_local_file_name(i)
         browser.downad_and_save(url,lfile)
         rows = comm.parse_daily_data(lfile)
+        try:
+            for r in rows:
+                file_history_process.add_new_record(r)
+        except Exception,ex:
+            loger.error('stockdaily_cud import_rows ' + str(ex))
+
         try:
             da.stockdaily_cud.import_rows(rows)            
         except Exception,ex:
@@ -153,6 +160,7 @@ def run_release():
         loger.error('cyb.run_chart' + str(ex))
 
 if __name__ == '__main__':
+    # run()
     run_release()
 
     #

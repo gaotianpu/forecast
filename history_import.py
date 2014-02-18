@@ -40,8 +40,17 @@ def import_stock_daily_data(market_code,stock_no,data):
     dbw.supports_multiple_insert = True
     dbw.multiple_insert('stock_daily_records',l)
 
-def import_into_db(stock,rows):
-    pass
+def import_into_db(s,rows):
+    trade_dates = da.stockdaily.load_dates(s.stock_no)
+    db_dates = set([r.trade_date.strftime('%Y-%m-%d') for r in trade_dates])
+    file_dates = set([r.date for r in rows])
+    tmp = file_dates - db_dates
+    for r in rows:
+        if r.date in tmp:
+            da.stockdaily_cud.insert(r.date,s.stock_no,r.open_price,r.close_price,r.high_price,r.low_price,r.volume)
+        else:
+            pass #?update           
+    print s.stock_no,'end'    
 
 
 def download_and_parse_data(stock):
@@ -59,27 +68,19 @@ def download_and_parse_data(stock):
         loger.error(url + " " + str(e) )
     return False
 
+ 
 
 import time
 def run():
     stocks = da.stockbaseinfos.load_all_stocks()
-    for s in stocks:
-        if int(s.stock_no) > 300000 : continue
-        rows = download_and_parse_data(s)
+    for s in stocks:         
+        rows = download_and_parse_data(s)        
         if not rows:
             time.sleep(30)
-            continue        
-        trade_dates = da.stockdaily.load_dates(s.stock_no)
-        db_dates = set([r.trade_date.strftime('%Y-%m-%d') for r in trade_dates])
-        file_dates = set([r.date for r in rows])
-        tmp = file_dates - db_dates
-        for r in rows:
-            if r.date in tmp:
-                da.stockdaily_cud.insert(r.date,s.stock_no,r.open_price,r.close_price,r.high_price,r.low_price,r.volume)
-            else:
-                pass #?update
+            continue
+        #import_into_db(s,rows)
+
            
-        print s.stock_no,'end'       
 
 if __name__ == '__main__':
     run()
