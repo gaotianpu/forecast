@@ -23,12 +23,12 @@ def add_new_record(r):
 
 def write_raw_records(stock_no,rows):
     #rows去掉重复项后重新排序
-    rows = list(set(rows))
+    #rows = list(set(rows))
     rows = sorted(rows, cmp=lambda x,y : cmp(y.trade_date, x.trade_date))
     content = 'Date,Open,High,Low,Close,Volume,Adj Close\n'       
     content = content + '\n'.join(['%s,%s,%s,%s,%s,%s,%s' % (r.trade_date,r.open,r.high,r.low,r.close,r.volume,r.close) for r in rows])
     content = content + '\n'
-    
+
     lfile = '%s/dailyh/%s.csv' % (const_root_local,stock_no) 
     with open(lfile, 'w') as f:
         f.write(content)

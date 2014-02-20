@@ -16,8 +16,8 @@ loger = init_log("stock_daily_import")
 const_base_url="http://hq.sinajs.cn/list="
 
 def get_local_file_name(index):
-    return '%s/daily/%s_%s.txt' %(const_root_local,'20140217',index) 
-    #datetime.datetime.now().strftime('%Y%m%d')
+    day = datetime.datetime.now().strftime('%Y%m%d')
+    return '%s/daily/%s_%s.txt' %(const_root_local,day,index) 
 
 regex = re.compile("_[a-z]{2}([\d]+)=")
 def parse_data_and_import_to_db(lfile,i):
@@ -87,12 +87,14 @@ def run():
         lfile = get_local_file_name(i)
         browser.downad_and_save(url,lfile)
         rows = comm.parse_daily_data(lfile)
+        
         try:
             for r in rows:
                 file_history_process.add_new_record(r)
+            pass
         except Exception,ex:
             loger.error('stockdaily_cud import_rows ' + str(ex))
-
+        
         try:
             da.stockdaily_cud.import_rows(rows)            
         except Exception,ex:
