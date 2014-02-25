@@ -116,10 +116,11 @@ def gen_date_files(trade_date):
     l=[]
     for f in filenames:
         stock_no = '.'.join(f.split('.')[0:2])
+        print stock_no
         records = load_stocks(stock_no)
-        date_record = [r for r in records if r.trade_date==records]
+        date_record = [r for r in records if r.trade_date==trade_date]
         if date_record:
-            l.append(date_record)
+            l.append(date_record[0])
     
     # l = sort(l, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
             
@@ -389,10 +390,19 @@ def run():
     mpPool.close()
     mpPool.join()
 
+def test():
+    stocks = load_date('2014-02-24')
+    rows = sorted(stocks, cmp=lambda x,y : cmp(x.days100_high_date, y.days100_high_date))  
+    #days100_high_date
+    for s in rows :
+        print s.stock_no,s.days100_high_date
 
 if __name__ == "__main__":
-    run()     
+    # run()     
     # reducefn()
+    # gen_date_files('2014-02-24')
+    test()
+    
     # gen_date_file('300104.sz')
     # process1('000001.sz')
     # process1('000002.sz')
