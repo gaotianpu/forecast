@@ -102,6 +102,41 @@ def load_probability():
                 pass #print '--',key,count,probability
     return l
 
+####
+def gen_date_file(record):
+    json_record = json.dumps(record)
+    new_filepath = '%s/dailyh_dates/%s.csv' % (const_root_local,record.trade_date) 
+    with open(new_filepath, 'ab+') as file: 
+            file.write(json_record+'\n') 
+
+def gen_date_files(trade_date):
+    path = '%s/dailyh_add/' % (const_root_local)  
+    filenames = os.listdir(path)
+    
+    l=[]
+    for f in filenames:
+        stock_no = '.'.join(f.split('.')[0:2])
+        records = load_stocks(stock_no)
+        date_record = [r for r in records if r.trade_date==records]
+        if date_record:
+            l.append(date_record)
+    
+    # l = sort(l, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
+            
+    lfile = '%s/dailyh_dates/%s.csv' % (const_root_local,trade_date)         
+    content = '\n'.join([json.dumps(r) for r in l])       
+    with open(lfile, 'w') as file: 
+        file.write(content) 
+
+def load_date(trade_date):
+    lfile = '%s/dailyh_dates/%s.csv' % (const_root_local,trade_date)      
+    rows=[] 
+    with open(lfile,'rb') as f:
+        lines = f.readlines()
+        rows = [web.storify(json.loads(line.strip())) for line in lines if line] 
+    rows = [r for r in rows if int(r['volume'])>0]    
+    return rows
+
 #############################################
 
 def process1(stock_no):  
@@ -109,25 +144,20 @@ def process1(stock_no):
     count = len(records)    
     # print 'trade_date,close,peak5,peak10'   
 
-    for i in range(0,count):  
-        #100天内，最高值high，最低值low分布, 日期&具体的值
-        rows = sorted(records[i:i+100], cmp=lambda x,y : cmp(x.close, y.close))  
-        records[i].days100_low_close = rows[0].close
-        records[i].days100_low_date = rows[0].trade_date 
-        records[i].days100_high_close = rows[-1].close
-        records[i].days100_high_date = rows[-1].trade_date         
-        
+    for i in range(0,count):
+        records[i].stock_no = stock_no
 
-        records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
-        records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5) 
-
-        # current_record = records[i]
-        # print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
-
+        #蜡烛图形态
+        candles = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
+        records[i].range_1 = candles[0]
+        records[i].range_2 = candles[1]
+        records[i].range_3 = candles[2]
+        records[i].candle_sort  = candles[4]
+        records[i].up_or_down = 2 if candles[1]>0 else 1
 
         records[i].high_low = records[i].high - records[i].low
         records[i].close_open = records[i].close - records[i].open 
-        
+
         records[i].jump_level = 0
         if (count-i) > 1: 
             records[i].last_close =  records[i+1].close  
@@ -138,15 +168,22 @@ def process1(stock_no):
             records[i].price_rate = (records[i].close - records[i].last_close) / records[i].last_close  
             records[i].high_rate = (records[i].high - records[i].last_close) / records[i].last_close  
             records[i].low_rate = (records[i].low - records[i].last_close) / records[i].last_close  
-            records[i].hig_low_rate = records[i].high_rate - records[i].low_rate  
+            records[i].hig_low_rate = records[i].high_rate - records[i].low_rate 
 
-        candles = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
-        records[i].range_1 = candles[0]
-        records[i].range_2 = candles[1]
-        records[i].range_3 = candles[2]
-        records[i].candle_sort  = candles[4]
-        records[i].up_or_down = 2 if candles[1]>0 else 1
+        #100天内，最高值high，最低值low分布, 日期&具体的值
+        rows = sorted(records[i:i+100], cmp=lambda x,y : cmp(x.close, y.close))  
+        records[i].days100_low_close = rows[0].close
+        records[i].days100_low_date = rows[0].trade_date 
+        records[i].days100_high_close = rows[-1].close
+        records[i].days100_high_date = rows[-1].trade_date         
+        
+        #5日内波峰波谷
+        records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
+        records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5) 
 
+        # current_record = records[i]
+        # print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
+  
         #成交量
         r10 = records[i:i+10]        
         l = [r.volume for r in r10]
@@ -212,8 +249,8 @@ def process1(stock_no):
             records[i].future3_range = frange    
         #print records[i] 
 
-        comm.get_test(records,i)
-        continue
+        # comm.get_test(records,i)
+        # gen_date_file(records[i])
       
     comm.fix_peak_trough(records,'peak_trough_5')
 
@@ -274,14 +311,8 @@ def reducefn():
 
 
 
-def gen_date_file(stock_no):
-    records = load_stocks(stock_no)
-    for r in records:
-        new_filepath = '%s/dailyh_dates/%s.csv' % (const_root_local,r.trade_date) 
-        content = ','.join([k for k,v in r.items()])  + '\r'   
-        content = content + ','.join([str(v) for k,v in r.items()])         
-        with open(new_filepath, 'w') as file: 
-            file.write(content)
+
+
 
 
 
@@ -332,6 +363,7 @@ def process_callback():
     pass
 
 def process(stock_no):
+    print stock_no
     process1(stock_no)
     records = process2(stock_no)
     mapfn(stock_no,records)
@@ -339,11 +371,11 @@ def process(stock_no):
     # content1 = ','.join([k for k,v in records[0].items()]) + '\r'
     # content1 =  content1 + '\r'.join([ ','.join([str(v) for k,v in r.items()]) for r in records])
 
-    content1 = 'trade,close,volume\r'
-    content1 =  content1 + '\r'.join(['%s,%s,%s' %(r.trade_date,r.close,r.volume) for r in records])    
-    new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,stock_no)    
-    with open(new_filepath1, 'w') as file:
-        file.write(content1)
+    # content1 = 'trade,close,volume\r'
+    # content1 =  content1 + '\r'.join(['%s,%s,%s' %(r.trade_date,r.close,r.volume) for r in records])    
+    # new_filepath1 = '%s/dailyh_add_csv/%s.csv' % (const_root_local,stock_no)    
+    # with open(new_filepath1, 'w') as file:
+    #     file.write(content1)
 
     print stock_no 
 
@@ -359,10 +391,15 @@ def run():
 
 
 if __name__ == "__main__":
-    # run()     
+    run()     
     # reducefn()
     # gen_date_file('300104.sz')
-    process1('000001.sz')
+    # process1('000001.sz')
+    # process1('000002.sz')
+    # process1('600616.ss')
+    # process1('002276.sz')
+    # process1('300023.sz')
+    
     # print load_stocks('000001.sz')
 
 
