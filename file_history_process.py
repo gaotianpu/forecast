@@ -34,7 +34,7 @@ def write_raw_records(stock_no,rows):
         f.write(content)
 
 def load_raw_records(stock_no):
-    lfile = '%s/dailyh/%s.csv' % (const_root_local,stock_no) 
+    lfile = '%s/dailyh/%s.csv' % (const_root_local,stock_no)      
     l=[]
     if not os.path.isfile(lfile):
         return l
@@ -53,7 +53,7 @@ def load_raw_records(stock_no):
 ###读写处理过的stock数据     
 def save_stocks(stock_no,records):
     lfile = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no) 
-    content = '\r\n'.join([json.dumps(r) for r in records])       
+    content = '\n'.join([json.dumps(r) for r in records])       
     with open(lfile, 'w') as file: 
         file.write(content)
 
@@ -109,7 +109,15 @@ def process1(stock_no):
     count = len(records)    
     # print 'trade_date,close,peak5,peak10'   
 
-    for i in range(0,count):        
+    for i in range(0,count):  
+        #100天内，最高值high，最低值low分布, 日期&具体的值
+        rows = sorted(records[i:i+100], cmp=lambda x,y : cmp(x.close, y.close))  
+        records[i].days100_low_close = rows[0].close
+        records[i].days100_low_date = rows[0].trade_date 
+        records[i].days100_high_close = rows[-1].close
+        records[i].days100_high_date = rows[-1].trade_date         
+        
+
         records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
         records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5) 
 
@@ -206,7 +214,7 @@ def process1(stock_no):
 
         comm.get_test(records,i)
         continue
-     
+      
     comm.fix_peak_trough(records,'peak_trough_5')
 
     save_stocks(stock_no,records)
@@ -355,11 +363,12 @@ if __name__ == "__main__":
     # reducefn()
     # gen_date_file('300104.sz')
     process1('000001.sz')
+    # print load_stocks('000001.sz')
 
 
 
     # reducefn()
-    #load_stocks('000001.sz')
+    #
     
     # test('300104.sz')
 

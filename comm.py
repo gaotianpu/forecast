@@ -297,7 +297,7 @@ def get_test(records,index):
         tmpl = sorted(last_records, cmp=lambda x,y : cmp(x.close, y.close))
         max_record = tmpl[-1] 
         min_record = tmpl[0]
-        print records[index].trade_date,records[index].close,max_record.close-records[index].close/max_record.close
+        # print records[index].trade_date,records[index].close,max_record.close-records[index].close/max_record.close
         # if max_record.trade_date == records[index].trade_date:
         #     # print min_record.trade_date,min_record.close
         #     tmpl = sorted(tmpl, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
