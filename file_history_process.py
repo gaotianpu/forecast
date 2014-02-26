@@ -392,10 +392,15 @@ def run():
 
 def test():
     stocks = load_date('2014-02-24')
-    rows = sorted(stocks, cmp=lambda x,y : cmp(x.days100_high_date, y.days100_high_date))  
+    rows = sorted(stocks, cmp=lambda x,y : cmp(x.days100_high_date, y.days100_high_date))
+    for r in rows:
+        x = r.stock_no.split('.')
+        r.pinyin = x[1] if x[1]!='ss' else 'sh'  
+        r.no = x[0]
+    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a>' %(r.no,r.pinyin,r.no )  for r in rows ] )
     #days100_high_date
-    for s in rows :
-        print s.stock_no,s.days100_high_date
+    # for s in rows :
+    #     print s.stock_no,s.days100_high_date
 
 if __name__ == "__main__":
     # run()     
