@@ -8,6 +8,7 @@ import multiprocessing
 import csv
 from decimal import *
 import json
+import datetime
 
 categoryField = 'future1_range'
 featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
@@ -113,7 +114,7 @@ def gen_date_files(trade_date):
     path = '%s/dailyh_add/' % (const_root_local)  
     filenames = os.listdir(path)
     
-    l=[]
+    l=[]    
     for f in filenames:
         stock_no = '.'.join(f.split('.')[0:2])
         print stock_no
@@ -312,11 +313,6 @@ def reducefn():
 
 
 
-
-
-
-
-
 featureFieldsvvvvvvvv =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')
 featureFieldssss =('trend_5','ma_p_5','ma_p_4','trend_3','candle_sort','ma_p_3','jump_level','volume_level','up_or_down','ma_5_10','ma_p_2',)
 def compute_probability_one_stock(probabilities,stock_no):
@@ -390,23 +386,32 @@ def run():
     mpPool.close()
     mpPool.join()
 
-def test():
-    stocks = load_date('2014-02-24')
+def test(trade_date):
+    stocks = load_date(trade_date)
+    stocks = [r for r in stocks if r.ma_5>r.ma_10 and r.trend_3==213 ]
+    # for r in stocks:
+    #     print r.ma_5,r.ma_10,r.trend_3
+    # return 
+    # rows = sorted(stocks, cmp=lambda x,y : cmp(x.trend_3, y.trend_3))
+    
     rows = sorted(stocks, cmp=lambda x,y : cmp(x.days100_high_date, y.days100_high_date))
+    print 'count:%s<br/>' % (len(rows))
     for r in rows:
         x = r.stock_no.split('.')
         r.pinyin = x[1] if x[1]!='ss' else 'sh'  
         r.no = x[0]
-    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a>' %(r.no,r.pinyin,r.no )  for r in rows ] )
+    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" title="%s"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a>' %(r.no,r.days100_low_date,r.pinyin,r.no )  for r in rows ] )
     #days100_high_date
     # for s in rows :
     #     print s.stock_no,s.days100_high_date
 
 if __name__ == "__main__":
-    # run()     
-    # reducefn()
-    # gen_date_files('2014-02-24')
-    test()
+    run()     
+    reducefn()
+    
+    # trade_date = '2014-02-24'  #datetime.datetime.now().strftime('%Y-%m-%d')
+    # gen_date_files(trade_date)
+    # test(trade_date)
     
     # gen_date_file('300104.sz')
     # process1('000001.sz')
