@@ -405,11 +405,32 @@ def test(trade_date):
     # for s in rows :
     #     print s.stock_no,s.days100_high_date
 
+def test__2(stock_no):
+    rows = load_raw_records(stock_no)
+    l=[]
+    for r in rows[0:200]:        
+        l = l + comm.get_prices(r.high,r.low)
+    price_counts = dict(Counter( l ))
+    data = '\n'.join(['%s,%s' % (k,v) for k,v in price_counts.items()])   
+    lfile = '%s/GaussianDistri/%s.csv' % (const_root_local,stock_no) 
+    with open(lfile, 'w') as file: 
+        file.write(data) 
+
+def run_test_2():
+    local_dir = "%s/dailyh/"  % (const_root_local)   
+    filenames = os.listdir(local_dir)
+    for f in filenames:
+        print f        
+        stock_no = '.'.join(f.split('.')[0:2])
+        test__2(stock_no)   
+        
+
 if __name__ == "__main__":
-    run()     
-    reducefn()
+    # run()     
+    # reducefn()
     
-    # trade_date = '2014-02-24'  #datetime.datetime.now().strftime('%Y-%m-%d')
+    trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')
+    run_test_2()
     # gen_date_files(trade_date)
     # test(trade_date)
     
