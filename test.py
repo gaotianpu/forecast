@@ -24,7 +24,8 @@ def set_test():
 def map():
     rows=[['ma5',1], ['ma10',4],['ma20',8],['ma50',1],['ma100',2],['ma200',3],]
     rows = sorted(rows, cmp=lambda x,y : cmp(y[1], x[1]))
-    print '_'.join([r[0].replace('ma','') for r in rows])     
+    print '_'.join([r[0].replace('ma','') for r in rows])  
+       
 
 if __name__ == '__main__':
     map()
