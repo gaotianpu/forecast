@@ -26,18 +26,16 @@ def test1():
     pylab.plot(x, y,'o')# use pylab to plot x and y
     pylab.show()# show the plot on the screen
 
-def test2():
-    lfile = './sample_data/300052.sz_gd.csv'
-    data = numpy.loadtxt(lfile,delimiter=',')
-    print data
+import pylab
+import numpy 
+def draw_1(lfile):    
+    data = numpy.loadtxt(lfile,delimiter=',')    
     pylab.plot(data[:,0],data[:,1],'ro')
     pylab.xlabel('x')
     pylab.ylabel('y')
-    # pl.xlim(0.0, 10.)
-    
     pylab.savefig('foo.png')
     pylab.show()
 
 
 if __name__ == "__main__":
-    test1()
+    draw_1('./sample_data/300052.sz_gd.csv')

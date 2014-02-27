@@ -400,7 +400,7 @@ def test(trade_date):
         x = r.stock_no.split('.')
         r.pinyin = x[1] if x[1]!='ss' else 'sh'  
         r.no = x[0]
-    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" title="%s"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a>' %(r.no,r.days100_low_date,r.pinyin,r.no )  for r in rows ] )
+    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" title="%s"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a> <img height="380" src="D:\gaotp\stocks\GaussianDistriImg\%s.png" /> <hr/>' %(r.no,r.days100_low_date,r.pinyin,r.no,r.stock_no )  for r in rows ] )
     #days100_high_date
     # for s in rows :
     #     print s.stock_no,s.days100_high_date
@@ -423,16 +423,43 @@ def run_test_2():
         print f        
         stock_no = '.'.join(f.split('.')[0:2])
         test__2(stock_no)   
-        
+
+import pylab
+import numpy 
+def draw_1(stock_no):  
+    lfile = '%s/GaussianDistri/%s.csv' % (const_root_local,stock_no)
+    data = numpy.loadtxt(lfile,delimiter=',')    
+    pylab.plot(data[:,0],data[:,1],'ro')
+    pylab.xlabel('x')
+    pylab.ylabel('y')
+    img_file = '%s/GaussianDistriImg/%s.png' % (const_root_local,stock_no)  
+    pylab.savefig(img_file)
+    pylab.cla()
+    # pylab.clf()
+    # pylab.close()
+
+    #pylab.show()
+
+def run_draw_1():
+    local_dir = "%s/GaussianDistri/"  % (const_root_local)   
+    filenames = os.listdir(local_dir)
+    for f in filenames: 
+        print f                   
+        stock_no = '.'.join(f.split('.')[0:2])
+        try:
+            draw_1(stock_no) 
+        except Exception,e:
+            print stock_no,e
 
 if __name__ == "__main__":
     # run()     
     # reducefn()
     
     trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')
-    run_test_2()
+    # run_test_2()
+    # run_draw_1()
     # gen_date_files(trade_date)
-    # test(trade_date)
+    test(trade_date)
     
     # gen_date_file('300104.sz')
     # process1('000001.sz')
