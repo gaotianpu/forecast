@@ -27,7 +27,19 @@ def map():
     print '_'.join([r[0].replace('ma','') for r in rows])  
        
 
+def get_prices(high,low):
+    l = []
+    l.append(low)     
+    for i in range(int(low*100),int(high*100)):
+        l.append(float(i)/100) 
+    l.append(high)
+    return l 
+    
+
 if __name__ == '__main__':
-    map()
+    rows = get_prices(6.28,5.1)
+    for r in rows:
+        print r
+    # map()
     
      

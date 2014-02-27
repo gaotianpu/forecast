@@ -309,6 +309,15 @@ def get_test(records,index):
 
         # print len(last_records),records[index].trade_date,tmpl[0].trade_date,tmpl[1].trade_date, tmpl[0].close, tmpl[-1].close
 
+
+def get_prices(high,low):
+    l = []
+    l.append(low)     
+    for i in range(int(low*100),int(high*100)):
+        l.append(float(i)/100) 
+    l.append(high)
+    return l 
+
 if __name__ == '__main__':
     l=[1,2,3,4,5]
     print l[:2]
