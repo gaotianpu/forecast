@@ -51,6 +51,16 @@ def load_raw_records(stock_no):
     l = sorted(l, cmp=lambda x,y : cmp(y.trade_date, x.trade_date))
     return l
 
+def load_stocks_rawdata(trade_date):
+    lfile = "%s/daily_/%s.csv"  % (const_root_local,trade_date) 
+    d = {}
+    with open(lfile,'rb') as f:
+        reader = csv.reader(f, delimiter=',')
+        for py,stock_no,openp,close,high,low,volume in reader:
+            d[stock_no] = web.storage(stock_no=stock_no,open=float(openp),high=float(high),
+                low=float(low),close=float(close),volume=int(volume),)
+    return d   
+
 ###读写处理过的stock数据     
 def save_stocks(stock_no,records):
     lfile = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no) 
@@ -401,7 +411,7 @@ def test(trade_date):
         r.pinyin = x[1] if x[1]!='ss' else 'sh'  
         r.no = x[0]
     #.roate{ -ms-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-webkit-transform:rotate(-90deg);-o-transform:rotate(-90deg); } 
-    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" title="%s"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a> <img height="380" src="D:\gaotp\stocks\GaussianDistriImg\%s.png" /> <hr/>' %(r.no,r.days100_low_date,r.pinyin,r.no,r.stock_no )  for r in rows ] )
+    print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" title="%s"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a> <img height="380" src="%s.png" /> <hr/>' %(r.no,r.days100_low_date,r.pinyin,r.no,r.stock_no )  for r in rows ] )
     #days100_high_date
     # for s in rows :
     #     print s.stock_no,s.days100_high_date
@@ -427,11 +437,17 @@ def run_test_2():
 
 import numpy 
 import matplotlib.pyplot as plt
-def draw_1(stock_no):  
+def draw_1(stock_no,current_price):  
     lfile = '%s/GaussianDistri/%s.csv' % (const_root_local,stock_no)
-    data = numpy.loadtxt(lfile,delimiter=',')    
+    data = numpy.loadtxt(lfile,delimiter=',')   
+    
+    #draw line
+    max_y = max(data[:,1])
+    point_x = current_price #data[:,0][list(data[:,1]).index(max_y)]  
+    plt.plot([point_x,point_x],[0,max_y*1.1])
+
     plt.plot(data[:,0],data[:,1],'ro')
-    plt.xlabel('price')
+    plt.xlabel('price:'+str(point_x))
     plt.ylabel('count')
     img_file = '%s/GaussianDistriImg/%s.png' % (const_root_local,stock_no)  
     plt.savefig(img_file)
@@ -440,14 +456,21 @@ def draw_1(stock_no):
     # plt.close()
     #plt.show()
 
-def run_draw_1():
+def run_draw_1(trade_date):
+    stocks = load_stocks_rawdata(trade_date)
+     
+
     local_dir = "%s/GaussianDistri/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
     for f in filenames: 
-        print f                   
-        stock_no = '.'.join(f.split('.')[0:2])
+        f_segs = f.split('.')  
+
+        stock_no = '.'.join(f_segs[0:2])
         try:
-            draw_1(stock_no) 
+            close = 0 
+            if f_segs[0] in stocks:
+                close = stocks[ f_segs[0] ].close
+            draw_1(stock_no,close) 
         except Exception,e:
             print stock_no,e
 
@@ -457,9 +480,9 @@ if __name__ == "__main__":
     
     trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')
     # run_test_2()
-    # run_draw_1()
+    run_draw_1('20140228')
     # gen_date_files(trade_date)
-    test(trade_date)
+    # test(trade_date)
     
     # gen_date_file('300104.sz')
     # process1('000001.sz')
