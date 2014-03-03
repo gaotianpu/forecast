@@ -400,6 +400,7 @@ def test(trade_date):
         x = r.stock_no.split('.')
         r.pinyin = x[1] if x[1]!='ss' else 'sh'  
         r.no = x[0]
+    #.roate{ -ms-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-webkit-transform:rotate(-90deg);-o-transform:rotate(-90deg); } 
     print ''.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" title="%s"><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a> <img height="380" src="D:\gaotp\stocks\GaussianDistriImg\%s.png" /> <hr/>' %(r.no,r.days100_low_date,r.pinyin,r.no,r.stock_no )  for r in rows ] )
     #days100_high_date
     # for s in rows :
