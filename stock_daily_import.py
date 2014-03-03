@@ -104,8 +104,31 @@ def run():
         da.stockbaseinfos.import_rows(rows)
         parse_data_and_import_to_db(lfile,i)
 
+import os
+def merge_daily_data(trade_date):
+    path = '%s/daily/' %(const_root_local) 
+    filenames = os.listdir(path)
+    rows = []
+    for f in filenames:           
+        if not f.startswith(trade_date):
+            continue         
+        rows = rows + comm.parse_daily_data(path+f)
+
+    content = '\n'.join(['%s,%s,%s,%s,%s,%s,%s' %(r.market_codes.pinyin, r.stock_no,r.open_price,r.close_price,r.high_price,r.low_price,r.volume) for r in rows if r.volume>0])
+    lfile =  '%s/daily_/%s.csv' %(const_root_local,trade_date) 
+    with open(lfile, 'w') as file: 
+        file.write(content)      
+
 def run_release():
     run()
+
+    today = datetime.datetime.now()
+    trade_date = today.strftime('%Y%m%d')
+
+    try:
+        merge_daily_data(trade_date)
+    except Exception,ex:
+        loger.error('stockdaily_cud update_last_high_low' + str(ex))
     
     #lowprice_3_5
     try:            
@@ -119,7 +142,7 @@ def run_release():
     except Exception,ex:
         loger.error('lowprice_3_5 run' + str(ex))
 
-    today = datetime.datetime.now()
+    
     try:
         #da.dailyrecords.update_marketcode(today)
         da.dailyrecords.import_date_sums(today.strftime('%Y%m%d'))
@@ -162,8 +185,18 @@ def run_release():
         loger.error('cyb.run_chart' + str(ex))
 
 if __name__ == '__main__':
-    # run()
     run_release()
+    # merge_daily_data('20140224')
+    # merge_daily_data('20140225')
+    # merge_daily_data('20140226')
+    # merge_daily_data('20140227')
+    # merge_daily_data('20140228')
+
+    
+     
+
+    # run()
+    
 
     #
     #run_release()

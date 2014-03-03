@@ -425,21 +425,20 @@ def run_test_2():
         stock_no = '.'.join(f.split('.')[0:2])
         test__2(stock_no)   
 
-import pylab
 import numpy 
+import matplotlib.pyplot as plt
 def draw_1(stock_no):  
     lfile = '%s/GaussianDistri/%s.csv' % (const_root_local,stock_no)
     data = numpy.loadtxt(lfile,delimiter=',')    
-    pylab.plot(data[:,0],data[:,1],'ro')
-    pylab.xlabel('x')
-    pylab.ylabel('y')
+    plt.plot(data[:,0],data[:,1],'ro')
+    plt.xlabel('price')
+    plt.ylabel('count')
     img_file = '%s/GaussianDistriImg/%s.png' % (const_root_local,stock_no)  
-    pylab.savefig(img_file)
-    pylab.cla()
-    # pylab.clf()
-    # pylab.close()
-
-    #pylab.show()
+    plt.savefig(img_file)
+    plt.cla()
+    # plt.clf()
+    # plt.close()
+    #plt.show()
 
 def run_draw_1():
     local_dir = "%s/GaussianDistri/"  % (const_root_local)   
