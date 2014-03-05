@@ -419,7 +419,7 @@ def test(trade_date):
 def test__2(stock_no):
     rows = load_raw_records(stock_no)
     l=[]
-    for r in rows[0:200]:        
+    for r in rows: #[0:200]:        
         l = l + comm.get_prices(r.high,r.low)
     price_counts = dict(Counter( l ))
     data = '\n'.join(['%s,%s' % (k,v) for k,v in price_counts.items()])   
@@ -448,7 +448,7 @@ def draw_1(stock_no,current_price):
 
     plt.plot(data[:,0],data[:,1],'ro')
     plt.xlabel('price:'+str(point_x))
-    plt.ylabel('count')
+    plt.ylabel('count:' + str(sum(data[:,1])) )
     img_file = '%s/GaussianDistriImg/%s.png' % (const_root_local,stock_no)  
     plt.savefig(img_file)
     plt.cla()
@@ -458,7 +458,6 @@ def draw_1(stock_no,current_price):
 
 def run_draw_1(trade_date):
     stocks = load_stocks_rawdata(trade_date)
-     
 
     local_dir = "%s/GaussianDistri/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
@@ -477,10 +476,11 @@ def run_draw_1(trade_date):
 if __name__ == "__main__":
     # run()     
     # reducefn()
+    run_test_2()
+    run_draw_1('20140304')
     
-    trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')
-    # run_test_2()
-    run_draw_1('20140228')
+    # trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')    
+    
     # gen_date_files(trade_date)
     # test(trade_date)
     
