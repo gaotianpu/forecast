@@ -34,12 +34,35 @@ def get_prices(high,low):
         l.append(float(i)/100) 
     l.append(high)
     return l 
-    
+
+import math
+def cos_dist(a, b):
+    if len(a) != len(b):
+        return None
+    part_up = 0.0
+    a_sq = 0.0
+    b_sq = 0.0
+    for a1, b1 in zip(a,b): #zip , 2+ list -> tuple list
+        part_up += a1*b1
+        a_sq += a1**2
+        b_sq += b1**2
+    part_down = math.sqrt(a_sq*b_sq) #sqrt
+    if part_down == 0.0:
+        return None
+    else:
+        return part_up / part_down
+
 
 if __name__ == '__main__':
-    rows = get_prices(6.28,5.1)
-    for r in rows:
-        print r
+    d1 = (0.1, 0, 0.3)
+    d2 = (0, 0.9, 0.4)
+    q = (0, 0.8, 0.5)
+    print cos_dist(d1, d2)
+    print cos_dist(d1, q)
+    print cos_dist(d2, q)
+    # rows = get_prices(6.28,5.1)
+    # for r in rows:
+    #     print r
     # map()
     
      
