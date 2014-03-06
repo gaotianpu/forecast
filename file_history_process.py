@@ -440,6 +440,9 @@ import matplotlib.pyplot as plt
 def draw_1(stock_no,current_price):  
     lfile = '%s/GaussianDistri/%s.csv' % (const_root_local,stock_no)
     data = numpy.loadtxt(lfile,delimiter=',')   
+
+    current_position = (current_price - min(data[:,0]))/(max(data[:,0]) - min(data[:,0]))
+    # return current_position
     
     #draw line
     max_y = max(data[:,1])
@@ -455,28 +458,36 @@ def draw_1(stock_no,current_price):
     # plt.clf()
     # plt.close()
     #plt.show()
+    return current_position
 
 def run_draw_1(trade_date):
     stocks = load_stocks_rawdata(trade_date)
 
     local_dir = "%s/GaussianDistri/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
+    l=[]
     for f in filenames: 
-        f_segs = f.split('.')  
-
+        print f
+        f_segs = f.split('.') 
         stock_no = '.'.join(f_segs[0:2])
         try:
             close = 0 
             if f_segs[0] in stocks:
                 close = stocks[ f_segs[0] ].close
-            draw_1(stock_no,close) 
+            current_position = draw_1(stock_no,close) 
+            l.append('%s,%s'%(stock_no,current_position))
         except Exception,e:
             print stock_no,e
+
+    content  = '\n'.join(l)
+    lfile = '%s/current_position.csv' % (const_root_local)  
+    with open(lfile, 'w') as file: 
+        file.write(content) 
 
 if __name__ == "__main__":
     # run()     
     # reducefn()
-    run_test_2()
+    # run_test_2()
     run_draw_1('20140304')
     
     # trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')    
