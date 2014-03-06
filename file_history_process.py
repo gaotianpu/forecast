@@ -159,6 +159,8 @@ def process1(stock_no):
     for i in range(0,count):
         records[i].stock_no = stock_no
 
+        records[i].volume_cos_10 = comm.cos_dist( [r.volume for r in records[i:i+5]])
+
         #蜡烛图形态
         candles = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
         records[i].range_1 = candles[0]
@@ -445,10 +447,11 @@ def draw_1(stock_no,current_price):
     # return current_position
     
     #draw line
-    max_y = max(data[:,1])
+    max_y = 40 #max(data[:,1])
     point_x = current_price #data[:,0][list(data[:,1]).index(max_y)]  
     plt.plot([point_x,point_x],[0,max_y*1.1])
 
+    plt.ylim([0.0,40.0])
     plt.plot(data[:,0],data[:,1],'ro')
     plt.xlabel('price:'+str(point_x))
     plt.ylabel('count:' + str(sum(data[:,1])) )
@@ -475,20 +478,31 @@ def run_draw_1(trade_date):
             if f_segs[0] in stocks:
                 close = stocks[ f_segs[0] ].close
             current_position = draw_1(stock_no,close) 
-            l.append('%s,%s'%(stock_no,current_position))
+            l.append((stock_no,current_position))
         except Exception,e:
             print stock_no,e
 
-    content  = '\n'.join(l)
+    content  = '\n'.join(['%s,%s' %(r[0],r[1]) for r in l])
     lfile = '%s/current_position.csv' % (const_root_local)  
     with open(lfile, 'w') as file: 
         file.write(content) 
 
+    l = sorted(l,cmp=lambda x,y : cmp(y[1], x[1]))    
+    content  = '\n'.join(['<a href="http://stockhtm.finance.qq.com/sstock/ggcx/%s.shtml" ><img src="http://image.sinajs.cn/newchart/daily/n/%s%s.gif" /></a> <img src="%s.png" alt="%s" height="380" /> <hr/>' % (r[0].split('.')[0],r[0].split('.')[1].replace('ss','sh'),r[0].split('.')[0],r[0],r[1])  for r in l if r[1]>0.6 and r[1]<0.9 ])
+    lfile = 'D:\\gaotp\stocks\\GaussianDistriImg\\cp_%s.html' % (trade_date)  
+    with open(lfile, 'w') as file: 
+        file.write(content) 
+
+def tmp(stock_no):
+    records = load_stocks(stock_no)
+    for r in records:
+        print r.trade_date,r.close,r.volume,r.volume_cos_10
+
 if __name__ == "__main__":
-    # run()     
-    # reducefn()
+    run()     
+    reducefn()
     # run_test_2()
-    run_draw_1('20140304')
+    # run_draw_1('20140304')
     
     # trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')    
     
@@ -496,7 +510,8 @@ if __name__ == "__main__":
     # test(trade_date)
     
     # gen_date_file('300104.sz')
-    # process1('000001.sz')
+    # process1('300104.sz')
+    # tmp('300104.sz')
     # process1('000002.sz')
     # process1('600616.ss')
     # process1('002276.sz')

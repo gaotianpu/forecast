@@ -316,7 +316,25 @@ def get_prices(high,low):
     for i in range(int(low*100),int(high*100)):
         l.append(float(i)/100) 
     l.append(high)
-    return l 
+    return l
+
+import math
+def cos_dist(a):
+    b = [1,1,1,1,1]
+    if len(a) != len(b):
+        return None
+    part_up = 0.0
+    a_sq = 0.0
+    b_sq = 0.0
+    for a1, b1 in zip(a,b): #zip , 2+ list -> tuple list
+        part_up += a1*b1
+        a_sq += a1**2
+        b_sq += b1**2
+    part_down = math.sqrt(a_sq*b_sq) #sqrt
+    if part_down == 0.0:
+        return None
+    else:
+        return part_up / part_down
 
 if __name__ == '__main__':
     l=[1,2,3,4,5]
