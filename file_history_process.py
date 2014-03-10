@@ -9,151 +9,15 @@ import csv
 from decimal import *
 import json
 import datetime
+import datafile
 
 categoryField = 'future1_range'
 featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
 
-############读写数据 ####################
-def add_new_record(r):  
-    stock_no  = '%s.%s' % (r.stock_no,r.market_codes.yahoo)  
-    rows = load_raw_records(stock_no)
-    rows.insert(0,web.storage(trade_date=r.date,open=r.open_price,high=r.high_price,
-                low=r.low_price,close=r.close_price,acp=r.close_price,volume=r.volume)) 
-    write_raw_records(stock_no,rows)
-    
 
-def write_raw_records(stock_no,rows):
-    #rows去掉重复项后重新排序
-    #rows = list(set(rows))
-    rows = sorted(rows, cmp=lambda x,y : cmp(y.trade_date, x.trade_date))
-    content = 'Date,Open,High,Low,Close,Volume,Adj Close\n'       
-    content = content + '\n'.join(['%s,%s,%s,%s,%s,%s,%s' % (r.trade_date,r.open,r.high,r.low,r.close,r.volume,r.close) for r in rows])
-    content = content + '\n'
-
-    lfile = '%s/dailyh/%s.csv' % (const_root_local,stock_no) 
-    with open(lfile, 'w') as f:
-        f.write(content)
-
-def load_raw_records(stock_no):
-    lfile = '%s/dailyh/%s.csv' % (const_root_local,stock_no)      
-    l=[]
-    if not os.path.isfile(lfile):
-        return l
-    with open(lfile,'rb') as f:
-        reader = csv.reader(f, delimiter=',')
-        for date,openp,high,low,close,volume,acp in reader:
-            if date == 'Date': continue
-            r = web.storage(trade_date=date,open=float(openp),high=float(high),
-                low=float(low),close=float(close),acp=float(acp),volume=int(volume),)            
-            l.append(r)
-        f.close()
-    l = [r for r in l if r.volume>0]
-    l = sorted(l, cmp=lambda x,y : cmp(y.trade_date, x.trade_date))
-    return l
-
-def load_stocks_rawdata(trade_date):
-    lfile = "%s/daily_/%s.csv"  % (const_root_local,trade_date) 
-    d = {}
-    with open(lfile,'rb') as f:
-        reader = csv.reader(f, delimiter=',')
-        for py,stock_no,openp,close,high,low,volume in reader:
-            if not int(volume): continue
-            d[stock_no] = web.storage(stock_no=stock_no,open=float(openp),high=float(high),
-                low=float(low),close=float(close),volume=int(volume),)
-    return d   
-
-###读写处理过的stock数据     
-def save_stocks(stock_no,records):
-    lfile = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no) 
-    content = '\n'.join([json.dumps(r) for r in records])       
-    with open(lfile, 'w') as file: 
-        file.write(content)
-
-def load_stocks(stock_no): 
-    lfile = '%s/dailyh_add/%s.csv' % (const_root_local,stock_no)      
-    rows=[] 
-    with open(lfile,'rb') as f:
-        lines = f.readlines()
-        rows = [web.storify(json.loads(line.strip())) for line in lines if line] 
-    rows = [r for r in rows if int(r['volume'])>0]    
-    return rows
-
-###读写处理过的stock categroy,features的sum数据   
-def save_sum_records(stock_no,content):
-    new_filepath = '%s/dailyh_sum/%s.csv' % (const_root_local,stock_no)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content)
-
-def load_sum_records(stock_no):
-    fullpath = '%s/dailyh_sum/%s.csv' % (const_root_local,stock_no)
-    l=[] 
-    with open(fullpath,'rb') as f:
-        reader = csv.reader(f, delimiter=',')            
-        for fk,cv,fv,count,p in reader:
-            l.append(web.storage(fk=fk,cv=cv,fv=fv,count=count,p=p))
-    return l
-
-##读写Category,Feature概率
-def save_probability(content):
-    new_filepath = '%s/dailyh_final/cfp.csv' % (const_root_local)    
-    with open(new_filepath, 'w') as file: 
-        file.write(content) 
-
-def load_probability(): 
-    pfile = '%s/dailyh_final/cfp.csv' % (const_root_local) 
-    l = []  
-    with open(pfile,'rb') as f:
-        reader = csv.reader(f, delimiter=',')
-        for key,count,probability in reader:
-            segments = key.split('|')
-            if len(segments)==3:
-                l.append(web.storage(fk=segments[0],fv=segments[2],cv=segments[1],p=probability,count=count))
-            elif len(segments)==2:
-                l.append(web.storage(fk='category',fv='',cv=segments[1],p=probability,count=count))
-            else:                
-                pass #print '--',key,count,probability
-    return l
-
-####
-def gen_date_file(record):
-    json_record = json.dumps(record)
-    new_filepath = '%s/dailyh_dates/%s.csv' % (const_root_local,record.trade_date) 
-    with open(new_filepath, 'ab+') as file: 
-            file.write(json_record+'\n') 
-
-def gen_date_files(trade_date):
-    path = '%s/dailyh_add/' % (const_root_local)  
-    filenames = os.listdir(path)
-    
-    l=[]    
-    for f in filenames:
-        stock_no = '.'.join(f.split('.')[0:2])
-        print stock_no
-        records = load_stocks(stock_no)
-        date_record = [r for r in records if r.trade_date==trade_date]
-        if date_record:
-            l.append(date_record[0])
-    
-    # l = sort(l, cmp=lambda x,y : cmp(x.trade_date, y.trade_date))
-            
-    lfile = '%s/dailyh_dates/%s.csv' % (const_root_local,trade_date)         
-    content = '\n'.join([json.dumps(r) for r in l])       
-    with open(lfile, 'w') as file: 
-        file.write(content) 
-
-def load_date(trade_date):
-    lfile = '%s/dailyh_dates/%s.csv' % (const_root_local,trade_date)      
-    rows=[] 
-    with open(lfile,'rb') as f:
-        lines = f.readlines()
-        rows = [web.storify(json.loads(line.strip())) for line in lines if line] 
-    rows = [r for r in rows if int(r['volume'])>0]    
-    return rows
-
-#############################################
 
 def process1(stock_no):  
-    records = load_raw_records(stock_no)
+    records = datafile.load_raw_records(stock_no)
     count = len(records)    
     # print 'trade_date,close,peak5,peak10'   
 
@@ -265,21 +129,21 @@ def process1(stock_no):
         #print records[i] 
 
         # comm.get_test(records,i)
-        # gen_date_file(records[i])
+        # datafile.gen_date_file(records[i])
       
     comm.fix_peak_trough(records,'peak_trough_5')
 
-    save_stocks(stock_no,records)
+    datafile.save_stocks(stock_no,records)
     return records
 
 def process2(stock_no):
-    records = load_stocks(stock_no)
+    records = datafile.load_stocks(stock_no)
     count = len(records)    
     for i in range(0,count):
         records[i].ma5_trend_3 = comm.get_trend_2(records[i:i+3],'ma_5') if count-i>2 else 0                    
         records[i].ma5_trend_5 = comm.get_trend_2(records[i:i+5],'ma_5') if count-i>4 else 0
         # print '%s,%s,%s' %(records[i].ma5_trend_3,records[i].ma5_trend_5,records[i].future2_range)
-    save_stocks(stock_no,records)
+    datafile.save_stocks(stock_no,records)
     return records  
 
 ##########################mapreduce#########################
@@ -303,7 +167,7 @@ def mapfn(stock_no,records):
             rows.append(web.storage(fk=segs[0],cv=segs[1],fv=segs[2],count=int(v),p=float(v)/trade_count))
     
     content = '\r\n'.join(['%s,%s,%s,%s,%s' % (r.fk,r.cv,r.fv,r.count,r.p) for r in rows]) 
-    save_sum_records(stock_no,content) 
+    datafile.save_sum_records(stock_no,content) 
 
 def get_cv(k):
     return 'category|%s' % (k.split('|')[1]) if len(k.split('|'))>2 else 'trade' 
@@ -315,21 +179,21 @@ def reducefn():
     d = {}   
     for f in filenames:
         stock_no = '.'.join(f.split('.')[0:2])
-        sum_records = load_sum_records(stock_no) 
+        sum_records = datafile.load_sum_records(stock_no) 
         for row in  sum_records:
             k='|'.join([r for r in (row.fk,row.cv,row.fv) if r])
             d[k] = d[k] + int(row.count) if k in d else int(row.count) 
       
     l = ['%s,%s,%s' % (k,v,float(v) / int(d[get_cv(k)])) for k,v in d.items()]
     content = '\r\n'.join(l)
-    save_probability(content)
+    datafile.save_probability(content)
 
 
 
 featureFieldsvvvvvvvv =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5')
 featureFieldssss =('trend_5','ma_p_5','ma_p_4','trend_3','candle_sort','ma_p_3','jump_level','volume_level','up_or_down','ma_5_10','ma_p_2',)
 def compute_probability_one_stock(probabilities,stock_no):
-    trade_records = load_stocks(stock_no)
+    trade_records = datafile.load_stocks(stock_no)
     count = len(trade_records)
     print 'trade_date,c1,c2,c3,close,acp,future1_prate'
     for i in range(0,count): 
@@ -358,7 +222,7 @@ def compute_probability_one_stock(probabilities,stock_no):
         #     break  
 
 def test(stock_no):
-    probabilities = load_probability()
+    probabilities = datafile.load_probability()
     compute_probability_one_stock(probabilities,stock_no)
 
 ########################
@@ -400,7 +264,7 @@ def run():
     mpPool.join()
 
 def test(trade_date):
-    stocks = load_date(trade_date)
+    stocks = datafile.load_date(trade_date)
     stocks = [r for r in stocks if r.ma_5>r.ma_10 and r.trend_3==213 ]
     # for r in stocks:
     #     print r.ma_5,r.ma_10,r.trend_3
@@ -420,7 +284,7 @@ def test(trade_date):
     #     print s.stock_no,s.days100_high_date
 
 def test__2(stock_no):
-    rows = load_raw_records(stock_no)
+    rows = datafile.load_raw_records(stock_no)
     l=[]
     for r in rows: #[0:200]:        
         l = l + comm.get_prices(r.high,r.low)
@@ -465,7 +329,7 @@ def draw_1(stock_no,current_price):
     return current_position
 
 def run_draw_1(trade_date):
-    stocks = load_stocks_rawdata(trade_date)
+    stocks = datafile.load_stocks_rawdata(trade_date)
 
     local_dir = "%s/GaussianDistri/"  % (const_root_local)   
     filenames = os.listdir(local_dir)
@@ -495,12 +359,12 @@ def run_draw_1(trade_date):
         file.write(content) 
 
 def tmp(stock_no):
-    records = load_stocks(stock_no)
+    records = datafile.load_stocks(stock_no)
     for r in records:
         print r.trade_date,r.close,r.volume,r.volume_cos_10
 
 def run_daily_report(trade_date):
-    d_stocks = load_stocks_rawdata(trade_date)
+    d_stocks = datafile.load_stocks_rawdata(trade_date)
     volumes = [v.volume for v in d_stocks.values()]
     closes = [v.volume*v.close for v in d_stocks.values()]
     opens = [v.volume*v.open for v in d_stocks.values()]
@@ -536,10 +400,10 @@ if __name__ == "__main__":
     
     # trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')    
     
-    # gen_date_files(trade_date)
+    # datafile.gen_date_files(trade_date)
     # test(trade_date)
     
-    # gen_date_file('300104.sz')
+    # datafile.gen_date_file('300104.sz')
     # process1('300104.sz')
     # tmp('300104.sz')
     # process1('000002.sz')
@@ -547,7 +411,7 @@ if __name__ == "__main__":
     # process1('002276.sz')
     # process1('300023.sz')
     
-    # print load_stocks('000001.sz')
+    # print datafile.load_stocks('000001.sz')
 
 
 
@@ -556,11 +420,11 @@ if __name__ == "__main__":
     
     # test('300104.sz')
 
-    # rows = load_probability()
+    # rows = datafile.load_probability()
     # for r in rows:
     #     print r
     
-    # xx = load_probability()
+    # xx = datafile.load_probability()
     # for x in xx:
     #     print x.fk,x.fv,x.cv,x.p,x.count
 
