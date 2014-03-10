@@ -14,7 +14,7 @@ import datafile
 categoryField = 'future1_range'
 featureFields =('trend_3','trend_5','candle_sort','up_or_down','volume_level','jump_level','ma_5_10','ma_p_2','ma_p_3','ma_p_4','ma_p_5','close_ma_5','close_ma_10','close_ma_20','close_ma_50','close_ma_100','close_ma_200')  
 
-
+#################################
 
 def process1(stock_no):  
     records = datafile.load_raw_records(stock_no)
@@ -22,47 +22,21 @@ def process1(stock_no):
     # print 'trade_date,close,peak5,peak10'   
 
     for i in range(0,count):
-        records[i].stock_no = stock_no
+        stock_no_infos = stock_no.split('.')
+        records[i].stock_no = stock_no  #stock_no_infos[0]
+        records[i].stock_pycode = stock_no_infos[1]
 
-        records[i].volume_cos_10 = comm.cos_dist( [r.volume for r in records[i:i+5]])
-
-        #蜡烛图形态
-        candles = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
-        records[i].range_1 = candles[0]
-        records[i].range_2 = candles[1]
-        records[i].range_3 = candles[2]
-        records[i].candle_sort  = candles[4]
-        records[i].up_or_down = 2 if candles[1]>0 else 1
-
-        records[i].high_low = records[i].high - records[i].low
-        records[i].close_open = records[i].close - records[i].open 
-
-        records[i].jump_level = 0
-        if (count-i) > 1: 
-            records[i].last_close =  records[i+1].close  
-            records[i].last_acp =  records[i+1].acp  
-            records[i].open_lastclose = records[i].open - records[i].last_close  
-            records[i].jump_rate = records[i].open_lastclose / records[i].last_close  
-            records[i].jump_level = comm.get_jump_level(records[i].jump_rate)
-            records[i].price_rate = (records[i].close - records[i].last_close) / records[i].last_close  
-            records[i].high_rate = (records[i].high - records[i].last_close) / records[i].last_close  
-            records[i].low_rate = (records[i].low - records[i].last_close) / records[i].last_close  
-            records[i].hig_low_rate = records[i].high_rate - records[i].low_rate 
+        #5日内波峰波谷
+        records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
+        ##records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5) #和5得出的结论基本吻合
 
         #100天内，最高值high，最低值low分布, 日期&具体的值
         rows = sorted(records[i:i+100], cmp=lambda x,y : cmp(x.close, y.close))  
         records[i].days100_low_close = rows[0].close
         records[i].days100_low_date = rows[0].trade_date 
         records[i].days100_high_close = rows[-1].close
-        records[i].days100_high_date = rows[-1].trade_date         
-        
-        #5日内波峰波谷
-        records[i].peak_trough_5 = comm.get_peak_trough(records,count,i,3)
-        records[i].peak_trough_10 = comm.get_peak_trough(records,count,i,5) 
+        records[i].days100_high_date = rows[-1].trade_date   
 
-        # current_record = records[i]
-        # print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
-  
         #成交量
         r10 = records[i:i+10]        
         l = [r.volume for r in r10]
@@ -70,9 +44,6 @@ def process1(stock_no):
         volume_p = float(records[i].volume) / volume_avg_10  if volume_avg_10 else 0
         records[i].volume_avg_10 = volume_avg_10
         records[i].volume_level = comm.get_volume_level(volume_p)
-                   
-        records[i].trend_3 = comm.get_trend(records[i:i+3]) if count-i>2 else 0                    
-        records[i].trend_5 = comm.get_trend(records[i:i+5]) if count-i>4 else 0
 
         #移动平均线
         MAs = comm.get_ma(records,i)  
@@ -105,6 +76,42 @@ def process1(stock_no):
             ma_5_10 = 2 if ma_5>ma_10 else 1 
         records[i].ma_5_10 = ma_5_10
 
+        records[i].volume_cos_10 = comm.cos_dist( [r.volume for r in records[i:i+5]])
+
+        #蜡烛图形态
+        candles = comm.get_candle_2(records[i].open,records[i].close,records[i].high,records[i].low)
+        records[i].range_1 = candles[0]
+        records[i].range_2 = candles[1]
+        records[i].range_3 = candles[2]
+        records[i].candle_sort  = candles[4]
+        records[i].up_or_down = 2 if candles[1]>0 else 1
+
+        records[i].high_low = records[i].high - records[i].low
+        records[i].close_open = records[i].close - records[i].open 
+
+        records[i].jump_level = 0
+        if (count-i) > 1: 
+            records[i].last_close =  records[i+1].close  
+            records[i].last_acp =  records[i+1].acp  
+            records[i].open_lastclose = records[i].open - records[i].last_close  
+            records[i].jump_rate = records[i].open_lastclose / records[i].last_close  
+            records[i].jump_level = comm.get_jump_level(records[i].jump_rate)
+            records[i].price_rate = (records[i].close - records[i].last_close) / records[i].last_close  
+            records[i].high_rate = (records[i].high - records[i].last_close) / records[i].last_close  
+            records[i].low_rate = (records[i].low - records[i].last_close) / records[i].last_close  
+            records[i].hig_low_rate = records[i].high_rate - records[i].low_rate 
+
+        
+        # current_record = records[i]
+        # print '%s,%s,%s,%s' %(current_record.trade_date,current_record.close,records[i].peak_trough_5,records[i].peak_trough_10)
+  
+        
+                   
+        records[i].trend_3 = comm.get_trend(records[i:i+3]) if count-i>2 else 0                    
+        records[i].trend_5 = comm.get_trend(records[i:i+5]) if count-i>4 else 0
+
+        
+
         records[i].future1_prate = 0
         records[i].future1_range = 0
         if i>1:
@@ -130,20 +137,30 @@ def process1(stock_no):
 
         # comm.get_test(records,i)
         # datafile.gen_date_file(records[i])
-      
-    comm.fix_peak_trough(records,'peak_trough_5')
 
     datafile.save_stocks(stock_no,records)
     return records
 
 def process2(stock_no):
     records = datafile.load_stocks(stock_no)
-    count = len(records)    
+    count = len(records)        
     for i in range(0,count):
+        peaks = [r for r in records[i:] if r.peak_trough_5==2] #peak波峰         
+        troughs = [r for r in records[i:] if r.peak_trough_5==1] #trough波谷
+        if troughs and peaks:
+           records[i].peak_trough_range = 'up' if troughs[0].trade_date > peaks[0].trade_date else 'down'
+           records[i].zuli_price = peaks[0].high
+           records[i].zhicheng_price = troughs[0].low
+        else:
+            records[i].peak_trough_range='--' 
+            records[i].zuli_price = '-1'
+            records[i].zhicheng_price = '-1'
+
         records[i].ma5_trend_3 = comm.get_trend_2(records[i:i+3],'ma_5') if count-i>2 else 0                    
         records[i].ma5_trend_5 = comm.get_trend_2(records[i:i+5],'ma_5') if count-i>4 else 0
         # print '%s,%s,%s' %(records[i].ma5_trend_3,records[i].ma5_trend_5,records[i].future2_range)
     datafile.save_stocks(stock_no,records)
+    datafile.write_reports(stock_no,['trade_date','close','peak_trough_5','peak_trough_range','zuli_price','zhicheng_price'])
     return records  
 
 ##########################mapreduce#########################
@@ -238,7 +255,7 @@ def process_callback():
 
 def process(stock_no):
     print stock_no
-    process1(stock_no)
+    # process1(stock_no)
     records = process2(stock_no)
     mapfn(stock_no,records)
 
@@ -262,6 +279,8 @@ def run():
         mpPool.apply_async(process,(param,))        
     mpPool.close()
     mpPool.join()
+
+###############################
 
 def test(trade_date):
     stocks = datafile.load_date(trade_date)
@@ -395,7 +414,7 @@ if __name__ == "__main__":
     # reducefn()
     # run_test_2()
     # run_draw_1('20140304')
-    run_daily_reports()
+    # run_daily_reports()
      
     
     # trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')    
@@ -409,7 +428,7 @@ if __name__ == "__main__":
     # process1('000002.sz')
     # process1('600616.ss')
     # process1('002276.sz')
-    # process1('300023.sz')
+    process2('300023.sz')
     
     # print datafile.load_stocks('000001.sz')
 

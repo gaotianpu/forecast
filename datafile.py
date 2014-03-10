@@ -148,3 +148,18 @@ def load_date(trade_date):
     return rows
 
 #############################################
+def write_reports(stock_no,fields):
+    records = load_stocks(stock_no)
+    #需验证fields出现的字段，是否在records里出现
+    l=[]
+    for r in records:
+        l.append(','.join([ str(r[f]) for f in fields]))
+
+    lfile = '%s/reports/%s.%s.csv' % (const_root_local,stock_no,'.'.join(fields))         
+    content = '\n'.join(l)
+    with open(lfile, 'w') as file: 
+        file.write(content) 
+
+
+if __name__ == "__main__":
+    write_reports('000006.sz',['trade_date','close'])
