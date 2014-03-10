@@ -57,6 +57,7 @@ def load_stocks_rawdata(trade_date):
     with open(lfile,'rb') as f:
         reader = csv.reader(f, delimiter=',')
         for py,stock_no,openp,close,high,low,volume in reader:
+            if not int(volume): continue
             d[stock_no] = web.storage(stock_no=stock_no,open=float(openp),high=float(high),
                 low=float(low),close=float(close),volume=int(volume),)
     return d   
@@ -498,11 +499,40 @@ def tmp(stock_no):
     for r in records:
         print r.trade_date,r.close,r.volume,r.volume_cos_10
 
+def run_daily_report(trade_date):
+    d_stocks = load_stocks_rawdata(trade_date)
+    volumes = [v.volume for v in d_stocks.values()]
+    closes = [v.volume*v.close for v in d_stocks.values()]
+    opens = [v.volume*v.open for v in d_stocks.values()]
+    up_count = len([v for v in d_stocks.values() if v.close>v.open])
+    
+    volume_avg = reduce(lambda x, y: x + y, volumes) / len(volumes)
+    close_avg = reduce(lambda x, y: x + y, closes) / len(closes) / volume_avg
+    open_avg = reduce(lambda x, y: x + y, opens) / len(opens) / volume_avg
+        
+    print trade_date,close_avg,volume_avg,float(up_count)/len(volumes),open_avg
+
+    return web.storage(trade_date=trade_date,close=close_avg,volume=volume_avg,up_percent=float(up_count)/len(volumes),open=open_avg)
+
+def run_daily_reports():
+    path = "%s/daily_/"  % (const_root_local) 
+    filenames = os.listdir(path)
+    for f in filenames:
+        run_daily_report(f.split('.')[0])
+
+    # records = [run_daily_report(f.split('.')[0])  for f in filenames] #[-10:]
+    # for r in records:
+    #     print r
+
+        
+
 if __name__ == "__main__":
-    run()     
-    reducefn()
+    # run()     
+    # reducefn()
     # run_test_2()
     # run_draw_1('20140304')
+    run_daily_reports()
+     
     
     # trade_date = '2014-02-26'  #datetime.datetime.now().strftime('%Y-%m-%d')    
     

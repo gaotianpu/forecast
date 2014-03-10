@@ -184,8 +184,17 @@ def run_release():
     except Exception,ex:
         loger.error('cyb.run_chart' + str(ex))
 
+def tmp():
+    filenames = os.listdir("D:\\gaotp\\stocks\\daily\\")
+    l = [f.split('_')[0] for f in filenames]
+    trade_dates = list(set(l))
+    for date in  trade_dates:
+        merge_daily_data(date)
+    
+
 if __name__ == '__main__':
     run_release()
+    # tmp()
     # merge_daily_data('20140224')
     # merge_daily_data('20140225')
     # merge_daily_data('20140226')
