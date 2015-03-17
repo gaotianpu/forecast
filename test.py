@@ -52,15 +52,24 @@ def cos_dist(a, b):
     else:
         return part_up / part_down
 
-
+x = [59026244,212249601,76074355,67940834,79014200]
 if __name__ == '__main__':
-    d1 = (0.1, 0, 0.3)
-    d2 = (0, 0.9, 0.4)
-    q = (0, 0.8, 0.5)
-    print cos_dist(d1, d2)
-    print cos_dist(d1, q)
-    print cos_dist(d2, q)
-    # rows = get_prices(6.28,5.1)
+    d1 = (59026244,212249601,76074355,67940834,79014200)
+    d1a  = reduce(lambda x, y: x + y, d1) / len(d1)
+
+    d2 = (13909720,13969662,24662293,9156857,13934423)
+    d2a  = reduce(lambda x, y: x + y, d2) / len(d2)
+
+    q = [d1a,d1a,d1a,d1a,d1a]
+    print cos_dist(d1,[d1a,d1a,d1a,d1a,d1a])
+    print cos_dist(d2,[d2a,d2a,d2a,d2a,d2a])
+
+    # d2 = (0, 0.9, 0.4)
+    # q = (1, 2, 1)
+    # print cos_dist(d1, d2)
+    # print cos_dist(d1, q)
+    # print cos_dist(d2, q)
+    # # rows = get_prices(6.28,5.1)
     # for r in rows:
     #     print r
     # map()
