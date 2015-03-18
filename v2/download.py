@@ -1,13 +1,18 @@
 #!/usr/bin/python
+#
+# 下载历史数据download_all_history()
+# 下载最新数据 download_latest()
+# 依赖all_stocks_list.txt文本，里面存放了股票编码，每行一个，例如sh600000\r\nsz000001,
+# 需定期检查已退市股票，从该列表中移除
+#  
 import os
 import math
 import datetime
 import browser
+import config
 
 
 const_base_url="http://hq.sinajs.cn/list="
-const_root_local = "/Users/gaotianpu/Documents/stocks/"
-
 # http://hq.sinajs.cn/list=sh600000,sh600113,sz000001
 # http://table.finance.yahoo.com/table.csv?s=000001.sz
 
@@ -28,7 +33,7 @@ def load_all_stocks():
 
 def download_history(stock_no):    
     url = 'http://table.finance.yahoo.com/table.csv?s=%s' % (stock_no)     
-    lfile = '%shistory/%s.csv' %(const_root_local,stock_no)
+    lfile = '%shistory/%s.csv' %(config.local_root_dir,stock_no)
     # print url ,lfile
     try:
         browser.downad_and_save(url,lfile)
@@ -45,7 +50,7 @@ def download_latest():
 
     for i in range(0,pagecount+1):
         url = const_base_url + ','.join(params[i*pagesize:(i+1)*pagesize])
-        dir_today = '%sdaily/%s/' %(const_root_local,get_today())
+        dir_today = '%sdaily/%s/' %(config.local_root_dir,get_today())
         lfile = '%s%s.csv' %(dir_today,i)
         if not os.path.exists(dir_today):
             os.mkdir(dir_today)  
