@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import config
+import numpy
 
 def load_stock_history(stock_no):
     #return 0.Date 1.Open  2.High  3.Low   4.Close 5.Volume  6.AdjClose
@@ -12,6 +13,13 @@ def load_stock_history(stock_no):
         f.close()
         for l in lines[1:] :
             items = l.strip().split(',')
+            items[1] = float(items[1])
+            items[2] = float(items[2])
+            items[3] = float(items[3])
+            items[4] = float(items[4])
+            items[5] = int(items[5])
+            items[6] = float(items[6])
+            
             if items[5]!='000':                
                 records.append(items)            
     return records
@@ -24,15 +32,23 @@ def price_change_rate(stock_no,days):
     records = load_stock_history(stock_no)
     count = len(records)
     for i in range(0,count-days):
-        a =  float(records[i][4])
-        b =  float(records[i+days][1])        
+        a =  records[i][4]
+        b =  records[i+days][1]       
         prate = (a-b)/((a+b)/2)
         l.append((records[i][0],int(prate*100)))
         # print records[i][0],records[i][1],records[i][4],int(prate*100)
     return l
     # print float(len([i for i in l if i[1]>1]))/len(l)
+
+#统计过去一年的成交量分布情况
+def compute_Volume(stock_no,days):
+    records = load_stock_history(stock_no)
+    Volumes = [r[5] for r in records[:days]]
+    narray = numpy.array(Volumes) 
+    print narray.mean(), narray.var(), narray.std() #均值,方差,标准差
     
 
 
-if __name__ == "__main__" :    
-    price_change_rate('600000.ss',3)
+if __name__ == "__main__" : 
+    compute_Volume('600000.ss',300)   
+    # price_change_rate('600000.ss',3)
