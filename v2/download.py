@@ -1,5 +1,6 @@
 #!/usr/bin/python
-#
+# -*- coding: utf-8 -*-
+
 # 下载历史数据download_all_history()
 # 下载最新数据 download_latest()
 # 依赖all_stocks_list.txt文本，里面存放了股票编码，每行一个，例如sh600000\r\nsz000001,
@@ -48,16 +49,33 @@ def download_latest():
     params = [s[0] for s in stocks]     
     pagecount = int(math.ceil(count/pagesize))    
 
+    dir_today = '%sdaily/%s/' %(config.local_root_dir,get_today())
+
     for i in range(0,pagecount+1):
         url = const_base_url + ','.join(params[i*pagesize:(i+1)*pagesize])
-        dir_today = '%sdaily/%s/' %(config.local_root_dir,get_today())
+        
         lfile = '%s%s.csv' %(dir_today,i)
         if not os.path.exists(dir_today):
             os.mkdir(dir_today)  
         try:
-            browser.downad_and_save(url,lfile)
+           pass # browser.downad_and_save(url,lfile)
         except Exception,e:
             print str(e)
+
+    #cat file1 file2.txt > all.csv
+    #合并文件
+    all_content = ""
+    for i in range(0,pagecount+1):
+        lfile = '%s%s.csv' %(dir_today,i)
+        with open(lfile,'r') as f:
+            all_content = all_content + f.read()
+            f.close()
+
+    allfile = '%sdaily/%s.csv' %(config.local_root_dir,get_today())
+    with open(allfile,'w') as f:
+        f.write(all_content)
+        f.close()
+
         
 
 def download_all_history():
@@ -70,6 +88,7 @@ if __name__ == "__main__" :
     # download_all_history()
     # download_history('600000.ss')
     download_latest()
+
 
 
 
