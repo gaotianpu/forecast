@@ -37,7 +37,7 @@ def load_all_stocks():
 
 def download_history(stock_no):    
     url = 'http://table.finance.yahoo.com/table.csv?s=%s' % (stock_no)     
-    lfile = '%shistory/%s.csv' %(config.local_root_dir,stock_no)
+    lfile = '%s%s.csv' %(config.history_data_dir,stock_no)
     # print url ,lfile
     if os.path.exists(lfile):
         os.remove(lfile) 
