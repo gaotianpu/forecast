@@ -18,8 +18,7 @@ def load_stock_history(stock_no):
             items[3] = float(items[3])
             items[4] = float(items[4])
             items[5] = int(items[5])
-            items[6] = float(items[6])
-            
+            items[6] = float(items[6])            
             if items[5]!='000':                
                 records.append(items)            
     return records
