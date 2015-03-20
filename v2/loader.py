@@ -23,6 +23,21 @@ def load_stock_history(stock_no):
                 records.append(items)            
     return records
 
+
+def load_daily_stocks(date):       
+    lfile = '%s%s.csv' %(config.daily_data_dir,date)
+    with open(lfile,'rb') as f:
+        lines = f.readlines()        
+        f.close()
+
+    d = {} 
+    for l in lines:
+        fields=l.strip().split(',')
+        #get stock_no
+        d[fields[0]] = fields    
+    return d
+
+
 #a = today_close_price
 #b = (today-n_day)_open_price
 #经济学价格变化率：(a-b)/((a+b)/2)
@@ -49,5 +64,6 @@ def compute_Volume(stock_no,days):
 
 
 if __name__ == "__main__" : 
-    compute_Volume('600000.ss',300)   
+    load_daily_stocks('2015-03-19')
+    # compute_Volume('600000.ss',300)   
     # price_change_rate('600000.ss',3)

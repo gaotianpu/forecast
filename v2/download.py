@@ -29,8 +29,13 @@ def load_all_stocks():
     stocks = []
     with open(config.stocks_list_file,'rb') as f:
         lines = f.readlines()
-        stocks = [(s.strip(),s[2:].strip()+'.'+s[:2].replace('sh','ss'))  for s in lines]
         f.close()
+        stocks = []
+        for l in lines:
+            items = l.strip().split(',')
+            stocks.append((items[0],items[0][2:]+'.'+items[0][:2].replace('sh','ss')  ))
+            # print (items[0],items[0][2:]+'.'+items[0][:2].replace('sh','ss')  )
+        # stocks = [(s.strip(),s[2:].strip()+'.'+s[:2].replace('sh','ss'))  for s in lines]        
     return stocks
         
 
@@ -61,7 +66,7 @@ def download_latest():
     pagecount = int(math.ceil(count/pagesize))    
 
     print "download 下载文件"
-    dir_today = '%sdaily/%s/' %(config.local_root_dir,get_today())
+    dir_today = '%s%s/' %(config.daily_data_dir,get_today())
     for i in range(0,pagecount+1):
         print i
         url = const_base_url + ','.join(params[i*pagesize:(i+1)*pagesize])        
@@ -83,7 +88,7 @@ def download_latest():
             lines = lines + [tl.split('=')[1].replace('"','').replace(";","") for tl in tlines]            
             f.close()
 
-    allfile = '%sdaily/%s.csv' %(config.local_root_dir,get_today())
+    allfile = '%s%s.csv' %(config.daily_data_dir,get_today())
     with open(allfile,'w') as f:
         all_content = ''.join(lines)
         f.write(all_content)
@@ -94,9 +99,10 @@ def download_latest():
 
 
 if __name__ == "__main__" :
+    load_all_stocks()
     # download_all_history()
     # download_history('600000.ss')
-    download_latest()
+    # download_latest()
 
 
 
