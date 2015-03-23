@@ -13,6 +13,7 @@ import os
 import math
 import datetime
 import browser
+import csv
 import config
 
 
@@ -29,13 +30,10 @@ def load_all_stocks():
     stocks = []
     with open(config.stocks_list_file,'rb') as f:
         lines = f.readlines()
-        f.close()
-        stocks = []
-        for l in lines:
-            items = l.strip().split(',')
-            stocks.append((items[0],items[0][2:]+'.'+items[0][:2].replace('sh','ss')  ))
-            # print (items[0],items[0][2:]+'.'+items[0][:2].replace('sh','ss')  )
-        # stocks = [(s.strip(),s[2:].strip()+'.'+s[:2].replace('sh','ss'))  for s in lines]        
+        f.close()        
+        for l in lines:            
+            items = l.strip().strip().split(',')            
+            stocks.append((items[0],items[0][2:]+'.'+items[0][:2].replace('sh','ss') ))                
     return stocks
         
 
@@ -63,10 +61,12 @@ def download_latest():
     stocks = load_all_stocks()
     count = len(stocks)
     params = [s[0] for s in stocks]     
-    pagecount = int(math.ceil(count/pagesize))    
+    pagecount = int(math.ceil(count/pagesize)) 
 
-    print "download 下载文件"
-    dir_today = '%s%s/' %(config.daily_data_dir,get_today())
+    latest_day = get_today()
+    dir_today = '%s%s/' %(config.daily_data_dir,latest_day)   
+
+    print "download 下载文件"    
     for i in range(0,pagecount+1):
         print i
         url = const_base_url + ','.join(params[i*pagesize:(i+1)*pagesize])        
@@ -77,32 +77,33 @@ def download_latest():
             browser.downad_and_save(url,lfile)
         except Exception,e:
             print str(e)
-    
+
     print "merge 合并文件"
     #cat file1 file2.txt > all.csv, 可以采用linux shell方式处理，似乎更好些？
     lines = []
-    for i in range(0,pagecount+1):
-        lfile = '%s%s.csv' %(dir_today,i)
+    for f in  os.listdir(dir_today): # range(0,pagecount+1):
+        lfile = '%s%s' %(dir_today,f)
         with open(lfile,'r') as f:
             tlines = f.readlines()            
-            lines = lines + [tl.split('=')[1].replace('"','').replace(";","") for tl in tlines]            
+            for tl in tlines:                
+                items = tl.split('=') 
+                nline = items[0].split('_')[-1] +','+items[1].replace('"','').replace(";","")           
+                lines.append(nline)          
             f.close()
 
-    allfile = '%s%s.csv' %(config.daily_data_dir,get_today())
+    allfile = '%s%s.csv' %(config.daily_data_dir,latest_day)
     with open(allfile,'w') as f:
         all_content = ''.join(lines)
         f.write(all_content)
         f.close()
 
-        
 
-
-
-if __name__ == "__main__" :
-    load_all_stocks()
+if __name__ == "__main__" :  
+    # load_all_stocks()
     # download_all_history()
     # download_history('600000.ss')
-    # download_latest()
+    download_latest()
+    # merge_latest()
 
 
 
