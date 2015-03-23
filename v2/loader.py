@@ -33,6 +33,7 @@ def load_daily_stocks(date):
     d = {} 
     for l in lines:
         fields=l.strip().split(',')
+        print fields
         #get stock_no
         d[fields[0]] = fields    
     return d
@@ -64,6 +65,6 @@ def compute_Volume(stock_no,days):
 
 
 if __name__ == "__main__" : 
-    load_daily_stocks('2015-03-19')
+    load_daily_stocks('2015-03-23')
     # compute_Volume('600000.ss',300)   
     # price_change_rate('600000.ss',3)
