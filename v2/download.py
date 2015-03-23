@@ -67,16 +67,16 @@ def download_latest():
     dir_today = '%s%s/' %(config.daily_data_dir,latest_day)   
 
     print "download 下载文件"    
-    # for i in range(0,pagecount+1):
-    #     print i
-    #     url = const_base_url + ','.join(params[i*pagesize:(i+1)*pagesize])        
-    #     lfile = '%s%s.csv' %(dir_today,i)
-    #     if not os.path.exists(dir_today):
-    #         os.mkdir(dir_today)  
-    #     try:
-    #         browser.downad_and_save(url,lfile)
-    #     except Exception,e:
-    #         print str(e)
+    for i in range(0,pagecount+1):
+        print i
+        url = const_base_url + ','.join(params[i*pagesize:(i+1)*pagesize])        
+        lfile = '%s%s.csv' %(dir_today,i)
+        if not os.path.exists(dir_today):
+            os.mkdir(dir_today)  
+        try:
+            browser.downad_and_save(url,lfile)
+        except Exception,e:
+            print str(e)
 
     print "merge 合并文件"
     #cat file1 file2.txt > all.csv, 可以采用linux shell方式处理，似乎更好些？
