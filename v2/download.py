@@ -21,10 +21,7 @@ const_base_url="http://hq.sinajs.cn/list="
 # http://hq.sinajs.cn/list=sh600000,sh600113,sz000001
 # http://table.finance.yahoo.com/table.csv?s=000001.sz
 
-def get_today():
-    today = datetime.datetime.now()
-    trade_date = today.strftime('%Y-%m-%d')
-    return trade_date
+
 
 def load_all_stocks():
     stocks = []
@@ -73,7 +70,7 @@ def download_latest():
     params = [s[0] for s in stocks]     
     pagecount = int(math.ceil(count/pagesize)) 
 
-    latest_day = get_today()
+    latest_day = config.get_today()
     dir_today = '%s%s/' %(config.daily_data_dir,latest_day)   
 
     print "download 下载文件"    
@@ -98,13 +95,17 @@ def download_latest():
             for tl in tlines: 
                 if  int(tl.split(',')[8])==0: continue                
                 items = tl.split('=') 
-                nline = items[0].split('_')[-1] +','+items[1].replace('"','').replace(";","")           
+                stock_no = items[0].split('_')[-1]
+                stock_fields_str = items[1].replace('"','').replace(";","")
+                x = stock_fields_str.split(',')
+                nline = ','.join([stock_no,x[1],x[2],x[3],x[4],x[5],x[8],x[9],x[30],x[31]])
+                # nline = stock_no +','+ stock_fields_str          
                 lines.append(nline)          
             f.close()
 
     allfile = '%s%s.csv' %(config.daily_data_dir,latest_day)
     with open(allfile,'w') as f:
-        all_content = ''.join(lines)
+        all_content = '\n'.join(lines)
         f.write(all_content)
         f.close()
 
