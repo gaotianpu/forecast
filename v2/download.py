@@ -40,16 +40,18 @@ def download_history(stock_no):
     lfile = '%s%s.csv' %(config.history_data_dir,stock_no)
     # print url ,lfile     
     try:
-        if os.path.exists(lfile):
-            os.remove(lfile)
-        browser.downad_and_save(url,lfile)
+        # if os.path.exists(lfile):
+        #     os.remove(lfile)
+        if not os.path.exists(lfile):
+            print stock_no
+            browser.downad_and_save(url,lfile)
     except Exception,e:
         print str(e) 
 
 
 def download_all_history():
     stocks = load_all_stocks()
-    for stock in stocks:
+    for stock in stocks:        
         download_history(stock[1])
 
 # note: http://blog.csdn.net/simon803/article/details/7784682
@@ -112,9 +114,9 @@ def download_latest():
 
 if __name__ == "__main__" :  
     # load_all_stocks()
-    # download_all_history()
+    download_all_history()
     # download_history('600000.ss')
-    download_latest()
+    # download_latest()
     # merge_latest()
 
 

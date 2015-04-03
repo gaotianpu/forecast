@@ -8,6 +8,8 @@ import config
 def load_stock_history(stock_no):    
     records = []
     lfile = '%s%s.csv' %(config.history_data_dir,stock_no)
+    if not os.path.exists(lfile):
+        return records
     with open(lfile,'rb') as f:
         lines = f.readlines()        
         f.close()
@@ -62,26 +64,47 @@ def price_change_rate(stock_no,days):
     records = load_stock_history(stock_no)
     count = len(records)
     for i in range(0,count-days):
-        a =  records[i][4]
-        b =  records[i+days][1]       
+        a =  records[i].close
+        b =  records[i+days].open       
         prate = (a-b)/((a+b)/2)
-        l.append((records[i][0],int(prate*100)))
-        # print records[i][0],records[i][1],records[i][4],int(prate*100)
+        l.append( ';'.join([records[i].date,str(records[i].close),str(int(prate*1000))]) ) 
+    
+    lfile="%s%s.csv"%(config.history_price_change_rate_dir,stock_no)
+    content = '\n'.join(l)
+    with open(lfile,'w') as f:
+        f.write(content)
+        f.close()
+
     return l
     # print float(len([i for i in l if i[1]>1]))/len(l)
+
+def all_price_change_rate():
+    stocks = download.load_all_stocks()
+    for s in stocks:
+        print s
+        price_change_rate(s[1],3)
 
 #统计过去days天的成交量分布情况
 def compute_Volume(stock_no,days):
     records = load_stock_history(stock_no)
-    Volumes = [r[5] for r in records[:days]]
+    Volumes = [r.volume for r in records[:days]]
     narray = numpy.array(Volumes) 
-    print narray.mean(), narray.var(),narray.std() #均值,方差,标准差
+    print stock_no,narray.mean(),narray.var(),narray.std() #均值,方差,标准差
+
+import download
+def all_volume():
+    l = []
+    stocks = download.load_all_stocks()
+    for s in stocks:
+        item = compute_Volume(s[1],300)
+
+         
     
-
-
-if __name__ == "__main__" : 
+if __name__ == "__main__" :      
     # load_stock_history('600000.ss')
-    load_daily_stocks('2015-03-23')
-    # compute_Volume('600000.ss',300)   
+    # load_daily_stocks('2015-03-23')    
     # price_change_rate('600000.ss',3)
+    all_price_change_rate()
+    # compute_Volume('600000.ss',300)   
+    # all_volume()
 
