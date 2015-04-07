@@ -63,33 +63,53 @@ def price_change_rate(stock_no,days):
     l = []
     records = load_stock_history(stock_no)
     count = len(records)
-    for i in range(0,count-days):
+    # print count
+
+    rates = []
+    x = 300 if count>300+days else count-days
+    for i in range(0,x):
         a =  records[i].close
         b =  records[i+days].open       
         prate = (a-b)/((a+b)/2)
         l.append( ';'.join([records[i].date,str(records[i].close),str(int(prate*1000))]) ) 
+        rates.append(int(prate*1000))
     
     lfile="%s%s.csv"%(config.history_price_change_rate_dir,stock_no)
     content = '\n'.join(l)
-    with open(lfile,'w') as f:
-        f.write(content)
-        f.close()
+    # with open(lfile,'w') as f:
+    #     f.write(content)
+    #     f.close()
 
-    return l
+    narray = numpy.array(rates) 
+    mean = narray.mean()
+    std = narray.std()
+    count = len([r for r in rates if r > mean ])
+    # len([r for r in ])
+    print stock_no,mean,std,count,len(rates) #均值,标准差
+
+    return rates
     # print float(len([i for i in l if i[1]>1]))/len(l)
 
 def all_price_change_rate():
     stocks = download.load_all_stocks()
-    for s in stocks:
-        print s
-        price_change_rate(s[1],3)
+    for s in stocks:        
+        rates = price_change_rate(s[1],3)
+        # narray = numpy.array(rates) 
+        # mean = narray.mean()
+        # std = narray.std()
+        # # len([r for r in ])
+        # print s[1],mean,std #均值,标准差
 
 #统计过去days天的成交量分布情况
 def compute_Volume(stock_no,days):
     records = load_stock_history(stock_no)
     Volumes = [r.volume for r in records[:days]]
     narray = numpy.array(Volumes) 
-    print stock_no,narray.mean(),narray.var(),narray.std() #均值,方差,标准差
+    mean = narray.mean()
+    std = narray.std()
+    count = len([r for r in Volumes if r > mean ])
+    # print s[1],mean,std #均值,标准差
+    print stock_no,mean,std,count,len(Volumes) # narray.std() #均值,标准差 narray.var()方差,
 
 import download
 def all_volume():
