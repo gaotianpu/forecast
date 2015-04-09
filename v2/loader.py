@@ -19,7 +19,7 @@ def load_stock_history(stock_no):
             #0.Date 1.Open  2.High  3.Low   4.Close 5.Volume  6.AdjClose
             r = web.storage(date=items[0],open=float(items[1]),high=float(items[2]),
                 low=float(items[3]),close=float(items[4]),
-                volume=float(items[5]),adjclose=float(items[6]))                                        
+                volume=float(items[5]),adjclose=float(items[6]),amount=0,last_close=0)                                        
             records.append(r)            
     return records
 
@@ -33,7 +33,7 @@ def load_daily_stocks(date):
     d = {} 
     for l in lines:
         items=l.strip().split(',')        
-        r = web.storage(
+        r = web.storage(            
             open=float(items[1]),
             last_close=float(items[2]),
             close=float(items[3]),
@@ -45,6 +45,30 @@ def load_daily_stocks(date):
             time=items[9])   
         d[items[0]] = r    
     return d
+
+def merge_history_and_today(date):
+    days = 100
+    stocks = load_daily_stocks(date)
+    for k,v in stocks.items():
+        stock_no = k[2:]+'.'+k[:2].replace('sh','ss')         
+
+        records = load_stock_history(stock_no)
+        records.insert(0,v)  #去重？
+        last_days = records[:days]
+ 
+        #write to file
+        lfile="%s%s.csv"%(config.latest_data_dir,stock_no)
+        if os.path.exists(lfile):
+            os.remove(lfile)
+
+        content = '\n'.join( ["%s,%s,%s,%s,%s,%s,%s,%s"%(r.date,str(r.open), str(r.last_close),
+            str(r.close),str(r.high),str(r.low),str(r.volume),str(r.amount)) for r in last_days]  )
+        with open(lfile,'w') as f:
+            f.write(content)
+            f.close()
+
+        break
+
 
 # 1：”27.55″，今日开盘价；
 # 2：”27.25″，昨日收盘价；
@@ -124,7 +148,8 @@ if __name__ == "__main__" :
     # load_stock_history('600000.ss')
     # load_daily_stocks('2015-03-23')    
     # price_change_rate('600000.ss',3)
-    all_price_change_rate()
+    # all_price_change_rate()
+    merge_history_and_today('2015-04-07')
     # compute_Volume('600000.ss',300)   
     # all_volume()
 

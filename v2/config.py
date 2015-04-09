@@ -10,6 +10,7 @@ history_data_dir = local_root_dir + "history/"  #单只stock历史数据存放�
 daily_data_dir = local_root_dir + "daily/" #每天所有stocks数据存放目录
 
 history_price_change_rate_dir = local_root_dir + "history_price_change_rate/" #每天所有stocks数据存放目录
+latest_data_dir = local_root_dir + "latest/" #
 
 def get_today():
     today = datetime.datetime.now()
