@@ -14,8 +14,8 @@ def send(title,body):
     msg = MIMEMultipart()  
     msg['From'] = config.smtp_from 
     msg['To'] =  ','.join(config.smtp_mailto)  
-    msg['Subject'] = title  
-    msg.attach(MIMEText( body ) )   
+    msg['Subject'] = title      
+    msg.attach(MIMEText( body,'html' ) )   
 
     s.sendmail(config.smtp_from,config.smtp_mailto,msg.as_string())  
     s.quit()  

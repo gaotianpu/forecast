@@ -4,6 +4,7 @@ import os
 import numpy
 import web
 import config
+import mailer
 
 def load_stock_history(stock_no):    
     records = []
@@ -85,12 +86,16 @@ def load_daily_stocks_v2(date):
 
         li.append(r)
 
-    tmp = [i for i in li if i.jump<0 and prate>0]
-    tmp.sort(key=lambda x:x.jump)  #低开|低走|高走  
-    print len(tmp)
-    for t in tmp:
-        print t
-        break
+    tmp = [i for i in li if i.jump<0 and i.prate>0]
+    tmp.sort(key=lambda x:x.jump)  #低开|低走|高走
+    print len(tmp), tmp[0].date,tmp[0].time,
+    c = '<br>'.join( ["%s,%s,%s" %(i.stock_no[2:],i.jump,i.prate)  for i in tmp[0:10]])
+    mailer.send('d_%s_%s'%(tmp[0].date,tmp[0].time), c  )
+
+    # print len(tmp)
+    # for t in tmp:
+    #     print t
+    #     break
          
     
 
