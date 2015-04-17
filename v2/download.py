@@ -15,6 +15,7 @@ import datetime
 import browser
 import csv
 import config
+import util
 
 
 const_base_url="http://hq.sinajs.cn/list="
@@ -66,7 +67,9 @@ def download_all_history():
 # 30：”2008-01-11″，日期；
 # 31：”15:05:32″，时间；
 def download_latest():
-    latest_day = config.get_today()
+    if datetime.datetime.today().weekday() not in [0,1,2,3,4]: return 
+
+    latest_day = util.get_today()
     re_download = True
 
     pagesize = 88
@@ -106,25 +109,26 @@ def download_latest():
                 stock_fields_str = items[1].replace('"','').replace(";","")
                 x = stock_fields_str.split(',')
                 
-                # #compute
-                # o = float(x[1]) #open
-                # lc = float(x[2]) #last close
-                # c = float(x[3]) #current price equal close
-                # h = float(x[4]) #high
-                # l = float(x[5]) #low 
-                # prate = (c-o)/o #计算涨幅
-                # jump = (o-lc)/lc #是否跳空 (今开 - 昨收) / 昨收
-                # maxp = (h-l)/o #蜡烛图的形态，high-low
+                #compute
+                o = float(x[1]) #open
+                lc = float(x[2]) #last close
+                c = float(x[3]) #current price equal close
+                h = float(x[4]) #high
+                l = float(x[5]) #low 
+                prate = (c-o)/o #计算涨幅
+                jump = (o-lc)/lc #是否跳空 (今开 - 昨收) / 昨收
+                maxp = (h-l)/o #蜡烛图的形态，high-low
 
-                nline = ','.join([stock_no,x[1],x[2],x[3],x[4],x[5],x[8],x[9],x[30],x[31]]) #,str(prate),str(jump),str(maxp)
-                # nline = stock_no +','+ stock_fields_str          
+                nline = ','.join([stock_no,x[1],x[2],x[3],x[4],x[5],x[8],x[9],x[30],x[31],str(prate),str(jump),str(maxp)]) #                          
                 lines.append(nline)          
+                
             f.close()
 
     current_hour = datetime.datetime.now().hour
     allfile = '%s%s.csv' %(config.daily_data_dir,latest_day) 
     if current_hour < 13 :
         allfile = '%s%s.am.csv' %(config.daily_data_dir,latest_day)
+
     with open(allfile,'w') as f:
         all_content = '\n'.join(lines)
         f.write(all_content)

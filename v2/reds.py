@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import redis
 import config
+import util
 import loader
 # 使用redis,把每日获取的每个股票，分拆到各股票中 
 # 
@@ -28,7 +29,7 @@ def push_records(day):
 
 
 if __name__ == "__main__":
-    latest_day = config.get_today()
+    latest_day = util.get_today()
     # push_history('600000.ss')
 
     print red.lrange('sh600000',0,10)

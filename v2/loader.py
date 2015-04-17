@@ -49,53 +49,7 @@ def load_daily_stocks(date):
     return d
 
 
-def load_daily_stocks_v2(date):       
-    lfile = '%s%s.csv' %(config.daily_data_dir,date)
-    with open(lfile,'rb') as f:
-        lines = f.readlines()        
-        f.close()
 
-        
-    li = []
-    for l in lines:
-        x=l.strip().split(',')         
-        #compute
-        o = float(x[1]) #open
-        lc = float(x[2]) #last close
-        c = float(x[3]) #current price equal close
-        h = float(x[4]) #high
-        l = float(x[5]) #low 
-        prate = (c-o)/o #计算涨幅
-        jump = (o-lc)/lc #是否跳空 (今开 - 昨收) / 昨收
-        maxp = (h-l)/o #蜡烛图的形态，high-low
-
-        r = web.storage(
-            stock_no = x[0],            
-            open= o,
-            last_close= lc,
-            close= c ,
-            high= h,
-            low= l,
-            volume=int(x[6]),
-            amount=float(x[7]),
-            date=x[8],                
-            time=x[9],
-            jump= jump,
-            prate = prate,
-            maxp = prate)  
-
-        li.append(r)
-
-    tmp = [i for i in li if i.jump<0 and i.prate>0]
-    tmp.sort(key=lambda x:x.jump)  #低开|低走|高走
-    print len(tmp), tmp[0].date,tmp[0].time,
-    c = '<br>'.join( ["%s,%s,%s" %(i.stock_no[2:],i.jump,i.prate)  for i in tmp[0:10]])
-    mailer.send('d_%s_%s'%(tmp[0].date,tmp[0].time), c  )
-
-    # print len(tmp)
-    # for t in tmp:
-    #     print t
-    #     break
          
     
 
