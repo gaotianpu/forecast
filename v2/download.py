@@ -67,7 +67,7 @@ def download_all_history():
 # 30：”2008-01-11″，日期；
 # 31：”15:05:32″，时间；
 def download_latest():
-    if datetime.datetime.today().weekday() not in [0,1,2,3,4]: return 
+    if not util.is_trade_day(): return 
 
     latest_day = util.get_today()
     re_download = True
