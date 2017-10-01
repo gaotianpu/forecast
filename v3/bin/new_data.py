@@ -17,6 +17,8 @@ home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
                         os.path.pardir)
 sys.path.append(home_dir + "/conf")
 import conf
+import setting
+
 
 
 NEW_DATA_URL = 'http://api.money.126.net/data/feed/%s,money.api?callback=_ntes_quote_callback_%s'
@@ -32,7 +34,7 @@ FIELDS_MAP = {
 
     'stock_no': 'symbol',
     'open': 'open',
-    'close': 'price',
+    'close': 'price', #当前价格
     'high': 'high',
     'low': 'low',
     'last_close': 'yestclose',  # 前收盘价
@@ -45,11 +47,6 @@ FIELDS_MAP = {
     # 'm_cap':'', #流通市值
 
 }
-
-FIELDS_SORT = ("trade_date,trade_time,stock_no,stock_exchange,open,close,high,low,last_close,"
-               "CHG,PCHG,turn_over,vo_turn_over,va_turn_over,t_cap,m_cap,create_time,update_time"
-               )
-
 
 def get_stock_no(stock):
     """转换exchange,公共方法？"""
@@ -66,11 +63,11 @@ def download(stocks, offset):
     file_local = "%s/%s.csv" % (conf.HISTORY_DATA_PATH, offset)
 
     if not (os.path.isfile(file_local) and os.path.getsize(file_local) != 0):
-        os.system("wget -q '%s' -O %s" % (source_url, file_local))
+        os.system("wget -q '%s' -O %s" % (source_url, file_local)) 
 
-    print source_url
-    return load_local(file_local)
-    # _ntes_quote_callback_3000(  )
+    # print source_url
+    # sys.stderr.write(source_url)
+    return load_local(file_local) 
 
 
 def load_local(file_local):
@@ -90,7 +87,7 @@ def convert_csv(stocks):
         for k, v in FIELDS_MAP.items():
             info[k] = trade[v] if v in trade else 0
 
-        info['stock_exchange'] = common.get_stock_exchange(info['stock_no'])
+        info['stock_exchange'] = common.get_stock_exchange(str(info['stock_no']))
 
         # trade['time'] 2017/09/29 15:59:43
         dt_time = datetime.datetime.strptime(
@@ -105,7 +102,7 @@ def convert_csv(stocks):
         info['update_time'] = int(time.mktime(dt_update.timetuple()))
 
         li = []
-        fields = FIELDS_SORT.split(',')
+        fields = setting.FIELDS_SORT.split(',')
         for field in fields:
             li.append( str(info[field]) if field in info else '0' )
 

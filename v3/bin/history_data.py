@@ -8,12 +8,15 @@ import os
 import sys
 import datetime
 import time
+
+import stock_meta
+import common
+
 home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
                         os.path.pardir)
 sys.path.append(home_dir + "/conf")
 import conf
-import stock_meta
-import common
+import setting
 
 # 历史数据源
 HISTORY_DATA_URL = 'http://quotes.money.163.com/service/chddata.html?code={code}&start={start}&end={end}&fields={fields}'
@@ -62,25 +65,52 @@ def load_all(file_path):
                 yield line.strip().split(',')
 
 
-
-
-
 def convert_item(row):
     """每行的数据转换"""
-    li = []
-    li.append(row[0].replace('-', ''))  # trade_date
-    li.append(1)  # trade_time
     stock_no = row[1].replace("'", '')
-    stock_exchange = common.get_stock_exchange(stock_no)
+    info = {
+        'trade_date': row[0].replace('-', ''),
+        'trade_time': 1,
+        'stock_exchange': common.get_stock_exchange(stock_no),
+        'stock_no': stock_no,
+        'close': row[3],  # 当前价格
+        'high': row[4],
+        'low': row[5],
+        'open': row[6],
+        'last_close': row[7],  # 前收盘价
+        'CHG': row[8],  # 涨跌额，收盘价-前收盘价
+        'PCHG': row[9],  # 涨跌幅，(收盘价-前收盘价)/前收盘价
+        'turn_over': row[10],  # 换手率
+        'vo_turn_over': row[11],  # 成交量
+        'va_turn_over': row[12],  # 成交金额
+        't_cap': row[13],  # 总市值
+        'm_cap': row[14],  # 流通市值
+        'create_time': int(time.time()),
+        'update_time': int(time.time())
+    }
 
-    li.append(stock_no)  # stock_no
-    li.append(stock_exchange)  # stock_no
+    li = []
+    fields = setting.FIELDS_SORT.split(',')
+    for field in fields:
+        li.append(str(info[field]) if field in info else '0')
 
-    li.extend(row[3:])
-    li.append(int(time.time()))  # create_time
-    li.append(int(time.time()))  # update_time
+    print ','.join(li)
+    # return
 
-    print ','.join([str(x) for x in li])
+    # li = []
+    # li.append(row[0].replace('-', ''))  # trade_date
+    # li.append(1)  # trade_time
+    # stock_no = row[1].replace("'", '')
+    # stock_exchange = common.get_stock_exchange(stock_no)
+
+    # li.append(stock_no)  # stock_no
+    # li.append(stock_exchange)  # stock_no
+
+    # li.extend(row[3:])
+    # li.append(int(time.time()))  # create_time
+    # li.append(int(time.time()))  # update_time
+
+    # print ','.join([str(x) for x in li])
 
     # return ','.join([str(x) for x in li])+'\n'
 
@@ -90,9 +120,9 @@ def convert(stock_info):
     {'stock_no': '300706', 
     'start': '20170926', 
     'file_local': '/Users/baidu/Documents/Github/forecast/v3/conf/../data/history/300706.csv', 
-    'source_url': ' """ 
+    'source_url': ' """
     rows = load_all(stock_info['file_local'])
-    lines = map(convert_item, rows) 
+    lines = map(convert_item, rows)
 
     file_local = "%s/convert_%s.csv" % (conf.HISTORY_DATA_PATH,
                                         stock_info['stock_no'])
@@ -108,9 +138,9 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+
     #  convert(
     #     {'file_local': '/Users/baidu/Documents/Github/forecast/v3/data/history/300706.csv',
     #      'stock_no': '300706'})
-    
+
     # download('300184')

@@ -37,9 +37,12 @@ function create_db_schema(){
 function main(){
     create_db_schema 
 
-    time $PROJECT_ROOT/bin/history_data.py > $HISTORY_DATA_PATH/all.csv 
+    echo "convert"
+    # time $PROJECT_ROOT/bin/history_data.py > $HISTORY_DATA_PATH/all.csv 
+    
+    echo "import"
+    time sqlite3 $SQLITE3_DB_FILE -separator ',' "delete from stocks_trade_records" 
     time sqlite3 $SQLITE3_DB_FILE -separator ',' ".import $HISTORY_DATA_PATH/all.csv stocks_trade_records" 
 }
 
-main "$@"  
-
+main "$@"   
