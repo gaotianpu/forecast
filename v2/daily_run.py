@@ -11,7 +11,7 @@ import download
 
 
 def load_daily_stocks(date):       
-    lfile = '%s%s.csv' %(config.daily_data_dir,date)
+    lfile = '%s%s.am.csv' %(config.daily_data_dir,date)
     with open(lfile,'rb') as f:
         lines = f.readlines()        
         f.close() 
@@ -89,8 +89,7 @@ def tmp(date):
     #     break
 
 
-def jump_p(date):
-    li =  load_daily_stocks(date)
+def jump_p(li):    
     li_jump_1 = [i for i in li if i.jump>0]
     
 
@@ -124,7 +123,7 @@ def jump_p(date):
 
     ht = t(data)
 
-    li_jump_1 = [r for r in li_jump_1 if r.jump<9]
+    li_jump_1 = [r for r in li_jump_1 if r.low<r.open and r.close > r.open and  r.jump<9]
     li_jump_1.sort(key=lambda x:x.jump,reverse=True)
     str_list =  '<br/>'.join(['<a href="https://www.baidu.com/s?wd=%s" target="_blank">%s</a> , %s%%' % (x.stock_no[2:],x.stock_no[2:],'%0.2f'%x.jump)  for x in li_jump_1])
 
@@ -132,7 +131,7 @@ def jump_p(date):
 
     # print html
 
-    # mailer.send('d_%s_%s'%(li[0].date,li[0].time), html)
+    mailer.send('d_%s_%s'%(li[0].date,li[0].time), html)
 
     
           
@@ -141,7 +140,8 @@ def run():
     if not util.is_trade_day():return 
     download.download_latest()
     latest_day = util.get_today()
-    jump_p(latest_day)
+    li =  load_daily_stocks(latest_day)
+    jump_p(li)
 
 
 if __name__ == "__main__" : 

@@ -124,8 +124,9 @@ def download_latest():
                 
             f.close()
 
-    current_hour = datetime.datetime.now().hour
+    
     allfile = '%s%s.csv' %(config.daily_data_dir,latest_day) 
+    current_hour = datetime.datetime.now().hour
     if current_hour < 13 :
         allfile = '%s%s.am.csv' %(config.daily_data_dir,latest_day)
 
