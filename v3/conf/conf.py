@@ -9,4 +9,6 @@ home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
 
 DATA_ROOT = home_dir + '/data'
 HISTORY_DATA_PATH = DATA_ROOT + '/history'
+NEW_DATA_PATH = DATA_ROOT + '/new'
+
 ALL_STOCKS_FILE = DATA_ROOT + '/all_stocks.csv'
