@@ -11,4 +11,5 @@ DATA_ROOT = home_dir + '/data'
 HISTORY_DATA_PATH = DATA_ROOT + '/history'
 NEW_DATA_PATH = DATA_ROOT + '/new'
 
+
 ALL_STOCKS_FILE = home_dir + '/all_stocks.csv'

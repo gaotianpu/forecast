@@ -4,7 +4,7 @@
 配置信息
 """
 
-FIELDS_SORT = ("trade_date,trade_time,stock_no,stock_exchange,open,close,high,low,last_close,"
+FIELDS_SORT = ("id,trade_date,trade_time,stock_no,stock_exchange,open,close,high,low,last_close,"
                "CHG,PCHG,turn_over,vo_turn_over,va_turn_over,t_cap,m_cap,create_time,update_time"
                )
 

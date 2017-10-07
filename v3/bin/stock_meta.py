@@ -13,7 +13,7 @@ sys.path.append(home_dir + "/conf")
 import conf
 
 
-def load_all():
+def load_all(): 
     with open(conf.ALL_STOCKS_FILE) as f:
         rows = csv.DictReader(f)
         for row in rows:
@@ -25,7 +25,7 @@ def p(x):
 
 
 def main():
-    map(p, load_all_stocks())
+    map(p, load_all())
     # map(lambda x: print (x), load()) #error ?
 
 

@@ -56,20 +56,13 @@ def download(stock_info):
     return stock_info
 
 
-def load_all(file_path):
-    """读取本地数据 公共方法？"""
-    with open(file_path) as f:
-        # rows = csv.DictReader(f)
-        for i, line in enumerate(f):
-            if i != 0:
-                yield line.strip().split(',')
-
-
 def convert_item(row):
     """每行的数据转换"""
+    trade_date = row[0].replace('-', '')
     stock_no = row[1].replace("'", '')
-    info = {
-        'trade_date': row[0].replace('-', ''),
+
+    info = {'id': trade_date + "1" + stock_no,
+        'trade_date': trade_date,
         'trade_time': 1,
         'stock_exchange': common.get_stock_exchange(stock_no),
         'stock_no': stock_no,
@@ -94,25 +87,8 @@ def convert_item(row):
     for field in fields:
         li.append(str(info[field]) if field in info else '0')
 
-    print ','.join(li)
-    # return
-
-    # li = []
-    # li.append(row[0].replace('-', ''))  # trade_date
-    # li.append(1)  # trade_time
-    # stock_no = row[1].replace("'", '')
-    # stock_exchange = common.get_stock_exchange(stock_no)
-
-    # li.append(stock_no)  # stock_no
-    # li.append(stock_exchange)  # stock_no
-
-    # li.extend(row[3:])
-    # li.append(int(time.time()))  # create_time
-    # li.append(int(time.time()))  # update_time
-
-    # print ','.join([str(x) for x in li])
-
-    # return ','.join([str(x) for x in li])+'\n'
+    print ','.join(li) 
+    return ','.join(li) + '\n'
 
 
 def convert(stock_info):
@@ -121,13 +97,16 @@ def convert(stock_info):
     'start': '20170926', 
     'file_local': '/Users/baidu/Documents/Github/forecast/v3/conf/../data/history/300706.csv', 
     'source_url': ' """
-    rows = load_all(stock_info['file_local'])
+    rows = common.load_all(stock_info['file_local'])
     lines = map(convert_item, rows)
 
     file_local = "%s/convert_%s.csv" % (conf.HISTORY_DATA_PATH,
                                         stock_info['stock_no'])
-    # with open(file_local, 'w') as f:
-    #     f.writelines(lines)
+    with open(file_local, 'w') as f:
+        f.writelines(lines)
+    stock_info['convert_file'] = file_local
+
+    return stock_info
 
 
 def main():
@@ -137,10 +116,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-
-    #  convert(
-    #     {'file_local': '/Users/baidu/Documents/Github/forecast/v3/data/history/300706.csv',
-    #      'stock_no': '300706'})
-
-    # download('300184')
+    main() 

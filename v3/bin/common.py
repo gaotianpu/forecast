@@ -8,12 +8,6 @@ import os
 import sys
 import datetime
 import time
-home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
-                        os.path.pardir)
-sys.path.append(home_dir + "/conf")
-import conf
-import stock_meta
-
 
 def get_stock_exchange(stock_no):
     """转换exchange,公共方法？"""
@@ -24,3 +18,11 @@ def get_stock_exchange(stock_no):
     if stock_no.startswith('6'):
         return 6
     return 9  # 未知
+
+
+def load_all(file_path):
+    """读取本地数据 公共方法？"""
+    with open(file_path) as f: 
+        for i, line in enumerate(f):
+            if i != 0:
+                yield line.strip().split(',')
