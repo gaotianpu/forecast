@@ -19,6 +19,14 @@ def load_all():
         for row in rows:
             yield row
 
+# def load_from_db():
+#     pass 
+
+# def load_from_file():
+#     with open(conf.ALL_STOCKS_FILE) as f:
+#         rows = csv.DictReader(f)
+#         for row in rows:
+#             yield row 
 
 def p(x):
     print x
