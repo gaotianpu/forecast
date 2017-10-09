@@ -6,6 +6,26 @@ PROJECT_ROOT=$(cd "$(dirname "$0")"; cd ..; pwd)
 source $PROJECT_ROOT/conf/conf.sh
 
 #######################################
+# 创建目录
+# Globals:
+#   DATA_ROOT 
+#   HISTORY_DATA_PATH
+#   STAT_DATA_PATH
+# Arguments:
+#   None
+# Returns:
+#   None
+####################################### 
+function make_dirs(){
+    for path in $DATA_ROOT $HISTORY_DATA_PATH $HISTORY_CONVERTED_PATH $STAT_DATA_PATH
+    do 
+        if [ ! -d $path ];then
+            mkdir $path 
+        fi  
+    done 
+}
+
+#######################################
 # 初始化SQLite
 # Globals:
 #   PROJECT_ROOT 
@@ -43,17 +63,24 @@ function make_lable(){
 #   None
 ####################################### 
 function main(){
-    create_db_schema 
+    make_dirs 
+    create_db_schema   
 
-    echo "import stocks" 
-    time sqlite3 $SQLITE3_DB_FILE -separator ',' ".import $ALL_STOCKS_FILE stocks" 
-
-    echo "convert trade records"
-    time $PROJECT_ROOT/bin/history_data.py > $HISTORY_DATA_PATH/all.csv  || exit 
+    echo "import stocks"  
+    grep -v 'stock_no' $ALL_STOCKS_FILE > $ALL_STOCKS_WITHOUT_HEADER_FILE     
+    time sqlite3  -separator ',' -header $SQLITE3_DB_FILE ".import $ALL_STOCKS_WITHOUT_HEADER_FILE stocks" 
     
-    echo "import stocks trade records"
-    time sqlite3 $SQLITE3_DB_FILE -separator ',' "delete from stocks_trade_records"  || exit 
-    time sqlite3 $SQLITE3_DB_FILE -separator ',' ".import $HISTORY_DATA_PATH/all.csv stocks_trade_records" || exit 
+
+    echo "convert trade records" 
+    if [ ! -f $ALL_HISTORY_FILE ];then
+        time $PROJECT_ROOT/bin/history_data.py || exit  # > $HISTORY_DATA_PATH/all.csv  || exit 
+        time cat $HISTORY_CONVERTED_PATH/* > $ALL_HISTORY_FILE 
+    fi 
+
+    echo "import stocks trade records" 
+    time sqlite3  -separator ',' $SQLITE3_DB_FILE  ".import $HISTORY_DATA_PATH/all.csv stocks_trade_records" || exit 
+
+    return 
 
     make_lable 1 
     make_lable 2
@@ -62,3 +89,8 @@ function main(){
 
 
 main "$@"   
+
+
+# notes
+# sqlite3: Error: too many options: "," 解决办法： -separator ',' 放置在dbfile前  
+# sqlite导入Csv时，忽略标题行？
