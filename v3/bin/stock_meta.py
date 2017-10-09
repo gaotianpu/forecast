@@ -7,26 +7,33 @@ import os
 import sys
 import datetime
 import csv
+import web
+
 home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
                         os.path.pardir)
 sys.path.append(home_dir + "/conf")
 import conf
 
 
-def load_all(): 
+def load_all():
     with open(conf.ALL_STOCKS_FILE) as f:
         rows = csv.DictReader(f)
         for row in rows:
             yield row
 
-# def load_from_db():
-#     pass 
+
+def load_from_db():
+    db = web.database(dbn='sqlite', db=conf.DATA_ROOT + '/FORECAST.db')
+    rows = db.query('select * from stocks_forecast_day1 limit 2')
+    for r in rows:
+        print r
 
 # def load_from_file():
 #     with open(conf.ALL_STOCKS_FILE) as f:
 #         rows = csv.DictReader(f)
 #         for row in rows:
-#             yield row 
+#             yield row
+
 
 def p(x):
     print x
@@ -38,4 +45,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    load_from_db()
