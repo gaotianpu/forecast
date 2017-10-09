@@ -44,6 +44,28 @@ function create_db_schema(){
     sqlite3 $SQLITE3_DB_FILE < $PROJECT_ROOT/setup/schema.sql || exit 
 } 
 
+function init(){
+    make_dirs 
+    create_db_schema   
+
+    echo "import stocks"  
+    grep -v 'stock_no' $ALL_STOCKS_FILE > $ALL_STOCKS_WITHOUT_HEADER_FILE     
+    time sqlite3  -separator ',' -header $SQLITE3_DB_FILE ".import $ALL_STOCKS_WITHOUT_HEADER_FILE stocks"  
+    
+    if [ ! -f $ALL_HISTORY_FILE ];then
+        echo "convert trade records" 
+        time $PROJECT_ROOT/bin/history_data.py || exit  # > $HISTORY_DATA_PATH/all.csv  || exit 
+        echo "merge trade records" 
+        cd $HISTORY_CONVERTED_PATH
+        time cat * > $ALL_HISTORY_FILE || exit 
+    fi 
+
+    echo "import stocks trade records" 
+    time sqlite3  -separator ',' $SQLITE3_DB_FILE  ".import $ALL_HISTORY_FILE stocks_trade_records" || exit 
+
+     
+}
+
 function make_lable(){
     forecast_day=$1
     echo "make_label $forecast_day"
@@ -63,24 +85,9 @@ function make_lable(){
 #   None
 ####################################### 
 function main(){
-    make_dirs 
-    create_db_schema   
+    init
 
-    echo "import stocks"  
-    grep -v 'stock_no' $ALL_STOCKS_FILE > $ALL_STOCKS_WITHOUT_HEADER_FILE     
-    time sqlite3  -separator ',' -header $SQLITE3_DB_FILE ".import $ALL_STOCKS_WITHOUT_HEADER_FILE stocks" 
-    
-
-    echo "convert trade records" 
-    if [ ! -f $ALL_HISTORY_FILE ];then
-        time $PROJECT_ROOT/bin/history_data.py || exit  # > $HISTORY_DATA_PATH/all.csv  || exit 
-        time cat $HISTORY_CONVERTED_PATH/* > $ALL_HISTORY_FILE 
-    fi 
-
-    echo "import stocks trade records" 
-    time sqlite3  -separator ',' $SQLITE3_DB_FILE  ".import $HISTORY_DATA_PATH/all.csv stocks_trade_records" || exit 
-
-    return 
+    return
 
     make_lable 1 
     make_lable 2
@@ -94,3 +101,4 @@ main "$@"
 # notes
 # sqlite3: Error: too many options: "," 解决办法： -separator ',' 放置在dbfile前  
 # sqlite导入Csv时，忽略标题行？
+# -bash: /bin/cat: Argument list too long ?
