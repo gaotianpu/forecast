@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-历史数据 下载、解析
+历史数据 下载、解析、转换、导入
 网易数据源
 """
 import os
