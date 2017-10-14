@@ -8,8 +8,14 @@ home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
                         os.path.pardir)
 
 DATA_ROOT = home_dir + '/data'
-HISTORY_DATA_PATH = DATA_ROOT + '/history'
+
+
+HISTORY_DATA_PATH = DATA_ROOT + '/history' 
+HISTORY_CONVERTED_PATH = HISTORY_DATA_PATH + '/converted'
+
+
 NEW_DATA_PATH = DATA_ROOT + '/new'
 
 
-ALL_STOCKS_FILE = home_dir + '/all_stocks.csv'
+ALL_STOCKS_FILE = DATA_ROOT + '/all_stocks.csv'
+SQLITE3_DB_FILE= DATA_ROOT + '/FORECAST.db'

@@ -49,7 +49,8 @@ def download(stock_info):
     source_url = HISTORY_DATA_URL.format(**params)
 
     if not (os.path.isfile(file_local) and os.path.getsize(file_local) != 0):
-        os.system("wget '%s' -O %s" % (source_url, file_local))
+        os.system("wget -q '%s' -O %s" % (source_url, file_local))
+        # sys.stderr.write(stock_no + '\n')
 
     stock_info['source_url'] = source_url
     stock_info['file_local'] = file_local
@@ -62,32 +63,31 @@ def convert_item(row):
     stock_no = row[1].replace("'", '')
 
     info = {'id': trade_date + "1" + stock_no,
-        'trade_date': trade_date,
-        'trade_time': 1,
-        'stock_exchange': common.get_stock_exchange(stock_no),
-        'stock_no': stock_no,
-        'close': row[3],  # 当前价格
-        'high': row[4],
-        'low': row[5],
-        'open': row[6],
-        'last_close': row[7],  # 前收盘价
-        'CHG': row[8],  # 涨跌额，收盘价-前收盘价
-        'PCHG': row[9],  # 涨跌幅，(收盘价-前收盘价)/前收盘价
-        'turn_over': row[10],  # 换手率
-        'vo_turn_over': row[11],  # 成交量
-        'va_turn_over': row[12],  # 成交金额
-        't_cap': row[13],  # 总市值
-        'm_cap': row[14],  # 流通市值
-        'create_time': int(time.time()),
-        'update_time': int(time.time())
-    }
+            'trade_date': trade_date,
+            'trade_time': 1,
+            'stock_exchange': common.get_stock_exchange(stock_no),
+            'stock_no': stock_no,
+            'close': row[3],  # 当前价格
+            'high': row[4],
+            'low': row[5],
+            'open': row[6],
+            'last_close': row[7],  # 前收盘价
+            'CHG': row[8],  # 涨跌额，收盘价-前收盘价
+            'PCHG': row[9],  # 涨跌幅，(收盘价-前收盘价)/前收盘价
+            'turn_over': row[10],  # 换手率
+            'vo_turn_over': row[11],  # 成交量
+            'va_turn_over': row[12],  # 成交金额
+            't_cap': row[13],  # 总市值
+            'm_cap': row[14],  # 流通市值
+            'create_time': int(time.time()),
+            'update_time': int(time.time())
+            }
 
     li = []
     fields = setting.FIELDS_SORT.split(',')
     for field in fields:
-        li.append(str(info[field]) if field in info else '0')
-
-    print ','.join(li) 
+        li.append(str(info[field]) if field in info else '0') 
+        
     return ','.join(li) + '\n'
 
 
@@ -97,11 +97,22 @@ def convert(stock_info):
     'start': '20170926', 
     'file_local': '/Users/baidu/Documents/Github/forecast/v3/conf/../data/history/300706.csv', 
     'source_url': ' """
-    rows = common.load_all(stock_info['file_local'])
-    lines = map(convert_item, rows)
+    file_local = "%s/%s.csv" % (conf.HISTORY_CONVERTED_PATH,
+                                stock_info['stock_no'])
 
-    file_local = "%s/convert_%s.csv" % (conf.HISTORY_DATA_PATH,
-                                        stock_info['stock_no'])
+    if os.path.isfile(file_local) and os.path.getsize(file_local) != 0:
+        return
+
+    rows = common.load_all(stock_info['file_local'])
+    lines = []
+    try:
+        lines = map(convert_item, rows)
+    except Exception as ex:
+        os.system("rm -f " + stock_info['file_local'])
+        print stock_info
+        print ex
+        return
+
     with open(file_local, 'w') as f:
         f.writelines(lines)
     stock_info['convert_file'] = file_local
@@ -112,8 +123,10 @@ def convert(stock_info):
 def main():
     """主函数"""
     stocks = stock_meta.load_all()
-    map(convert, map(download, stocks))
+    for stock in stocks:
+        download(stock)
+        convert(stock)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

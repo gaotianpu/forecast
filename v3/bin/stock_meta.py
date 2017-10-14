@@ -14,8 +14,14 @@ home_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0],
 sys.path.append(home_dir + "/conf")
 import conf
 
+db = web.database(dbn='sqlite', db=conf.SQLITE3_DB_FILE)
+
 
 def load_all():
+    return load_from_file()
+
+
+def load_from_file():
     with open(conf.ALL_STOCKS_FILE) as f:
         rows = csv.DictReader(f)
         for row in rows:
@@ -23,26 +29,13 @@ def load_all():
 
 
 def load_from_db():
-    db = web.database(dbn='sqlite', db=conf.DATA_ROOT + '/FORECAST.db')
-    rows = db.query('select * from stocks_forecast_day1 limit 2')
-    for r in rows:
-        print r
-
-# def load_from_file():
-#     with open(conf.ALL_STOCKS_FILE) as f:
-#         rows = csv.DictReader(f)
-#         for row in rows:
-#             yield row
-
-
-def p(x):
-    print x
-
-
-def main():
-    map(p, load_all())
-    # map(lambda x: print (x), load()) #error ?
+    rows = db.select('stocks')
+    return rows
 
 
 if __name__ == "__main__":
-    load_from_db()
+    rows = load_from_db()
+    for i, row in enumerate(rows):
+        print row
+        if i > 5:
+            break
