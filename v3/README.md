@@ -6,7 +6,7 @@ ETL: 抽取（extract）、转换（transform）、加载（load）
 4. 导入sqlite
 
 二、机器学习
-1. 生成 ML-labels 分类标签
+1. 分类标签生成 ML-labels 
 分三类：买入、持有、卖出
 分类依据：根据未来收益预估阈值区分
     未来n天收益率，n>=1, n<?, 
