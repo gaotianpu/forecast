@@ -1,0 +1,40 @@
+'id': trade_date + "1" + stock_no,
+'trade_date': trade_date,
+'trade_time': 1,
+'stock_exchange': common.get_stock_exchange(stock_no),
+'stock_no': stock_no,
+'close': row[3],  # 当前价格
+'high': row[4],
+'low': row[5],
+'open': row[6],
+'last_close': row[7],  # 前收盘价
+'CHG': row[8],  # 涨跌额，收盘价-前收盘价
+'PCHG': row[9],  # 涨跌幅，(收盘价-前收盘价)/前收盘价
+'turn_over': row[10],  # 换手率
+'vo_turn_over': row[11],  # 成交量
+'va_turn_over': row[12],  # 成交金额
+'t_cap': row[13],  # 总市值
+'m_cap': row[14],  # 流通市值
+'create_time': int(time.time()),
+'update_time': int(time.time())
+
+
+id
+trade_date
+trade_time
+stock_exchange
+stock_no
+close
+high
+low
+open
+last_close
+CHG
+PCHG
+turn_over
+vo_turn_over
+va_turn_over
+t_cap
+m_cap
+create_time
+update_time

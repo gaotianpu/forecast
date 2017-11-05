@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-根据未来n天的涨幅，决定分类标签，up1，down0
+根据未来n天的涨幅，决定分类标签，up-1，down-0
+trade_date + stock_no, 未来一天，未来2天，未来3天的涨幅，生成label?
+
 网易数据源
 """
 import os

@@ -1,9 +1,14 @@
+todo:
+1. 利用pandas rolling 获得未来3天价格涨跌幅度
+2. 根据未来几天价格涨跌幅度，设置机器学习逻辑回归的label 1-up 0-down
+
+
 一、历史数据的下载、ETL等
 ETL: 抽取（extract）、转换（transform）、加载（load）
 1. 读取所有股票列表
 2. 下载所有股票的历史数据
 3. 数据转换
-4. 导入sqlite
+4. 导入sqlite/mysql ?
 
 二、数据统计摸底
 1. 整体

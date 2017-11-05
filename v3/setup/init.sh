@@ -42,35 +42,29 @@ function create_db_schema(){
     fi
 
     sqlite3 $SQLITE3_DB_FILE < $PROJECT_ROOT/setup/schema.sql || exit 
-} 
-
-function download_convert(){
-    if [ ! -f $ALL_HISTORY_FILE ];then
-        echo "convert trade records" 
-        time $PROJECT_ROOT/bin/history_data.py || exit  # > $HISTORY_DATA_PATH/all.csv  || exit 
-        echo "merge trade records" 
-
-        cd $HISTORY_CONVERTED_PATH
-        time cat * > $ALL_HISTORY_FILE || exit 
-    fi 
-}
+}  
 
 function init(){
-    make_dirs  
-
-    download_convert
-
-    create_db_schema   
+    make_dirs 
+    create_db_schema 
 
     echo "import stocks"  
-    grep -v 'stock_no' $ALL_STOCKS_FILE > $ALL_STOCKS_WITHOUT_HEADER_FILE     
-    time sqlite3  -separator ',' $SQLITE3_DB_FILE ".import $ALL_STOCKS_WITHOUT_HEADER_FILE stocks"  
-     
-    echo "import stocks trade records" 
-    time sqlite3  -separator ',' $SQLITE3_DB_FILE  ".import $ALL_HISTORY_FILE stocks_trade_records" || exit 
+    sqlite3 $SQLITE3_DB_FILE 'delete from stocks'
+    time sqlite3  -separator ',' $SQLITE3_DB_FILE ".import $ALL_STOCKS_FILE stocks"  
+    sqlite3 $SQLITE3_DB_FILE "delete from stocks where stock_no='stock_no'"
 
-     
-}
+    echo "download and convert trade_records" 
+    time $PROJECT_ROOT/bin/history_data.py || exit  
+
+    echo "merge all trade_records"
+    # time cat $HISTORY_CONVERTED_PATH/convert_* > $ALL_HISTORY_FILE || exit 
+    # cat: Argument list too long 
+    find $HISTORY_CONVERTED_PATH -name convert_* | xargs cat  > $ALL_HISTORY_FILE || exit   
+
+    echo "import stocks trade records" 
+    sqlite3 $SQLITE3_DB_FILE 'delete from stocks_trade_records'
+    time sqlite3  -separator ',' $SQLITE3_DB_FILE  ".import $ALL_HISTORY_FILE stocks_trade_records" || exit      
+} 
 
 function make_lable(){
     forecast_day=$1
@@ -98,8 +92,13 @@ function main(){
     make_lable 3 
 }
 
+# main "$@"   
 
-main "$@"   
+# time sqlite3  -separator ',' $SQLITE3_DB_FILE  ".import $ALL_HISTORY_FILE stocks_trade_records" || exit  
+
+# time find $HISTORY_CONVERTED_PATH -name convert_* | xargs cat  > $ALL_HISTORY_FILE || exit
+
+# time cat $HISTORY_CONVERTED_PATH/convert_* > $ALL_HISTORY_FILE || exit 
 
 
 # notes

@@ -4,6 +4,10 @@
 配置信息
 """
 
+#从网易数据下载到的原始的字段
+RAW_FIELDS_SORT="trade_date,stock_no,stock_name,close,high,low,open,last_close,CHG,PCHG,turn_over,vo_turn_over,va_turn_over,t_cap,m_cap"
+
+#转换后的字段
 FIELDS_SORT = ("id,trade_date,trade_time,stock_no,stock_exchange,open,close,high,low,last_close,"
                "CHG,PCHG,turn_over,vo_turn_over,va_turn_over,t_cap,m_cap,create_time,update_time"
                )

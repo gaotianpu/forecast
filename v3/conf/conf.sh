@@ -12,3 +12,4 @@ readonly STAT_DATA_PATH=$DATA_ROOT/stat
 readonly ALL_STOCKS_WITHOUT_HEADER_FILE=$DATA_ROOT/all_stocks_without_header.csv
 readonly ALL_HISTORY_FILE=$DATA_ROOT/history.csv 
 readonly SQLITE3_DB_FILE=$DATA_ROOT/FORECAST.db
+    

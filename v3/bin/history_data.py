@@ -57,6 +57,7 @@ def download(stock_info):
     return stock_info
 
 
+fields="id,trade_date,trade_time,stock_exchange,stock_no,close,high,low,open,last_close,CHG,PCHG,turn_over,vo_turn_over,va_turn_over,t_cap,m_cap,create_time,update_time"
 def convert_item(row):
     """每行的数据转换"""
     trade_date = row[0].replace('-', '')
