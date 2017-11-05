@@ -3,4 +3,4 @@
 *.pyc
 *.DS_Store
 v3/data/*
-#!v3/data/all_stocks.csv
+!v3/data/all_stocks.csv
