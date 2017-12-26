@@ -23,4 +23,4 @@ function main(){
     done < $ALL_STOCKS_FILE 
 }
 
-main "@"
+main "$@" 
