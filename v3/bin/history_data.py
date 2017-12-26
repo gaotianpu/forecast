@@ -48,10 +48,10 @@ def download(stock_info):
               "fields": DOWNLOAD_FIELDS}
     source_url = HISTORY_DATA_URL.format(**params)
 
-    if not (os.path.isfile(file_local) and os.path.getsize(file_local) != 0):
-        os.system("wget -q '%s' -O %s" % (source_url, file_local))
+    # if not (os.path.isfile(file_local) and os.path.getsize(file_local) != 0):
+    os.system("wget -q '%s' -O %s" % (source_url, file_local))
         # sys.stderr.write(stock_no + '\n')
-
+    print source_url,file_local
     stock_info['source_url'] = source_url
     stock_info['file_local'] = file_local
     return stock_info
@@ -121,13 +121,19 @@ def convert(stock_info):
     return stock_info
 
 
+def download_one(stock):
+    download(stock)
+    convert(stock)
+
 def main():
     """主函数"""
     stocks = stock_meta.load_all()
     for stock in stocks:
-        download(stock)
-        convert(stock)
+        print stock
+        download_one(stock) 
 
 
 if __name__ == "__main__":
     main()
+    # stock={'stock_no': '300706', 'start': '20170926'}
+    # download_one(stock)
