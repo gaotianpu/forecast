@@ -1,0 +1,11 @@
+1. shell + python 混合编程模式
+项目的目录结构安排
+配置文件共享？
+https://stackoverflow.com/questions/6318809/how-do-i-grab-an-ini-value-within-a-shell-script
+
+2. shell的输出日志保存？
+
+3. python的日志最佳实践
+https://fangpenlin.com/posts/2012/08/26/good-logging-practice-in-python/
+
+4. 使用python3 ?
