@@ -1,0 +1,50 @@
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600015.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600023.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600027.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600028.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600030.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600031.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600072.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600073.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600074.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600075.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600076.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600077.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600078.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600079.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600080.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600081.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py:55: UserWarning: loadtxt: Empty input file: "/Users/baidu/Documents/Github/forecast/v3/conf/../data/converted/600082.csv"
+  trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+Traceback (most recent call last):
+  File "./main.py", line 40, in <module>
+    main()
+  File "./main.py", line 33, in main
+    make_train_data.gen_future(stock_no) #未来5天最高价格
+  File "/Users/baidu/Documents/Github/forecast/v3/bin/make_train_data.py", line 55, in gen_future
+    trade_records = np.loadtxt(csv_file, dtype=np.str, delimiter=",")
+  File "/Users/baidu/Library/Python/2.7/lib/python/site-packages/numpy/lib/npyio.py", line 1021, in loadtxt
+    % line_num)
+ValueError: Wrong number of columns at line 823
+Traceback (most recent call last):
+  File "./main.py", line 40, in <module>
+    main()
+  File "./main.py", line 31, in main
+    etl.download(stock_no,start) #下载
+TypeError: download() takes exactly 1 argument (2 given)

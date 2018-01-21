@@ -8,6 +8,7 @@ close=0的情况？
 """
 import os
 import sys
+import json
 import numpy as np
 
 import common
@@ -23,29 +24,86 @@ log = common.init_logger()
 
 # 日期0,股票代码1,收盘价2,最高价3,最低价4,开盘价5,前收盘6,涨跌额8,涨跌幅9,换手率10,成交量11,成交金额12,总市值13,流通市值14
 
+FUTURE_DAYS = 3
+LAST_DAYS = 15
+
 
 def gen_future_row(data, index):
-    #（未来5天的最高价 - 当前收盘价格)/当前收盘价格
-    # min_price = data[0:15, get_index('low')].astype(np.float).min()
-    if index == 0:
+    """target:(未来3天的收盘价 - 当前收盘价格)/当前收盘价格
+    features: 过去15天，最低价、最高价、收盘均价(!=0)、收盘价标准差、
+        过去3天，每天的收盘价
+        归一化：都减去最低价，再除以最低价？
+        # 价格：高、低、起、止、均值，波动范围
+    # 成交量：z-score
+    """
+    future_index = index - FUTURE_DAYS
+    last_start_index = index + LAST_DAYS
+
+    if index < FUTURE_DAYS:
         return
 
-    start_index = index - 5
-    if start_index < 0:
-        start_index = 0
-
-    trade_date = data[index, 0]
-    stock_no = data[index, 1]
-    current_close = data[index, 2].astype(np.float)
-    max_high = data[start_index:index, 3].astype(np.float).max()
-
-    if current_close == 0 or max_high == 0:
-        log.info("price0 trade_date=%s,stock_no=%s,current_close=%s,max_high=%s" % (
-            trade_date, stock_no, current_close, max_high))
+    if last_start_index + 1 > len(data):
         return
 
-    rate = (max_high - current_close) / current_close
-    return [trade_date, stock_no, current_close, max_high, rate]
+    #
+    future_data = data[future_index:index]
+    last_data = data[index:last_start_index]
+
+    # print last_data[0,0],last_data[-1,0]
+    # return
+
+    max_high = last_data[:, 3].astype(np.float).max()
+    min_low = last_data[:, 4].astype(np.float).min()
+    close_mean = last_data[:, 2].astype(np.float).mean()
+    close_std = last_data[:, 2].astype(np.float).std()
+
+    ptp = max_high - min_low
+    wave_range = ptp / min_low  # 波动范围
+
+    # last
+    # 15天前close价
+    start = last_data[-1]  # .astype(np.float)
+    start_close = start[2].astype(np.float)
+    start_range = (start_close - min_low) / ptp
+
+    end = last_data[0]  # .astype(np.float)
+    end_close = end[2].astype(np.float)
+    end_range = (end_close - min_low) / ptp
+
+    mean_range = (close_mean - min_low) / ptp
+
+    # 成交量
+    vol_mean = last_data[:, 11].astype(np.float).mean()
+    vol_std = last_data[:, 11].astype(np.float).std()
+    vol_current = last_data[0, 11].astype(np.float)
+    vol_zscore = (vol_current - vol_mean) / vol_std
+
+    # 预测
+    current_close = end_close
+    future_closes = future_data[0, 2].astype(np.float)
+    future_rate = (future_closes - current_close) / future_closes
+
+    # print last_data[0]
+    results = {'last_start_date': last_data[-1, 0],
+               'last_end_date': last_data[0, 0],
+               'future_date': future_data[0, 0],
+               'last_max_high': max_high,
+               'last_min_low': min_low,
+               'last_ptp': ptp,
+               'last_wave_range': wave_range,
+               'last_close_mean': close_mean,
+               'last_close_std': close_std, 
+                'last_start_close': start_close,
+                'last_start_range': start_range,
+                'last_end_close': end_close,
+                'last_end_range': end_range,
+                'last_mean_range': mean_range,
+                'last_vol_zscore': vol_zscore
+               }
+
+    # print json.dumps(results)
+    return last_data[0,0],future_rate,wave_range,mean_range,start_range,end_range,vol_zscore 
+     
 
 
 def gen_future(stock_no):

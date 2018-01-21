@@ -38,10 +38,10 @@ def get_history_file(stock_no):
 def get_convert_file(stock_no):
     return "%s/%s.csv" % (conf.HISTORY_CONVERTED_PATH, stock_no)
 
-def download(stock_info):
+def download(stock_no,start):
     """下载数据"""
-    stock_no = stock_info['stock_no']
-    start = stock_info['start']
+    # stock_no = stock_info['stock_no']
+    # start = stock_info['start']
 
     file_local = get_history_file(stock_no)
 
@@ -56,9 +56,9 @@ def download(stock_info):
 
     # if not (os.path.isfile(file_local) and os.path.getsize(file_local) != 0):
     os.system("wget -q '%s' -O %s" % (source_url, file_local))  
-    stock_info['source_url'] = source_url
-    stock_info['file_local'] = file_local
-    return stock_info
+    # stock_info['source_url'] = source_url
+    # stock_info['file_local'] = file_local
+    # return stock_info
 
 #日期0,股票代码1,名称2,收盘价3,最高价4,最低价5,开盘价6,前收盘7,涨跌额8,涨跌幅9,换手率10,成交量11,成交金额12,总市值13,流通市值14
 #2017-12-28,'000001,平安银行,13.21,13.46,13.02,13.28,13.29,-0.08,-0.602,0.918,155303047,2052944539.14,2.26821134145e+11,2.23486875614e+11
@@ -69,9 +69,11 @@ def convert(stock_no):
     lines = []
     with open(raw_file) as f: 
         for i,line in enumerate(f):
-            if i<1: continue
+            if i<1: continue 
             l=[]
             x=line.strip().split(',')
+            
+            if x[3]=='0.0':continue
             l.append(x[0].replace('-',''))
             l.append(x[1].replace("'",'1'))
             l.extend(x[3:]) 
