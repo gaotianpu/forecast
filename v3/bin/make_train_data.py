@@ -102,7 +102,9 @@ def gen_future_row(data, index):
                }
 
     # print json.dumps(results)
-    return last_data[0,0],future_rate,wave_range,mean_range,start_range,end_range,vol_zscore 
+    trade_date =  last_data[0,0]
+    stock_no = last_data[0,1]
+    return trade_date,stock_no,future_rate,wave_range,mean_range,start_range,end_range,vol_zscore 
      
 
 

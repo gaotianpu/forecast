@@ -27,6 +27,8 @@ def main():
             # if i < 2809:
             #     continue 
             stock_no = stock['stock_no']
+            print stock_no
+            
             start = stock['start']  
             log.info("run %s,%s,%s" %(stock_no,start,i)) 
             
