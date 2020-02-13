@@ -24,3 +24,12 @@ CREATE TABLE `train_data` (
   UNIQUE KEY `date_stock` (`trade_date`,`stock_no`),
   KEY `stock_no` (`stock_no`,`trade_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+trade_date,
+stock_no,
+future_rate,
+wave_range,
+mean_range,
+start_range,
+end_range,
+vol_zscore 
