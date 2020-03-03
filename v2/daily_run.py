@@ -125,7 +125,7 @@ def jump_p(li):
 
     li_jump_1 = [r for r in li_jump_1 if r.low<r.open and r.close > r.open and  r.jump<9]
     li_jump_1.sort(key=lambda x:x.jump,reverse=True)
-    str_list =  '<br/>'.join(['<a href="https://www.baidu.com/s?wd=%s" target="_blank">%s</a> , %s%%' % (x.stock_no[2:],x.stock_no[2:],'%0.2f'%x.jump)  for x in li_jump_1])
+    str_list =  '<br/>'.join(['<a href="https://www.xxxx.com/s?wd=%s" target="_blank">%s</a> , %s%%' % (x.stock_no[2:],x.stock_no[2:],'%0.2f'%x.jump)  for x in li_jump_1])
 
     html = str(ht) + str_list
 

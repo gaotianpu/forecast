@@ -5,3 +5,10 @@
 v3/data/*
 !v3/data/all_stocks.csv
 log
+
+v4/data
+v4/log 
+v4/test
+v4/model
+
+

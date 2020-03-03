@@ -20,6 +20,7 @@ import conf
 import setting
 
 # 历史数据源
+DOWNLOAD_FIELDS = "TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
 HISTORY_DATA_URL = 'http://quotes.money.163.com/service/chddata.html?code={code}&start={start}&end={end}&fields={fields}'
 # http://quotes.money.163.com/trade/lsjysj_zhishu_000001.html?year=2017&season=3
 # http://quotes.money.163.com/service/chddata.html?code=0000001&start=19901219&end=20170929&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;VOTURNOVER;VATURNOVER
@@ -28,7 +29,7 @@ HISTORY_DATA_URL = 'http://quotes.money.163.com/service/chddata.html?code={code}
 # http://quotes.money.163.com/service/chddata.html?code=0600012&start=20030107&end=20171001&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP
 # http://quotes.money.163.com/service/chddata.html?code=1002159&start=20070817&end=20171001&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP
 
-DOWNLOAD_FIELDS = "TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
+
 
 DAYS = 365
 

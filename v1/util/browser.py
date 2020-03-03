@@ -126,7 +126,7 @@ def downad_and_save(url,lfile,proxy=None):
         f.close()
 
 if __name__ == "__main__":
-    #return 'http://www.baidu.com/s?%s' % urllib.urlencode({'wd': kword})
+    #return 'http://www.xxxx.com/s?%s' % urllib.urlencode({'wd': kword})
     with open(r'/tmp/test.html','w+') as f:
         html = download('http://www.soso.com/q?pid=s.idx&cid=s.idx.se&w=%B1%B1%BE%A9+%C8%D5%D7%E2%B7%BF')
         f.write(html)
