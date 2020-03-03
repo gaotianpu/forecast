@@ -34,11 +34,10 @@ X_train, X_test, y_train, y_test = train_test_split(
     dataset[:, 2:], dataset[:, 0], test_size=0.30, random_state=0)
 print(y_train.shape, y_test.shape)
 
-# 数据归一化，对lr，svm等非常有用 https://www.cnblogs.com/shine-lee/p/11779514.html
-
-
 def data_scale(dataset, X_train, X_test):
-    """数据缩放"""
+    """数据缩放
+    对lr，svm等非常有用 https://www.cnblogs.com/shine-lee/p/11779514.html
+    """
     # scaler_file = 'model/min_max.scaler'
     # scaler = MinMaxScaler()
     # if True:  # not os.path.exists(scaler_file):
@@ -163,16 +162,13 @@ def gbdt_train(X_train, X_test, y_train, y_test):
     y_predprob_test = clf.predict_proba(X_test)[:, 1]
 
     acc_test = accuracy_score(y_test, y_test_pre)
-    auc_score = roc_auc_score(y_test, y_test_pre)
+    auc_score = roc_auc_score(y_test, y_predprob_test)
     p = precision_score(y_test, y_test_pre)
     recall_socre = recall_score(y_test, y_test_pre)
     f1_val = f1_score(y_test, y_test_pre)
     print("time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
-          (time_c, train_score, acc_test, p, recall_socre, f1_val, auc_score))
-
-    # print("Test Accuracy : %.4g" % accuracy_score(y_test, y_test_pre))
-    # print("Test AUC Score (Test): %f" %
-    #       roc_auc_score(y_test, y_test_pre))
+          (time_c, train_score, acc_test, p, recall_socre, f1_val, auc_score)) 
+     
     show_auc(y_test, y_predprob_test, "GBDT: ROC and AUC")
 
 
@@ -194,26 +190,7 @@ def svm_c(x_train, x_test, y_train, y_test):
     recall_socre = recall_score(y_test, y_test_pre)
     f1_val = f1_score(y_test, y_test_pre)
     print("time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f" %
-          (time_c, score_train, score_test, p, recall_socre, f1_val))
-
-    # print(sum(y_test_pre))
-    # print(sum(y_test))
-
-    # score = svc.score(x_test, y_test)
-
-    # p = precision_score(y_test, y_test_pre)
-    # recall_socre = recall_score(y_test, y_test_pre)
-    # f1_val = f1_score(y_test, y_test_pre)
-    # print("time=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f" %
-    #       (time_c, score, p, recall_socre, f1_val))
-
-    # score_train = clf.score(X_train, y_train)
-    # score_test = clf.score(X_test, y_test)
-
-    # recall_socre = recall_score(y_test_pre, y_test, average='macro')
-    # f1_score_val = f1_score(y_test_pre, y_test)
-    # print("tim_c=%s,accuracy_train=%s,accuracy_test=%s,recall=%s,f1=%s" %
-    #       (time_c,score_train, score_test, recall_socre, f1_score_val))
+          (time_c, score_train, score_test, p, recall_socre, f1_val)) 
 
     proba = clf.predict_proba(X_test)
     show_auc(y_test, proba[:, 1], "SVM: ROC and AUC")
@@ -253,11 +230,9 @@ def svm_grid(x_train, x_test, y_train, y_test):
 
 
 if __name__ == "__main__":
-    release = sys.argv[1] if len(sys.argv)>1 else 0 
-    # if len(sys.argv)>1:
-    #     release = sys.argv[1]
-    lr_train(X_train, X_test, y_train, y_test)
-    # gbdt_train(X_train, X_test, y_train, y_test)
+    release = sys.argv[1] if len(sys.argv)>1 else 0  
+    # lr_train(X_train, X_test, y_train, y_test)
+    gbdt_train(X_train, X_test, y_train, y_test)
     # LinearSVC_train(X_train, X_test, y_train, y_test)
     # svm_grid(X_train, X_test, y_train, y_test)
     # svm_c(X_train, X_test, y_train, y_test)

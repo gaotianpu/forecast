@@ -130,9 +130,14 @@ class TrainData:
 
             fields = []
             # 训练数据格式: label|数值,id(date+stockno),feature1,feature2,feature3 
-            if labelType=="labelType":
+            if labelType=="bool":
                 # label,未来一天涨幅>2%认为是1,其他0
-                fields.append(1 if row['pchg'] > 2 else 0)
+                pchg1 = (row['close'] - row['open'])*100/row['open']
+                label = 1 if pchg1 > 2 else 0
+                
+                # pchg = (close - last_close)*100/last_close
+                # label = 1 if row['pchg'] > 2 else 0
+                fields.append(label)
             else:
                 fields.append(row['pchg'])
 

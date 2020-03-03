@@ -54,8 +54,9 @@ def show_results_reg(model, model_name):
     # return
     # pred = model.predict(x)
     proba = model.predict(x) #model.predict_proba(x)
+    
 
-    up = 0 #sum(pred)
+    up = sum([ 1 if p>0 else 0 for p in proba ] )
     t = len(x)
 
     pecent = up*100/t
@@ -70,13 +71,13 @@ def show_results_reg(model, model_name):
     li.sort(key=lambda x: x[1], reverse=True)
 
     for i, val in enumerate(li):
-        if i > 10:
+        if i > 28:
             break
         print(val)
     print("===================================")
 
-show_results(joblib.load("model/lr.model"), "lr")
+# show_results(joblib.load("model/lr.model"), "lr")
 show_results(joblib.load("model/gbdt.model"), "gbdt")
 # show_results(joblib.load("model/linear_svc.model"), "linear_svc")
 
-show_results_reg(joblib.load("model/linearRegression.model"), "linearRegression")
+# show_results_reg(joblib.load("model/linearRegression.model"), "linearRegression")
