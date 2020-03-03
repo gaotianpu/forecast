@@ -5,6 +5,7 @@ https://www.cnblogs.com/nxf-rabbit75/p/10282672.html
 https://www.jianshu.com/p/0f0159a9cec9
 """
 import os
+import sys
 import time
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -63,6 +64,9 @@ X_train, X_test = data_scale(dataset, X_train, X_test)
 def show_auc(target, predict_proba, title="ROC & AUC"):
     """绘制 auc https://www.jianshu.com/p/90106243d231
     """
+    if release:
+        return 
+
     fpr, tpr, thresholds = roc_curve(target, predict_proba)
     roc_auc = auc(fpr, tpr)  # tpr = recall rate
 
@@ -82,7 +86,7 @@ def lr_train(X_train, X_test, y_train, y_test):
     start = time.time()
 
     # solver='liblinear',  C=0.5,  max_iter=2000
-    lr = LogisticRegression(class_weight='balanced')
+    lr = LogisticRegression(class_weight='balanced',max_iter=2000)
     lr.fit(X_train, y_train)
     time_c = time.time() - start
 
@@ -249,6 +253,9 @@ def svm_grid(x_train, x_test, y_train, y_test):
 
 
 if __name__ == "__main__":
+    release = sys.argv[1] if len(sys.argv)>1 else 0 
+    # if len(sys.argv)>1:
+    #     release = sys.argv[1]
     lr_train(X_train, X_test, y_train, y_test)
     # gbdt_train(X_train, X_test, y_train, y_test)
     # LinearSVC_train(X_train, X_test, y_train, y_test)
