@@ -31,7 +31,7 @@ class HistoryData:
                      datetime.timedelta(self.max_days)).strftime("%Y%m%d")
         params = {"code": '0' + stock_no if stock_no.startswith('6') else '1' + stock_no,
                   "start": start,
-                  "end": datetime.datetime.now().strftime("%Y%m%d"),
+                  "end": (datetime.datetime.now()+datetime.timedelta(1)).strftime("%Y%m%d"),
                   "fields": DOWNLOAD_FIELDS}
         source_url = HISTORY_DATA_URL.format(**params)
 
@@ -42,10 +42,10 @@ class HistoryData:
                 self.log.info("download success,retry_times=%s,stock=%s,url=%s" %
                               (i, stock_no, source_url))
                 break
-            except:
-                self.log.warning("retry_times=%s,stock=%s,url=%s" %
-                                 (i, stock_no, source_url))
+            except: 
                 if i == 2:  # 超过最大次数
+                    self.log.warning("fail,retry_times=%s,stock=%s,url=%s" %
+                                 (i, stock_no, source_url))
                     return
                 else:
                     continue
@@ -76,7 +76,7 @@ class HistoryData:
             # return [line.strip().split(',') for line in f]
             for line in f:
                 fields = line.strip().split(',')
-                if len(fields)>2 and fields[2]=='del':
+                if len(fields)>2 and fields[2]  :
                     continue 
                 li.append(fields)
         return li 

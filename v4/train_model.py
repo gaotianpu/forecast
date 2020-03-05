@@ -27,7 +27,7 @@ from sklearn.calibration import CalibratedClassifierCV
 
 import joblib
 
-dataset = np.loadtxt('data/train.txt', delimiter=',', dtype=float)
+dataset = np.loadtxt('data/train.release.txt', delimiter=',', dtype=float)
 
 # 数据划分方法：k折交叉验证，留一法，随机划分 https://www.jianshu.com/p/db7ed9735095
 X_train, X_test, y_train, y_test = train_test_split(
@@ -105,7 +105,7 @@ def lr_train(X_train, X_test, y_train, y_test):
     p = precision_score(y_test, y_test_pre)
     recall_socre = recall_score(y_test, y_test_pre)
     f1_val = f1_score(y_test, y_test_pre)
-    print("time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
+    print("lr time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
           (time_c, score_train, score_test, p, recall_socre, f1_val, auc_score))
 
     show_auc(y_test, predict_proba[:, 1], "LR: ROC and AUC")
@@ -166,7 +166,7 @@ def gbdt_train(X_train, X_test, y_train, y_test):
     p = precision_score(y_test, y_test_pre)
     recall_socre = recall_score(y_test, y_test_pre)
     f1_val = f1_score(y_test, y_test_pre)
-    print("time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
+    print("gbdt time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
           (time_c, train_score, acc_test, p, recall_socre, f1_val, auc_score)) 
      
     show_auc(y_test, y_predprob_test, "GBDT: ROC and AUC")
@@ -231,7 +231,7 @@ def svm_grid(x_train, x_test, y_train, y_test):
 
 if __name__ == "__main__":
     release = sys.argv[1] if len(sys.argv)>1 else 0  
-    # lr_train(X_train, X_test, y_train, y_test)
+    lr_train(X_train, X_test, y_train, y_test)
     gbdt_train(X_train, X_test, y_train, y_test)
     # LinearSVC_train(X_train, X_test, y_train, y_test)
     # svm_grid(X_train, X_test, y_train, y_test)

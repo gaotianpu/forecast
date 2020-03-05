@@ -109,57 +109,73 @@ class TrainData:
 
         return features
 
-    def process(self, stockno, genType="train",labelType="bool"):
+    def process(self, stockno, genType="train", labelType="bool"):
         rows = self.load_data(stockno)
         if not rows:
             self.log.warning("stock_no=%s has no data", stockno)
             return
 
-        if genType == "predict":
+        if genType == "predict":  # 倒数第1天，
             fields = []
-            fields.append(0)
+            fields.append(0)  # label,没有未来的涨跌幅，纯预测用
             fields = fields + self.get_features(rows, 0)
             print(','.join([str(f) for f in fields]))
-            self.log.info("finish stock_no=%s", stockno)
+            self.log.info("finish predict stock_no=%s", stockno)
             return
 
+        if genType == "test":  # 到数第2天，用来做测试集
+            fields = []
+            row = rows[0]
+            # label = 1 if row['pchg'] > 2 else 0
+            pchg1 = (row['close'] - row['open'])*100/row['open']
+            label = 1 if pchg1 > 2 else 0
+            fields.append(label)
+            fields = fields + self.get_features(rows, 1)
+            print(','.join([str(f) for f in fields]))
+            self.log.info("finish test stock_no=%s", stockno)
+            return
+
+        start_idx = 2  # or 2
         line_count = len(rows)
         for i, row in enumerate(rows):
+            if i < start_idx:
+                continue
+
             if i > 80 or i + self.WINDOWS_LEN > line_count:  # 5*16周，4个月
                 break
 
             fields = []
-            # 训练数据格式: label|数值,id(date+stockno),feature1,feature2,feature3 
-            if labelType=="bool":
-                # label,未来一天涨幅>2%认为是1,其他0
-                pchg1 = (row['close'] - row['open'])*100/row['open']
-                label = 1 if pchg1 > 2 else 0
-                
-                # pchg = (close - last_close)*100/last_close
-                # label = 1 if row['pchg'] > 2 else 0
+            # 训练数据格式: label|数值,id(date+stockno),feature1,feature2,feature3
+            tomorrow = rows[i-1] 
+            pchg1 = (tomorrow['close'] - tomorrow['open']) * \
+                100/tomorrow['open']
+
+            if labelType == "bool":
+                # label,未来一天涨幅>2%认为是1,其他0 
+                label = 1 if pchg1 > 2 else 0 
                 fields.append(label)
             else:
-                fields.append(row['pchg'])
-
-            last_index = i+1
-            fields = fields + self.get_features(rows, last_index)
+                fields.append(pchg1) 
+             
+            fields = fields + self.get_features(rows, i)
             print(','.join([str(f) for f in fields]))
 
         self.log.info("finish stock_no=%s", stockno)
 
-    def process_all(self, genType="predict",labelType="bool"): #bool,float
+    def process_all(self, genType="predict", labelType="bool"):  # bool,float
         with open(self.all_stocks_meta_file, 'r') as f:
             for line in f:
                 fields = line.strip().split(',')
-                if len(fields) > 2 and fields[2] == 'del':
+                if len(fields) > 2 and fields[2] in ['del', 'pause']:
                     continue
                 stock, date = fields[0:2]
-                self.process(stock, genType,labelType)
+                self.process(stock, genType, labelType)
 
 
 # nohup python gen_train_data.py train bool > data/train.txt  &
-# nohup python gen_train_data.py train float > data/train.regression.txt  &
+# nohup python gen_train_data.py test bool> data/test.txt  &
 # nohup python gen_train_data.py predict bool> data/predict.txt  &
+# nohup python gen_train_data.py train float > data/train.regression.txt  &
 if __name__ == "__main__":
     genType = sys.argv[1]
     labelType = sys.argv[2]
@@ -170,6 +186,6 @@ if __name__ == "__main__":
                         format='%(levelname)s:%(asctime)s:%(lineno)d:%(funcName)s:%(message)s')
 
     obj = TrainData(logging)
-    obj.process_all(genType,labelType)
+    obj.process_all(genType, labelType)
     # # obj.load_data("600012")
     # obj.process("600012",genType)

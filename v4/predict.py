@@ -9,8 +9,12 @@ import time
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.linear_model import LogisticRegression
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_curve, auc, roc_auc_score
+
 import joblib
 
+# dataset = np.loadtxt('data/test.txt', delimiter=',', dtype=float)
 dataset = np.loadtxt('data/predict.txt', delimiter=',', dtype=float)
 x, y, ids = dataset[:, 2:], dataset[:, 0], dataset[:, 1]
 
@@ -22,9 +26,18 @@ x = scaler.transform(x)
 
 
 def show_results(model, model_name):
-    # print(dir(model))
-    # print(type(model),model.__class__)
+    # y_test_pre = model.predict(x)
+    # predict_proba = model.predict_proba(x)
+
+    # score_test = accuracy_score(y, y_test_pre)
+    # auc_score = roc_auc_score(y, predict_proba[:, 1])
+    # p = precision_score(y, y_test_pre)
+    # recall_socre = recall_score(y, y_test_pre)
+    # f1_val = f1_score(y, y_test_pre)
+    # print("%s accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
+    #       (model_name,  score_test, p, recall_socre, f1_val, auc_score))
     # return
+
     pred = model.predict(x)
     proba = model.predict_proba(x)
 
@@ -53,10 +66,9 @@ def show_results_reg(model, model_name):
     # print(type(model),model.__class__)
     # return
     # pred = model.predict(x)
-    proba = model.predict(x) #model.predict_proba(x)
-    
+    proba = model.predict(x)  # model.predict_proba(x)
 
-    up = sum([ 1 if p>0 else 0 for p in proba ] )
+    up = sum([1 if p > 0 else 0 for p in proba])
     t = len(x)
 
     pecent = up*100/t
@@ -76,8 +88,8 @@ def show_results_reg(model, model_name):
         print(val)
     print("===================================")
 
-# show_results(joblib.load("model/lr.model"), "lr")
+
+show_results(joblib.load("model/lr.model"), "lr")
 show_results(joblib.load("model/gbdt.model"), "gbdt")
 # show_results(joblib.load("model/linear_svc.model"), "linear_svc")
-
 # show_results_reg(joblib.load("model/linearRegression.model"), "linearRegression")
