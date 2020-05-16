@@ -27,12 +27,9 @@ from sklearn.calibration import CalibratedClassifierCV
 
 import joblib
 
-dataset = np.loadtxt('data/train.release.txt', delimiter=',', dtype=float)
 
-# 数据划分方法：k折交叉验证，留一法，随机划分 https://www.jianshu.com/p/db7ed9735095
-X_train, X_test, y_train, y_test = train_test_split(
-    dataset[:, 2:], dataset[:, 0], test_size=0.30, random_state=0)
-print(y_train.shape, y_test.shape)
+release = 0
+
 
 def data_scale(dataset, X_train, X_test):
     """数据缩放
@@ -57,14 +54,11 @@ def data_scale(dataset, X_train, X_test):
     return (scaler.transform(X_train), scaler.transform(X_test))
 
 
-X_train, X_test = data_scale(dataset, X_train, X_test)
-
-
 def show_auc(target, predict_proba, title="ROC & AUC"):
     """绘制 auc https://www.jianshu.com/p/90106243d231
     """
     if release:
-        return 
+        return
 
     fpr, tpr, thresholds = roc_curve(target, predict_proba)
     roc_auc = auc(fpr, tpr)  # tpr = recall rate
@@ -79,13 +73,15 @@ def show_auc(target, predict_proba, title="ROC & AUC"):
     plt.xlabel('FPR/false positive rate')
     plt.show()
 
+def show_metrics():
+    pass 
 
 def lr_train(X_train, X_test, y_train, y_test):
     """LogisticRegression 产出基线性能评估"""
     start = time.time()
 
     # solver='liblinear',  C=0.5,  max_iter=2000
-    lr = LogisticRegression(class_weight='balanced',max_iter=2000)
+    lr = LogisticRegression(class_weight='balanced', max_iter=2000)
     lr.fit(X_train, y_train)
     time_c = time.time() - start
 
@@ -113,7 +109,8 @@ def lr_train(X_train, X_test, y_train, y_test):
 
 def LinearSVC_train(X_train, X_test, y_train, y_test):
     start = time.time()
-    clf = LinearSVC(random_state=0, tol=1e-5, class_weight='balanced',max_iter=8000)
+    clf = LinearSVC(random_state=0, tol=1e-5,
+                    class_weight='balanced', max_iter=8000)
     clf = CalibratedClassifierCV(clf)
 
     clf.fit(X_train, y_train)
@@ -167,8 +164,8 @@ def gbdt_train(X_train, X_test, y_train, y_test):
     recall_socre = recall_score(y_test, y_test_pre)
     f1_val = f1_score(y_test, y_test_pre)
     print("gbdt time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f,auc=%f" %
-          (time_c, train_score, acc_test, p, recall_socre, f1_val, auc_score)) 
-     
+          (time_c, train_score, acc_test, p, recall_socre, f1_val, auc_score))
+
     show_auc(y_test, y_predprob_test, "GBDT: ROC and AUC")
 
 
@@ -190,7 +187,7 @@ def svm_c(x_train, x_test, y_train, y_test):
     recall_socre = recall_score(y_test, y_test_pre)
     f1_val = f1_score(y_test, y_test_pre)
     print("time=%s,accuracy_train=%f,accuracy_test=%f,p=%f,recall=%f,f1=%f" %
-          (time_c, score_train, score_test, p, recall_socre, f1_val)) 
+          (time_c, score_train, score_test, p, recall_socre, f1_val))
 
     proba = clf.predict_proba(X_test)
     show_auc(y_test, proba[:, 1], "SVM: ROC and AUC")
@@ -229,10 +226,23 @@ def svm_grid(x_train, x_test, y_train, y_test):
     # show_auc(y_test, proba[:, 1], "SVM: ROC and AUC")
 
 
-if __name__ == "__main__":
-    release = sys.argv[1] if len(sys.argv)>1 else 0  
+def run():
+    dataset = np.loadtxt('data/train.release.txt', delimiter=',', dtype=float)
+
+    # 数据划分方法：k折交叉验证，留一法，随机划分 https://www.jianshu.com/p/db7ed9735095
+    X_train, X_test, y_train, y_test = train_test_split(
+        dataset[:, 2:], dataset[:, 0], test_size=0.30, random_state=0)
+    print(y_train.shape, y_test.shape)
+
+    X_train, X_test = data_scale(dataset, X_train, X_test)
+
     lr_train(X_train, X_test, y_train, y_test)
     gbdt_train(X_train, X_test, y_train, y_test)
     # LinearSVC_train(X_train, X_test, y_train, y_test)
     # svm_grid(X_train, X_test, y_train, y_test)
     # svm_c(X_train, X_test, y_train, y_test)
+
+
+if __name__ == "__main__":
+    release = sys.argv[1] if len(sys.argv) > 1 else 0
+    run()

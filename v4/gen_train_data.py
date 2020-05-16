@@ -58,24 +58,33 @@ class TrainData:
         # 交易日是星期几
         weekday = [0, 0, 0, 0, 0]  # 星期几,转one-hot
         weekday[last_day['date'].isoweekday()-1] = 1
-        features = features + weekday
+        features = features + weekday   #0-4
 
-        # 最后一交易日的基本情况
-        features.append(last_day['open'])
-        features.append(last_day['close'])  # 最后一日收盘价格，单价对比
-        features.append(last_day['high'])
-        features.append(last_day['low'])
-        features.append(last_day['lclose'])
-        features.append(last_day['chg'])  # 涨跌额度
-        features.append(last_day['pchg'])  # 涨跌幅度
-        features.append(last_day['TURNOVER'])
-        features.append(last_day['VATURNOVER'])  # 最后一日成交金额
-        features.append(last_day['MCAP'])  # 流通市值
+        # 0 0.017770334824818816
+        # 1 0.00218701617745131
+        # 2 0.004212369614498419
+        # 3 0.05508972314390036
+        # 4 0.061471732668612465
+
+        # 最后一交易日的基本情况 # 5- 14
+
+        # gbdt模型分析，这几个特征效果很差
+        # features.append(last_day['open']) # 5
+        # features.append(last_day['close'])  #6 最后一日收盘价格，单价对比
+        # features.append(last_day['high']) #7
+        # features.append(last_day['low']) #8
+        # features.append(last_day['lclose']) #9
+
+        features.append(last_day['chg'])  # 5 涨跌额度 0.0049971583634313066
+        features.append(last_day['pchg'])  #6 涨跌幅度 0.06817451593907843
+        features.append(last_day['TURNOVER']) #7 换手率 0.14748948646434967
+        features.append(last_day['VATURNOVER'])  #8 最后一日成交金额 0.005333749300287914
+        features.append(last_day['MCAP'])  #9 流通市值 0.0014722593690831985
 
         features.append(
-            (last_day['open'] - last_day['lclose'])/last_day['lclose'])
+            (last_day['open'] - last_day['lclose'])/last_day['lclose']) #10 0.24983986352584592
         features.append(
-            (last_day['high'] - last_day['low'])/last_day['lclose'])
+            (last_day['high'] - last_day['low'])/last_day['lclose']) #11 0.10651984881499339
 
         # 与过去WINDOWS_LEN(20)天情况对比
         FIRST_IDX = last_idx + 1 + self.WINDOWS_LEN
@@ -84,9 +93,9 @@ class TrainData:
                           for r in rows[last_idx:FIRST_IDX]])
         low_price = min([r['low']
                          for r in rows[last_idx:FIRST_IDX] if r['low'] > 0])
-        features.append(high_price)
-        features.append(low_price)
-        for f in ['open', 'close', 'high', 'low']:
+        features.append(high_price) #12 0.0019214389494553725
+        features.append(low_price)  #13 0.003994987631814801
+        for f in ['open', 'close', 'high', 'low']: #14，15，16，17
             features.append((last_day[f] - low_price)/(high_price-low_price))
 
         # 20天内最大、最小成交量
@@ -94,16 +103,16 @@ class TrainData:
                               for r in rows[last_idx:FIRST_IDX]])
         min_VOTURNOVER = min([r['VOTURNOVER']
                               for r in rows[last_idx:FIRST_IDX] if r['VOTURNOVER'] > 0])
-        features.append(max_VOTURNOVER)
-        features.append(min_VOTURNOVER)
+        features.append(max_VOTURNOVER) #18
+        features.append(min_VOTURNOVER) #19
         # 最后一天的成交量，or n天的成交量
-        for day in range(6):
+        for day in range(10): #20，28
             vot = rows[last_idx+1+day]['VOTURNOVER']
             features.append(
                 (vot - min_VOTURNOVER)/(max_VOTURNOVER - min_VOTURNOVER))
 
         last_close = last_day['close']
-        for day in range(6):
+        for day in range(10): #29 39
             start_close = rows[last_idx+1+day]['close']
             features.append((last_close - start_close)*100/start_close)
 

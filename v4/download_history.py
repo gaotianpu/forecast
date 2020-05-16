@@ -25,7 +25,7 @@ class HistoryData:
 
     def download_single(self, stock_no, start=None):
         """下载数据"""
-        cache_file = self.get_cache_file(stock_no) 
+        cache_file = self.get_cache_file(stock_no)
         if not start:
             start = (datetime.datetime.now() -
                      datetime.timedelta(self.max_days)).strftime("%Y%m%d")
@@ -42,10 +42,10 @@ class HistoryData:
                 self.log.info("download success,retry_times=%s,stock=%s,url=%s" %
                               (i, stock_no, source_url))
                 break
-            except: 
+            except:
                 if i == 2:  # 超过最大次数
                     self.log.warning("fail,retry_times=%s,stock=%s,url=%s" %
-                                 (i, stock_no, source_url))
+                                     (i, stock_no, source_url))
                     return
                 else:
                     continue
@@ -73,13 +73,12 @@ class HistoryData:
     def load_all_stocks(self):
         li = []
         with open(self.all_stocks_meta_file, 'r') as f:
-            # return [line.strip().split(',') for line in f]
             for line in f:
                 fields = line.strip().split(',')
-                if len(fields)>2 and fields[2]  :
-                    continue 
+                if len(fields) > 2:
+                    continue
                 li.append(fields)
-        return li 
+        return li
 
     def download(self, topN=None):
         stocks = self.load_all_stocks()
@@ -89,14 +88,28 @@ class HistoryData:
             self.download_single(stock[0])  # , stock[1]
             time.sleep(0.1)  # 0.1s 间隔
 
+    def download_failed(self, stocknos):
+        """加载部分失败的
+        # cat log/download_history.log | grep retry_times=2 | sed 's/.*stock=\([0-9]*\).*/\1/g'
+        """
+        stocks = stocknos.split(",")
+        for i, stockno in enumerate(stocks):
+            self.download_single(stockno)
+            time.sleep(0.1)  # 0.1s 间隔
+
 
 if __name__ == "__main__":
     log_file = "log/download_history.log"
-    os.system("rm -f %s" % (log_file) )
+    os.system("rm -f %s" % (log_file))
     logging.basicConfig(filename=log_file,
                         level=logging.INFO,
                         format='%(levelname)s:%(asctime)s:%(lineno)d:%(funcName)s:%(message)s')
     obj = HistoryData(logging)
     obj.download()
+    # obj.download_failed("002064,002065,002066,002068,002069,002071,002073,002074,002075,300206,300209")
     # lines = obj.load_all_stocks()
     # print(lines)
+    # cat log/download_history.log | grep success | wc -l
+    
+    
+
